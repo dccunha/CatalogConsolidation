@@ -43,6 +43,15 @@ group :development, :test do
 
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false
+
+  gem "bullet"
+  gem "database_consistency", require: false
+  gem "erb_lint", require: false
+  gem "mutant", require: false
+  gem "mutant-rspec", require: false
+  gem "rspec-rails", "~> 8.0", require: false
+  gem "rubocop-rspec", require: false
+  gem "rubocop-rspec_rails", require: false
 end
 
 group :development do
@@ -51,6 +60,8 @@ group :development do
 end
 
 group :test do
+  gem "simplecov", require: false
+
   # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
   gem "capybara"
   gem "selenium-webdriver"

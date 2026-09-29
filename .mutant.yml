@@ -1,0 +1,7 @@
+environment_variables:
+  RAILS_ENV: test
+requires:
+  - ./config/environment
+integration:
+  name: rspec
+jobs: 1
