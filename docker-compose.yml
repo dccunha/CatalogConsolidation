@@ -1,0 +1,17 @@
+services:
+  web:
+    build:
+      context: .
+      target: development
+    image: catalog-consolidation:development
+    init: true
+    environment:
+      RAILS_ENV: development
+    ports:
+      - "127.0.0.1:3000:3000"
+    volumes:
+      - .:/app
+      - catalog_storage:/app/storage
+
+volumes:
+  catalog_storage:
