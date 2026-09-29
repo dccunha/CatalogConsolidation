@@ -1,8 +1,66 @@
-# Omakase Ruby styling for Rails
 inherit_gem: { rubocop-rails-omakase: rubocop.yml }
 
-# Overwrite or add rules to create your own house style
-#
-# # Use `[a, [b, c]]` not `[ a, [ b, c ] ]`
-# Layout/SpaceInsideArrayLiteralBrackets:
-#   Enabled: false
+AllCops:
+  NewCops: enable
+
+plugins:
+  - rubocop-performance
+  - rubocop-rails
+  - rubocop-rspec
+  - rubocop-rspec_rails
+
+# Keep the Rails preset's style choices and add correctness-focused checks.
+Lint:
+  Enabled: true
+
+Rails/FindEach:
+  Enabled: true
+Rails/Output:
+  Enabled: true
+Rails/SafeNavigationWithBlank:
+  Enabled: true
+Rails/TransactionExitStatement:
+  Enabled: true
+Rails/UniqueValidationWithoutIndex:
+  Enabled: true
+
+Performance/CollectionLiteralInLoop:
+  Enabled: true
+Performance/FlatMap:
+  Enabled: true
+
+RSpec:
+  Enabled: false
+RSpecRails:
+  Enabled: false
+RSpec/AnyInstance:
+  Enabled: true
+RSpec/Focus:
+  Enabled: true
+RSpec/NoExpectationExample:
+  Enabled: true
+RSpec/Pending:
+  Enabled: true
+RSpec/VerifiedDoubles:
+  Enabled: true
+RSpecRails/HaveHttpStatus:
+  Enabled: true
+
+Metrics/AbcSize:
+  Enabled: true
+  Max: 20
+  Include:
+    - "app/**/*.rb"
+    - "lib/**/*.rb"
+Metrics/CyclomaticComplexity:
+  Enabled: true
+  Max: 8
+  Include:
+    - "app/**/*.rb"
+    - "lib/**/*.rb"
+Metrics/MethodLength:
+  Enabled: true
+  Max: 25
+  Include:
+    - "app/**/*.rb"
+    - "lib/**/*.rb"

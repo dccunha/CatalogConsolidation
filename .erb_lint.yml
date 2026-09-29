@@ -1,0 +1,11 @@
+glob: "app/views/**/*.erb"
+EnableDefaultLinters: false
+linters:
+  FinalNewline:
+    enabled: true
+  ParserErrors:
+    enabled: true
+  SpaceAroundErbTag:
+    enabled: true
+  TrailingWhitespace:
+    enabled: true

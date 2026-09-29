@@ -16,3 +16,6 @@
 /tmp/storage/*
 !/tmp/storage/.keep
 /vendor/bundle/
+/node_modules/
+/coverage/
+/.mutant/

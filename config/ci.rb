@@ -4,15 +4,17 @@ CI.run do
   step "Setup", "bin/setup --skip-server"
 
   step "Style: Ruby", "bin/rubocop"
+  step "Style: ERB", "bundle exec erb_lint --lint-all"
+  step "Style: JavaScript", "npm run lint:js"
 
   step "Security: Gem audit", "bin/bundler-audit"
   step "Security: Importmap vulnerability audit", "bin/importmap audit"
   step "Security: Brakeman code analysis", "bin/brakeman --quiet --no-pager --exit-on-warn --exit-on-error"
-  step "Tests: Rails", "bin/rails test"
+  step "Database: Prepare test", "env RAILS_ENV=test bin/rails db:prepare"
+  step "Tests: RSpec", "env RAILS_ENV=test bundle exec rspec"
+  step "Tests: JavaScript", "npm run test:js"
+  step "Database: Model and schema consistency", "env RAILS_ENV=test bundle exec database_consistency"
   step "Tests: Seeds", "env RAILS_ENV=test bin/rails db:seed:replant"
-
-  # Optional: Run system tests
-  # step "Tests: System", "bin/rails test:system"
 
   # Optional: set a green GitHub commit status to unblock PR merge.
   # Requires the `gh` CLI and `gh extension install basecamp/gh-signoff`.

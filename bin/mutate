@@ -1,0 +1,9 @@
+#!/usr/bin/env ruby
+
+if ARGV.length != 1 || ARGV.first.start_with?("-")
+  warn "Usage: bin/mutate SUBJECT (for example, CatalogMatcher#match)"
+  exit 64
+end
+
+ENV["RAILS_ENV"] = "test"
+exec "bundle", "exec", "mutant", "run", "--usage", "opensource", ARGV.first
