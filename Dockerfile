@@ -7,10 +7,10 @@ ENV APP_HOME=/app \
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     git \
-    libsqlite3-dev \
+    libpq-dev \
     libyaml-dev \
     pkg-config \
-    sqlite3 \
+    postgresql-client \
   && rm -rf /var/lib/apt/lists/*
 
 WORKDIR ${APP_HOME}

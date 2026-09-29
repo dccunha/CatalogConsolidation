@@ -1,17 +1,36 @@
 services:
+  db:
+    image: postgres:18.6
+    environment:
+      POSTGRES_DB: catalog_consolidation_development
+      POSTGRES_USER: catalog
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-catalog_dev_password}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U catalog -d catalog_consolidation_development"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - postgres_data:/var/lib/postgresql
+
   web:
     build:
       context: .
       target: development
     image: catalog-consolidation:development
     init: true
+    depends_on:
+      db:
+        condition: service_healthy
     environment:
       RAILS_ENV: development
+      DB_HOST: db
+      DB_USER: catalog
+      DB_PASSWORD: ${DB_PASSWORD:-catalog_dev_password}
     ports:
-      - "127.0.0.1:3000:3000"
+      - "127.0.0.1:${WEB_PORT:-3000}:3000"
     volumes:
       - .:/app
-      - catalog_storage:/app/storage
 
 volumes:
-  catalog_storage:
+  postgres_data:

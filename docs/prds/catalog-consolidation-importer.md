@@ -8,11 +8,11 @@
 
 The company is moving from a single-retailer catalog to a marketplace. Multiple sellers can offer the same sellable item using different descriptions. The importer must associate seller items with catalog products without silently linking unlike items or creating avoidable duplicates.
 
-The supplied assignment requires reading a seller-product file and saving the result in the supplied SQLite database. For each item, the system must link it to an existing `Product` or create a `Product`, and record the seller association. This PRD adds a small, persistent review workflow for decisions that cannot be made safely without a person.
+The supplied assignment describes reading a seller-product file and saving the result in the supplied SQLite database. This project instead uses PostgreSQL as its application database and retains the SQLite file as an unchanged reference catalog. The future catalog-loading step must transfer those reference products to PostgreSQL before seller imports can be evaluated against them. For each seller item, the system must link it to an existing `Product` or create a `Product`, and record the seller association. This PRD also calls for a small, persistent review workflow for decisions that cannot be made safely without a person.
 
 ## 2. Goals and success measures
 
-1. Import the supplied JSON file into SQLite and preserve a traceable outcome for every input row.
+1. Import the supplied JSON file into PostgreSQL and preserve a traceable outcome for every input row.
 2. Automatically link only clear, explainable matches. Send plausible but uncertain matches to review.
 3. Create a new catalog product only when the input is complete and no credible existing candidate is found.
 4. Make repeated imports safe: the same seller item must not create a second association or reopen a resolved review decision.
@@ -22,13 +22,17 @@ The supplied assignment requires reading a seller-product file and saving the re
 
 ## 3. Scope
 
-### Required in this take-home PRD
+### Target implementation
 
 - Read a JSON array using the structure of the supplied `ProductEntry.json`.
 - Validate, normalize, compare, create or link, and record an outcome per row.
 - Persist review cases and decisions, and provide a simple local web screen for a reviewer.
 - Provide an import summary and row-level results.
-- Make the SQLite schema changes needed for text seller IDs, uniqueness, and the review queue.
+- Create the PostgreSQL catalog schema and supporting tables needed for text seller IDs, uniqueness, and the review queue.
+
+### Current foundation phase
+
+The current Rails project uses PostgreSQL for development and test, with both Rails and PostgreSQL running through Docker Compose. This phase establishes and verifies the connection only. Catalog migrations, loading products from `catalog.db`, the JSON importer, and the review screen are subsequent work. The acceptance criteria below describe the completed importer, not this foundation phase.
 
 ### Out of scope
 
@@ -96,14 +100,16 @@ A changed identity for an existing `(SellerName, Id)` also enters review. The re
 
 Store the reviewer, decision, time, and resulting `ProductId` or rejection reason. Reruns must honor resolved decisions. If a reviewer has not resolved a row, it remains pending; it is not silently created or linked.
 
-## 7. SQLite requirements
+## 7. PostgreSQL persistence requirements
 
-- Store `SellerProductId` as `TEXT` to preserve the input `Id` exactly. The supplied `SellerProduct` table is empty, so this migration does not have to preserve existing associations.
+- Create `Product` and `SellerProduct` in PostgreSQL. Preserve the reference `Product.Id` values when the SQLite catalog is loaded so known catalog matches remain valid. The supplied `SellerProduct` table is empty, so no existing associations need to be transferred.
+- Store `SellerProductId` as `text` to preserve the input `Id` exactly.
 - Enforce `UNIQUE (SellerName, SellerProductId)` and `UNIQUE (SellerName, ProductId)`.
-- Keep `SellerProduct.ProductId` as a foreign key to `Product.Id`; enable `PRAGMA foreign_keys = ON` on every connection.
+- Keep `SellerProduct.ProductId` as a foreign key to `Product.Id`.
 - Index `SellerProduct.ProductId` and the columns used to find seller identities and review rows.
 - Reject empty required strings through validation and, where practical, database constraints.
 - Persist import batches, row outcomes, review state, source values, and decisions. The physical table layout is an implementation choice, provided these requirements and constraints are met.
+- Keep `catalog.db` as a read-only reference input; PostgreSQL is the sole Rails application database.
 
 ## 8. Import output
 
@@ -128,12 +134,12 @@ Each run returns a batch identifier and totals for linked, created, already impo
 
 ## 10. Delivery expectations and known trade-offs
 
-The take-home delivery should include the importer, schema migration, local review screen, concise setup/run instructions, and tests covering the acceptance scenarios. A demo should show the import summary, at least one automatic link, one new product, and one resolved review case.
+The completed take-home delivery should include the importer, PostgreSQL schema and catalog-loading path, local review screen, concise setup/run instructions, and tests covering the acceptance scenarios. A demo should show the import summary, at least one automatic link, one new product, and one resolved review case. The current foundation delivery covers only a working Rails/PostgreSQL connection and its setup instructions.
 
 This policy deliberately favors review over a false automatic link. Candidate search can still miss an unusual paraphrase and create a duplicate; that limitation should be stated in the submission, along with examples that were reviewed and the rationale for the candidate threshold. The required web screen and persistent review queue are extensions chosen for this PRD beyond the assignment's minimal create-or-link behavior.
 
 ## 11. Assignment context
 
-The assignment PDF allows database changes and AI assistance, and emphasizes reasoning and problem understanding over production scale. It states a 48-hour submission window and asks for a public GitHub or GitLab repository link in reply to the assessment email. Those are submission constraints for the candidate, not actions requested by this PRD.
+The assignment PDF supplies a SQLite database as the original catalog and asks for results in that database. This PRD deliberately changes the implementation target to PostgreSQL while retaining the supplied file as reference data. The PDF allows database changes and AI assistance, and emphasizes reasoning and problem understanding over production scale. It states a 48-hour submission window and asks for a public GitHub or GitLab repository link in reply to the assessment email. Those are submission constraints for the candidate, not actions requested by this PRD.
 
 The PDF also refers to a separate Guideline Document for code structure, naming, and documentation. That document has not been supplied here, so this PRD does not assume its contents.
