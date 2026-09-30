@@ -1,0 +1,9 @@
+<% content_for :title, "Export blocked · Catalog Consolidation" %>
+
+<div class="page-heading">
+  <p class="eyebrow">Catalog delivery</p>
+  <h1>Download blocked</h1>
+  <p class="form-error" role="alert"><%= pluralize(@pending_count, "active pending review case") %> must be resolved before downloading the catalog.</p>
+  <p><%= link_to "Open review queue", review_cases_path(status: "pending") %></p>
+  <p><%= link_to "Return to export", catalog_export_path %></p>
+</div>

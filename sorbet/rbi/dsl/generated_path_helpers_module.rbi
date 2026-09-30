@@ -19,6 +19,12 @@ module GeneratedPathHelpersModule
   def batches_path(*args); end
 
   sig { params(args: T.untyped).returns(String) }
+  def catalog_export_download_path(*args); end
+
+  sig { params(args: T.untyped).returns(String) }
+  def catalog_export_path(*args); end
+
+  sig { params(args: T.untyped).returns(String) }
   def correct_review_case_path(*args); end
 
   sig { params(args: T.untyped).returns(String) }

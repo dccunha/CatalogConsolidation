@@ -8,7 +8,7 @@
 
 The company is moving from a single-retailer catalog to a marketplace. Multiple sellers can offer the same sellable item using different descriptions. The importer must associate seller items with catalog products without silently linking unlike items or creating avoidable duplicates.
 
-The supplied assignment describes reading a seller-product file and saving the result in the supplied SQLite database. This project instead uses PostgreSQL as its application database and retains the SQLite file as an unchanged reference catalog. The future catalog-loading step must transfer those reference products to PostgreSQL before seller imports can be evaluated against them. For each seller item, the system must link it to an existing `Product` or create a `Product`, and record the seller association. This PRD also calls for a small, persistent review workflow for decisions that cannot be made safely without a person.
+The supplied assignment describes reading a seller-product file and saving the result in the supplied SQLite database. This project uses PostgreSQL as its application database, retains the SQLite file as an unchanged reference catalog, and provides a new SQLite download of the current committed catalog. The catalog-loading step transfers those reference products to PostgreSQL before seller imports can be evaluated against them. For each seller item, the system must link it to an existing `Product` or create a `Product`, and record the seller association. This PRD also calls for a small, persistent review workflow for decisions that cannot be made safely without a person.
 
 ## 2. Goals and success measures
 
@@ -29,6 +29,7 @@ The supplied assignment describes reading a seller-product file and saving the r
 - Persist review cases and decisions, and provide a simple local web screen for a reviewer.
 - Provide an import summary and row-level results.
 - Create the PostgreSQL catalog schema and supporting tables needed for text seller IDs, uniqueness, and the review queue.
+- Download a full current-catalog SQLite snapshot after all active pending review cases are resolved.
 
 ### Current foundation phase
 
@@ -132,15 +133,16 @@ Each run returns a batch identifier and totals for linked, created, already impo
 | AC10 | An incomplete or invalid row occurs between valid rows. | Invalid required fields yield a failed row; missing brand/category yields review; later valid rows still import. |
 | AC11 | The reviewer approves, rejects, corrects, or resolves a conflict, then reruns the same input. | The decision is recorded, reflected in catalog associations, and preserved across reruns. |
 | AC12 | Two listings differ only by a material variant attribute such as color or capacity. | They are not automatically linked to the same `Product`. |
+| AC13 | Open the export page and download after resolving all active pending reviews, including when historical failed rows remain. | The page shows catalog and pending counts, links to pending reviews when blocked, and explains that failed rows are absent unless later imported successfully. The direct download URL returns HTTP 409 while any case is pending. Once clear, it returns `catalog-updated.db` as a fresh SQLite file containing every committed `Product` and `SellerProduct` row with original IDs, exact text, nullable values, seller/product uniqueness, and product foreign keys; no Intake tables or persistent server copy is included. |
 
 ## 10. Delivery expectations and known trade-offs
 
-The completed take-home delivery should include the importer, PostgreSQL schema and catalog-loading path, local review screen, concise setup/run instructions, and tests covering the acceptance scenarios. A demo should show the import summary, at least one automatic link, one new product, and one resolved review case. The current foundation delivery covers only a working Rails/PostgreSQL connection and its setup instructions.
+The completed take-home delivery should include the importer, PostgreSQL schema and catalog-loading path, local review screen, SQLite catalog download, concise setup/run instructions, and tests covering the acceptance scenarios. A demo should show the import summary, at least one automatic link, one new product, and one resolved review case.
 
 This policy deliberately favors review over a false automatic link. Candidate search can still miss an unusual paraphrase and create a duplicate; that limitation should be stated in the submission, along with examples that were reviewed and the rationale for the candidate threshold. The required web screen and persistent review queue are extensions chosen for this PRD beyond the assignment's minimal create-or-link behavior.
 
 ## 11. Assignment context
 
-The assignment PDF supplies a SQLite database as the original catalog and asks for results in that database. This PRD deliberately changes the implementation target to PostgreSQL while retaining the supplied file as reference data. The PDF allows database changes and AI assistance, and emphasizes reasoning and problem understanding over production scale. It states a 48-hour submission window and asks for a public GitHub or GitLab repository link in reply to the assessment email. Those are submission constraints for the candidate, not actions requested by this PRD.
+The assignment PDF supplies a SQLite database as the original catalog and asks for results in that database. PostgreSQL is the operational database; the supplied file remains reference data. The local export action creates a new SQLite snapshot of the full committed catalog at download time. Active pending review cases block download, while historical failed row outcomes do not. The snapshot contains only the original `Product` and `SellerProduct` tables and preserves opaque seller IDs as text. The PDF allows database changes and AI assistance, and emphasizes reasoning and problem understanding over production scale. It states a 48-hour submission window and asks for a public GitHub or GitLab repository link in reply to the assessment email. Those are submission constraints for the candidate, not actions requested by this PRD.
 
 The PDF also refers to a separate Guideline Document for code structure, naming, and documentation. That document has not been supplied here, so this PRD does not assume its contents.

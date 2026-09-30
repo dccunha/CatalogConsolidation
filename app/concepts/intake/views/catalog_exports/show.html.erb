@@ -1,0 +1,27 @@
+<% content_for :title, "Export catalog · Catalog Consolidation" %>
+
+<div class="page-heading">
+  <p class="eyebrow">Catalog delivery</p>
+  <h1>Export current catalog</h1>
+  <p>Download a fresh SQLite snapshot of the committed catalog. It contains Product and SellerProduct only.</p>
+</div>
+
+<section class="panel" aria-labelledby="export-heading">
+  <h2 id="export-heading">Current catalog</h2>
+  <dl class="summary-grid">
+    <div><dt>Products</dt><dd><%= @product_count %></dd></div>
+    <div><dt>Seller products</dt><dd><%= @seller_product_count %></dd></div>
+    <div><dt>Pending reviews</dt><dd><%= @pending_count %></dd></div>
+  </dl>
+
+  <% if @historical_failures %>
+    <p class="notice" role="status">Some historical import rows failed. Failed rows are absent from this export unless a later successful import added them to the catalog.</p>
+  <% end %>
+
+  <% if @pending_count.positive? %>
+    <p class="form-error" role="alert">Resolve all active pending reviews before downloading the catalog.</p>
+    <p><%= link_to "Open review queue", review_cases_path(status: "pending") %></p>
+  <% else %>
+    <p><%= link_to "Download catalog-updated.db", catalog_export_download_path, class: "button" %></p>
+  <% end %>
+</section>
