@@ -22,12 +22,14 @@ Make static typing and coverage expectations executable in Docker CI, and bind e
 ## Current checkpoint
 
 - Completed: the existing CI baseline and updated full CI passed; Sorbet and Tapioca were installed, gem/Rails RBIs generated, coverage floors and CI steps added; targeted negative checks rejected a missing sigil, a type error, and uncovered JavaScript/Ruby.
-- Remaining: explicit approval to publish the branch, human PR review, and verified merge before T01 becomes ready.
-- Next action: wait for the user's answer to the publication dialog, then push and open the quality preflight PR if approved.
+- Remaining: verify the hosted CI permission fix, human PR review, and verified merge before T01 becomes ready.
+- Next action: push the CI fix and check the new Actions run.
 
 ## Problems
 
 T00Q-P01 (2026-09-30): Automatic approval review rejected the initial `git push -u origin codex/quality-gates`, stating the initial request did not establish the GitHub destination's trust or authorize publication. Resolved after the user explicitly requested a PR: pushed commits `ea04c62` and `b87f941` to `codex/quality-gates` and opened [PR #8](https://github.com/dccunha/CatalogConsolidation/pull/8). No further action required.
+
+T00Q-P02 (2026-09-30): The first hosted CI run failed because the GitHub Actions checkout user owns the mounted repository files while the Docker app runs as UID 1000, which could not write Rails log files. Added a workflow step to grant write access to the ephemeral `log`, `tmp`, and `storage` directories before running Compose. Waiting for the next hosted run to verify the fix.
 
 ## Decisions
 
