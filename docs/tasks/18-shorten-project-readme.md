@@ -18,18 +18,19 @@ Make the root README a roughly 250–350-word quick start while preserving its o
 - [x] Replace `README.md` with a 250–350-word quick start covering purpose, Docker setup, reference loading, import/review, export, and development checks. Link prominently to the full guide and to the task index.
 - [x] Keep the `Requirements and setup` anchor used by T17 and provide the `Load the reference catalog` anchor referenced by T02.
 - [x] Verify the archived copy, Markdown links and headings, and the required Docker CI gate; record actual results below.
-- [ ] Submit one reviewed PR under the manual task workflow. Mark this task done only after verifying its merge.
+- [x] Open [PR #29](https://github.com/dccunha/CatalogConsolidation/pull/29) for human review under the manual task workflow.
+- [ ] Record human review and mark this task done only after verifying the PR merge.
 
 ## Current checkpoint
 
-- Completed: confirmed T17 merge commit `b0034e8` is an ancestor of this checkout; committed the guide and quick start as `7729245` on `codex/t18-short-readme`; checked links, headings, and local Markdown rendering; and passed the full Docker CI gate in an isolated Compose project.
-- Remaining: push the explicitly authorized branch, open a PR for human review, and verify its merge before marking T18 done.
-- Next action: publish the branch to `dccunha/CatalogConsolidation` and open the PR.
+- Completed: confirmed T17 merge commit `b0034e8` is an ancestor of this checkout; committed the guide and quick start as `7729245` on `codex/t18-short-readme`; checked links, headings, and local Markdown rendering; passed the full Docker CI gate in an isolated Compose project; and opened [PR #29](https://github.com/dccunha/CatalogConsolidation/pull/29) for human review from head `179191b` against `main`.
+- Remaining: human review and verified PR merge before marking T18 done.
+- Next action: await human review of PR #29; address findings if any.
 
 ## Problems
 
 - **T18-P01 — 2026-09-30:** Two runs of `docker compose run --rm web bin/ci` in the default Compose project stopped during RSpec after 66 progress dots with exit 143 and no test failure report. A later direct RSpec attempt found `sqlite3-2.9.6` missing from the shared `catalog-consolidation:development` image and could not install it as the container user. An isolated Compose project with image `catalog-consolidation:t18-readme` built from this checkout passed the full gate. The cause of the default project's termination was not established; the isolated passing run is the validation evidence for this candidate.
-- **T18-P02 — 2026-09-30, resolved:** Automatic approval review twice rejected `git push -u origin codex/t18-short-readme`, even after confirming the configured remote matched prior PR records and the signed-in GitHub account. The reviewer said the GitHub destination's trust and ownership were not established by trusted user content. The user then explicitly authorized pushing this branch to `git@github.com:dccunha/CatalogConsolidation.git` and opening a PR there. No push or PR had occurred before that answer.
+- **T18-P02 — 2026-09-30, resolved:** Automatic approval review twice rejected `git push -u origin codex/t18-short-readme`, even after confirming the configured remote matched prior PR records and the signed-in GitHub account. The reviewer said the GitHub destination's trust and ownership were not established by trusted user content. The user then explicitly authorized pushing this branch to `git@github.com:dccunha/CatalogConsolidation.git` and opening a PR there. The push and PR #29 succeeded after that answer.
 
 ## Decisions
 
@@ -42,7 +43,8 @@ Make the root README a roughly 250–350-word quick start while preserving its o
 - A local check resolved all 31 Markdown links and anchors in `README.md`, `README-full.md`, and this brief. It covered the T17 `#requirements-and-setup` and T02 `#load-the-reference-catalog` targets. Ruby's local RDoc Markdown renderer produced headings, code blocks, and links as expected; its HTML output was inspected. `git diff --check` passed.
 - `docker compose -f docker-compose.yml -f /tmp/t18-readme-compose.yml -p t18_readme run --build --rm web bin/ci` passed with exit 0. The temporary override gave the web image the unique tag `catalog-consolidation:t18-readme`; all application checks remained those in `bin/ci`. RSpec: 248 examples, 0 failures; Ruby line coverage 98.94%, branch coverage 87.32%. Vitest: 1 file and 1 test passed, with 100% statements, branches, functions, and lines. Ruby/ERB/JavaScript lint, Sorbet and RBI freshness, audits, database checks, and seeds passed. The test run preceded only this evidence/checkpoint update; application and README content did not change afterward.
 - No application behavior or concept Ruby file changed, so no new behavior spec or Sorbet annotation was added. Human PR review and merge remain outstanding.
+- GitHub reported PR #29 `OPEN` and `MERGEABLE`, base `main`, head `179191b216f6bb481f82df400473a951880c3d27`. No human review or merge has been recorded.
 
 ## Handoff
 
-The root README provides setup and workflow entry points; `README-full.md` retains the original detail and existing relative links. No application interface, database, PRD/RFC, or reference input changed. The isolated full Docker CI run passed. Human PR review and verified merge remain required before the index can mark T18 done.
+The root README provides setup and workflow entry points; `README-full.md` retains the original detail and existing relative links. No application interface, database, PRD/RFC, or reference input changed. The isolated full Docker CI run passed. [PR #29](https://github.com/dccunha/CatalogConsolidation/pull/29) awaits human review and verified merge; the index must remain `in review` until then.
