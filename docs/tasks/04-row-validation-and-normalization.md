@@ -24,9 +24,9 @@ Turn one input element into validated source data and comparison values without 
 
 ## Current checkpoint
 
-- Completed: Intake row validator, reusable comparison normalizer, round-one review fixes, 28 focused examples, and passing full Docker CI on the review-fix working tree.
-- Remaining: reviewer reassessment, PR update, and merge verification; the task index owns status.
-- Next action: parent commits the review fixes and sends the revised candidate for correctness and test reassessment.
+- Completed: Intake row validator, reusable comparison normalizer, 28 focused examples, resolved round-one findings, and both independent approvals of code candidate `44e492d1aaf218d2e006061f961f3c84f976cbbf`. The test reviewer reran full Docker CI on that exact commit.
+- Remaining: PR and merge verification; the task index owns status.
+- Next action: parent opens the reviewed PR and verifies its final head and merge gates.
 
 ## Problems
 
@@ -47,6 +47,12 @@ Turn one input element into validated source data and comparison values without 
 - **2026-09-30 — Passed on HEAD `dae05cca17d2507a6bc627b91603e2de75a12108` plus the T04 implementation working tree:** `docker compose run --rm web bin/ci` passed Ruby/ERB/JS lint, Sorbet and concept sigils, RBI freshness, gem/importmap/Brakeman audits, database preparation/consistency, seeds, 75 RSpec examples (0 failures), and Vitest (1 test, 0 failures). Ruby coverage was 284/287 lines (98.95%) and 39/40 branches (97.50%); JavaScript coverage was 100% of statements, lines, and functions (no branches). `docker compose run --rm web bundle exec srb tc` also passed independently. No RBI updates were needed.
 - **2026-09-30 — Review-fix focused behavior on HEAD `1c6686ab68e01dd587aa73771cece878c9a35a05` plus the T04 review-fix working tree:** `docker compose run --rm web bundle exec rspec spec/concepts/intake/services` ran 28 examples, 0 failures. Its exit code was 2 only because the focused run does not meet whole-application SimpleCov floors; full CI below passed them. Added examples cover mutation of all five source strings, nested invalid hash and non-object array inputs, frozen retained data, separate brand and category inequality, equivalent identity hash lookup, and hash-key stability after caller input mutation.
 - **2026-09-30 — Passed on the same review-fix working tree:** `docker compose run --rm web bin/ci` passed Ruby/ERB/JS lint, Sorbet and concept sigils, RBI freshness, gem/importmap/Brakeman audits, database preparation/consistency, seeds, 85 RSpec examples (0 failures), and Vitest (1 test, 0 failures). Ruby coverage was 310/312 lines (99.35%) and 55/56 branches (98.21%); JavaScript coverage remained 100% of statements, lines, and functions (no branches). No RBI updates were needed.
+- **2026-09-30 — Independent exact-commit gate:** the test reviewer reran `docker compose run --rm web bin/ci` on clean commit `44e492d1aaf218d2e006061f961f3c84f976cbbf`; all gates passed with 85 RSpec examples, 0 failures, 310/312 Ruby lines (99.35%), and 55/56 branches (98.21%). Sorbet, RBI freshness, lint, security, Vitest, database checks, and seeds passed. Both reviewers ran read-only `git diff --check` and found a clean tree.
+
+### Review rounds
+
+- **Round 1, candidate `1c6686a` (2026-09-30):** correctness reviewer requested `T04-COR-01` (snapshot valid source and nested invalid audit input) and `T04-COR-02` (immutable hash-stable comparison identity). Test reviewer requested `T04-TEST-01` (brand-only/category-only inequality) and `T04-TEST-02` (equivalent identity hash lookup); it ran passing Docker CI with 75 examples. The implementer addressed all four findings with source/value snapshots and 10 focused regression examples.
+- **Round 2, candidate `44e492d1aaf218d2e006061f961f3c84f976cbbf` (2026-09-30):** correctness reviewer approved, confirming both mutation findings resolved and no new issue. Test reviewer approved, confirming both assertion findings resolved, and reran passing full Docker CI on this exact commit (85 examples). Direct construction of `Identity` was checked in code but had no separate mutation spec; the public `.call` mutation and hash behavior is tested.
 
 ## Handoff
 

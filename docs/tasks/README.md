@@ -37,12 +37,12 @@ Milestones: T08 verifies importer/rerun services; T10 makes upload, results, and
 The user can invoke the [orchestrator instructions and starter prompt](orchestrator.md#starter-prompt) to run the remaining tasks with fresh implementers, two independent reviewers per task, automatic merges after passing gates, and a pause for final QA. Merely reading or editing those instructions does not start the run. Individual task requests can still use the manual workflow below.
 
 - Run state: `running`.
-- Current task/stage: T04 / reviewer reassessment.
-- Working directory, branch, candidate revision, and PR: `/home/daniel/.codex/worktrees/137d/VTEX`, `codex/t04-row-validation`, base `dae05cc`, initial candidate `1c6686a`, no PR yet. T03 PR #13 merged at `8d1fe10`; post-merge record `dae05cc` was pushed to main.
-- Active agent assignments and test-runner owner: T04 implementer finished review fixes; both reviewers reassess the revised candidate, with test reviewer owning shared checks.
-- Unresolved orchestration findings or decisions: `T04-COR-01/02` and `T04-TEST-01/02` fixed in code/specs, pending both reviewers' reassessment; no user decision.
+- Current task/stage: T04 / PR preparation after both reviewer approvals.
+- Working directory, branch, candidate revision, and PR: `/home/daniel/.codex/worktrees/137d/VTEX`, `codex/t04-row-validation`, base `dae05cc`, reviewed code candidate `44e492d1aaf218d2e006061f961f3c84f976cbbf`, no PR yet. T03 PR #13 merged at `8d1fe10`; post-merge record `dae05cc` was pushed to main.
+- Active agent assignments and test-runner owner: T04 implementer and both reviewers finished; no active writer or test runner.
+- Unresolved orchestration findings or decisions: `T04-COR-01/02` and `T04-TEST-01/02` resolved; both reviewers approved `44e492d`; no user decision.
 - Last completed orchestration milestone: none.
-- Next action: obtain both reviewer verdicts on the revised candidate, then prepare the task PR and verify merge gates.
+- Next action: open T04 PR, verify final head and GitHub mergeability, then merge if all gates remain satisfied.
 
 During a run, update this checkpoint at stage transitions and before interruption. Keep task statuses in the table above and detailed findings/evidence in the owning briefs. See [records and recovery](orchestrator.md#records-and-recovery) for resume rules.
 
@@ -93,13 +93,13 @@ The owner is responsible for the criterion's core behavior. Supporting tasks add
 | AC2: Galaxy S23 links to product 2 | T07 | T02, T03, T05, T14 | Pending implementation |
 | AC3: iPad punctuation difference requires review | T05 | T04, T07, T10, T14 | Pending implementation |
 | AC4: category conflict requires review | T05 | T07, T10, T14 | Pending implementation |
-| AC5: missing brand requires review | T07 | T04, T05, T10, T11, T14 | Pending implementation |
-| AC6: equivalent duplicates and reruns | T08 | T04, T14 | Pending implementation |
+| AC5: missing brand requires review | T07 | T04, T05, T10, T11, T14 | Supporting T04 [validator specs](../../spec/concepts/intake/services/row_validator_unit_spec.rb) flag absent brand; T07 journey pending |
+| AC6: equivalent duplicates and reruns | T08 | T04, T14 | Supporting T04 [normalizer specs](../../spec/concepts/intake/services/comparison_normalizer_unit_spec.rb) verify equivalent comparison identity; T08 rerun journey pending |
 | AC7: materially changed identity | T08 | T06, T13, T14 | Pending implementation |
 | AC8: one seller, conflicting item IDs | T13 | T01, T03, T05, T07, T14 | Supporting T03 [write specs](../../spec/concepts/catalog/public/writes_spec.rb) verify conflicts and explicit displacement; T13 journey pending |
 | AC9: atomic create and SQL-like text | T07 | T03, T05, T14 | Supporting T03 [write specs](../../spec/concepts/catalog/public/writes_spec.rb) verify atomic Catalog writes and exact SQL-like strings; T07 journey pending |
-| AC10: invalid/incomplete rows do not stop later rows | T07 | T04, T06, T09, T14 | Pending implementation |
+| AC10: invalid/incomplete rows do not stop later rows | T07 | T04, T06, T09, T14 | Supporting T04 [validator specs](../../spec/concepts/intake/services/row_validator_unit_spec.rb) return invalid results per element; T07 file journey pending |
 | AC11: review decisions survive reruns | T13 | T08, T11, T12, T14 | Pending implementation |
-| AC12: material variants never auto-link | T05 | T04, T07, T14 | Pending implementation |
+| AC12: material variants never auto-link | T05 | T04, T07, T14 | Supporting T04 [normalizer specs](../../spec/concepts/intake/services/comparison_normalizer_unit_spec.rb) preserve variant differences; T05 match rule pending |
 
 T14 also checks the RFC sequences: pending-case reuse, corrected-input reruns, supersession, newly appearing candidates after rejection, and displaced/declined IDs. T15 links final evidence and documents limitations; it does not replace missing tests with a demo.
