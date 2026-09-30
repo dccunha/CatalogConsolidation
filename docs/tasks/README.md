@@ -21,8 +21,8 @@ Implement in index order, initially T00–T15 plus the T00A and T00Q quality pre
 | T05 | [Implement matching and evidence](05-matching-and-candidate-evidence.md) | done | T04 | [#15](https://github.com/dccunha/CatalogConsolidation/pull/15) · merge `443f5e2` | None |
 | T06 | [Persist Intake history and state](06-intake-persistence.md) | done | T05 | [#16](https://github.com/dccunha/CatalogConsolidation/pull/16) · merge `07df420` | None |
 | T07 | [Process imports with failure isolation](07-import-processing.md) | done | T06 | [#17](https://github.com/dccunha/CatalogConsolidation/pull/17) · merge `189bd88` | None |
-| T08 | [Preserve decisions across reruns](08-reruns-and-source-identity.md) | in review | T07 | [#18](https://github.com/dccunha/CatalogConsolidation/pull/18) | None |
-| T09 | [Add web upload and batch results](09-web-upload-and-results.md) | backlog | T08 | Not opened | — |
+| T08 | [Preserve decisions across reruns](08-reruns-and-source-identity.md) | done | T07 | [#18](https://github.com/dccunha/CatalogConsolidation/pull/18) · merge `dd55280` | None |
+| T09 | [Add web upload and batch results](09-web-upload-and-results.md) | ready | T08 | Not opened | None |
 | T10 | [Add review queue and case details](10-review-queue-and-details.md) | backlog | T09 | Not opened | — |
 | T11 | [Approve, reject, and correct](11-review-approval-rejection-correction.md) | backlog | T10 | Not opened | — |
 | T12 | [Create explicitly and recheck evidence](12-review-creation-and-freshness.md) | backlog | T11 | Not opened | — |
@@ -37,12 +37,12 @@ Milestones: T08 verifies importer/rerun services; T10 makes upload, results, and
 The user can invoke the [orchestrator instructions and starter prompt](orchestrator.md#starter-prompt) to run the remaining tasks with fresh implementers, two independent reviewers per task, automatic merges after passing gates, and a pause for final QA. Merely reading or editing those instructions does not start the run. Individual task requests can still use the manual workflow below.
 
 - Run state: `running`.
-- Current task/stage: T08 / PR #18 final verification.
-- Working directory, branch, candidate revision, and PR: `/home/daniel/.codex/worktrees/137d/VTEX`, `codex/t08-reruns-and-source-identity` from integrated main `5c3631c`; code/tests approved at `c31a609` with documentation-only follow-ups, [PR #18](https://github.com/dccunha/CatalogConsolidation/pull/18) open. T07 PR #17 merged at `189bd88` after reviewed head `886f7c9`.
-- Active agent assignments and test-runner owner: T08 implementer finished; both independent reviewers approved `c31a609`, and test reviewer completed shared Docker and milestone checks.
-- Unresolved orchestration findings or decisions: none. T08-COR-01 and T08-TEST-01/02/03 resolved and approved by round 3.
-- Last completed orchestration milestone: T08 verified on candidate `c31a609` with supplied-file, rerun, pending/resolved fixture, concurrency, and failure-isolation checks; merge pending.
-- Next action: verify PR #18 final reviewed head and mergeability, then merge and record completion.
+- Current task/stage: T09 / ready after verified T08 merge.
+- Working directory, branch, candidate revision, and PR: `/home/daniel/.codex/worktrees/137d/VTEX`, `codex/t08-merge-record` from T08 merge `dd55280`; T09 branch/PR not started. T08 PR #18 merged at `dd55280` after reviewed head `a22665f`.
+- Active agent assignments and test-runner owner: T08 agents finished; no T09 worker or shared test runner assigned yet.
+- Unresolved orchestration findings or decisions: none. T08 findings were resolved and approved before merge.
+- Last completed orchestration milestone: T08 verified and merged at `dd55280`: supplied-file reruns, pending/resolved fixture replay, exact-key concurrency, and failure isolation passed. Real reviewer-command journeys remain for T11–T14.
+- Next action: publish T08 merge record, branch T09 from integrated main, and dispatch a fresh T09 implementer.
 
 During a run, update this checkpoint at stage transitions and before interruption. Keep task statuses in the table above and detailed findings/evidence in the owning briefs. See [records and recovery](orchestrator.md#records-and-recovery) for resume rules.
 
