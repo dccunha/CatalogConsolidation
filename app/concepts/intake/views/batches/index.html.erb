@@ -1,0 +1,34 @@
+<% content_for :title, "Import batches · Catalog Consolidation" %>
+
+<div class="page-heading">
+  <p class="eyebrow">Seller intake</p>
+  <h1>Import batches</h1>
+  <p>Open a batch to inspect its recorded row outcomes.</p>
+</div>
+
+<% if @batches.empty? %>
+  <div class="panel empty-state">
+    <h2>No batches yet</h2>
+    <p>Upload a seller JSON file to see its results here.</p>
+    <%= link_to "Upload a file", new_import_path, class: "button" %>
+  </div>
+<% else %>
+  <div class="table-wrap panel">
+    <table>
+      <caption>Recorded imports, newest first</caption>
+      <thead>
+        <tr><th scope="col">Batch</th><th scope="col">Source file</th><th scope="col">Imported at</th><th scope="col">Rows</th></tr>
+      </thead>
+      <tbody>
+        <% @batches.each do |batch| %>
+          <tr>
+            <th scope="row"><%= link_to "Batch ##{batch.id}", batch_path(batch) %></th>
+            <td><%= batch.source_name %></td>
+            <td><%= time_tag batch.created_at, batch.created_at.strftime("%Y-%m-%d %H:%M %Z") %></td>
+            <td><%= batch.input_count %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% end %>

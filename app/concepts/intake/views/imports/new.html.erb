@@ -1,0 +1,23 @@
+<% content_for :title, "Upload seller file · Catalog Consolidation" %>
+
+<div class="page-heading">
+  <p class="eyebrow">Seller intake</p>
+  <h1>Upload seller products</h1>
+  <p>Choose a JSON file containing an array of seller products. Select Upload and process to run the import; each row is recorded separately.</p>
+</div>
+
+<section class="panel" aria-labelledby="upload-heading">
+  <h2 id="upload-heading">New import</h2>
+  <% if @error.present? %>
+    <p class="form-error" role="alert" id="upload-error"><%= @error %></p>
+  <% end %>
+  <%= form_with url: import_path, multipart: true, local: true, class: "upload-form" do |form| %>
+    <%= form.label :file, "Seller JSON file" %>
+    <p class="field-help" id="file-help">Select a .json file with a top-level array.</p>
+    <%= form.file_field :file, accept: ".json,application/json", required: true,
+      aria: { describedby: ["file-help", (@error.present? ? "upload-error" : nil)].compact.join(" ") } %>
+    <%= form.submit "Upload and process", class: "button" %>
+  <% end %>
+</section>
+
+<p class="secondary-link"><%= link_to "View recorded batches", batches_path %></p>

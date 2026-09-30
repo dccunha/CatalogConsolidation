@@ -1,6 +1,6 @@
 # CatalogConsolidation
 
-A full-stack Rails development environment for the catalog consolidation project. Rails uses PostgreSQL for its application data. Catalog tables and an explicit reference loader are available; the importer and review screen are still in progress. The files in `docs/refs/`, including `catalog.db`, remain unchanged reference inputs.
+A full-stack Rails development environment for the catalog consolidation project. Rails uses PostgreSQL for its application data. Catalog tables, an explicit reference loader, and the seller JSON upload and batch-result pages are available. Review actions are still in progress. The files in `docs/refs/`, including `catalog.db`, remain unchanged reference inputs.
 
 ## Implementation progress
 
@@ -22,6 +22,10 @@ docker compose up --build
 ```
 
 Open <http://localhost:3000>. The Rails health endpoint is <http://localhost:3000/up>. Compose waits for PostgreSQL to become healthy; the web service then prepares the `catalog_consolidation_development` database. PostgreSQL data lives in the `postgres_data` Docker volume and survives `docker compose down`.
+
+## Upload seller products
+
+After loading the reference catalog below, open <http://localhost:3000/>. Choose a JSON file whose top level is an array of seller product objects, then select **Upload and process**. Processing is synchronous. The result page shows the batch ID, counts by outcome, and every source row with its reason and product or review-case ID. Invalid individual rows stay in the batch; malformed JSON and non-array files return to the form with an error and create no batch. Use **Batches** to reopen earlier results or upload the same file again. Review-case IDs are shown as text until review pages are implemented.
 
 ## Load the reference catalog
 

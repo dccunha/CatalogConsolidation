@@ -24,6 +24,20 @@
   </head>
 
   <body>
-    <%= yield %>
+    <header class="site-header">
+      <div class="site-header__inner">
+        <%= link_to "Catalog Consolidation", root_path, class: "site-brand" %>
+        <nav aria-label="Main navigation">
+          <%= link_to "Upload", new_import_path %>
+          <%= link_to "Batches", batches_path %>
+        </nav>
+      </div>
+    </header>
+    <main class="page-shell">
+      <% if notice.present? %>
+        <p class="notice" role="status"><%= notice %></p>
+      <% end %>
+      <%= yield %>
+    </main>
   </body>
 </html>
