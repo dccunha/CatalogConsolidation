@@ -37,6 +37,8 @@ Use two-space indentation in Ruby, ERB, and JavaScript, and let the configured t
 
 Write RSpec examples in `spec/**/*_spec.rb` and Vitest files in `spec/javascript/**/*.test.js`. Add focused coverage for behavior you change; use explicit RSpec types for concept paths where Rails cannot infer them. SimpleCov and Vitest enforce the floors in the quality gates. New `app/concepts/` Ruby files must be checked at `typed: true` or stronger. Run `bin/ci` before submitting a pull request.
 
+Follow [Better Specs](https://www.betterspecs.org/) for Ruby examples: describe methods with `#` or `.`, use `when`/`with`/`without` contexts, write clear behavioral descriptions, and use `expect` syntax. Put isolated examples that need one expectation each in `*_unit_spec.rb` files within the mirrored `spec/concepts/` paths. Database-backed and request examples may make multiple related assertions when repeating setup would obscure or slow the test. Use FactoryBot for database records when factories make setup clearer; use plain objects for isolated specs and file fixtures for input files. Keep factories minimal. RuboCop enforces the mechanical rules; review edge cases, mock use, data setup, and description clarity. There is no hard description-length limit.
+
 ## Commit & Pull Request Guidelines
 
 Recent commits use short, imperative, sentence-case subjects, such as `Add local code quality toolchain`. Keep each commit focused. In pull requests, describe the change, explain how it was tested, link a relevant issue or PRD, and include screenshots for visible UI changes.

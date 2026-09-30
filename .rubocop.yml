@@ -35,8 +35,28 @@ RSpecRails:
   Enabled: false
 RSpec/AnyInstance:
   Enabled: true
+RSpec/ContextWording:
+  Enabled: true
+  Prefixes:
+    - when
+    - with
+    - without
+RSpec/DescribeClass:
+  Enabled: true
+RSpec/DescribeMethod:
+  Enabled: true
+RSpec/ExampleWording:
+  Enabled: true
 RSpec/Focus:
   Enabled: true
+RSpec/InstanceVariable:
+  Enabled: true
+  AssignmentOnly: true
+RSpec/MultipleExpectations:
+  Enabled: true
+  Max: 1
+  Include:
+    - "spec/**/*_unit_spec.rb"
 RSpec/NoExpectationExample:
   Enabled: true
 RSpec/Pending:

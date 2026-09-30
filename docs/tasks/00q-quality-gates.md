@@ -1,6 +1,6 @@
 # T00Q: Enforce implementation quality gates
 
-Status, sequencing gate, PR, and current blocker live in [the index](README.md). This preflight follows the merged T00 workflow and precedes T01 domain work. Preparing it does not start the orchestrator.
+Status, sequencing gate, PR, and current blocker live in [the index](README.md). This preflight follows merged T00A Better Specs conventions and precedes T01 domain work. Preparing it does not start the orchestrator.
 
 ## Outcome and boundaries
 
@@ -9,6 +9,7 @@ Make static typing and coverage expectations executable in Docker CI, and bind e
 ## Required context
 
 - [Task workflow](README.md#working-a-task) and [orchestrator](orchestrator.md).
+- [T00A testing conventions](00a-better-specs-conventions.md#handoff), merged in PR #9.
 - [Existing CI](../../config/ci.rb), [Ruby coverage](../../spec/spec_helper.rb), and [JavaScript coverage](../../vitest.config.mjs).
 - [ADR 0001](../adrs/0001-organize-by-concepts.md) for the future concept paths.
 
@@ -21,9 +22,9 @@ Make static typing and coverage expectations executable in Docker CI, and bind e
 
 ## Current checkpoint
 
-- Completed: the existing CI baseline and updated full CI passed; Sorbet and Tapioca were installed, gem/Rails RBIs generated, coverage floors and CI steps added; targeted negative checks rejected a missing sigil, a type error, and uncovered JavaScript/Ruby.
-- Remaining: human PR review and verified merge before T01 becomes ready.
-- Next action: wait for human review of PR #8.
+- Completed: the quality gates and earlier hosted CI passed; merged T00A's Better Specs and FactoryBot changes locally, regenerated FactoryBot RBIs, and passed full Docker CI on the combined tree.
+- Remaining: commit and push the merge resolution, verify updated hosted CI, obtain human PR review, and verify merge before T01 becomes ready.
+- Next action: commit and push the validated merge resolution to PR #8.
 
 ## Problems
 
@@ -43,7 +44,8 @@ T00Q-P02 (2026-09-30): Hosted CI runs as a non-root Docker app user against a bi
 - 2026-09-30: Temporary probes were removed after checking failures. `bin/check-concept-types` rejected a concept Ruby file without a sigil; `srb tc` rejected a `String` asserted as `Integer`; Vitest rejected an uncovered JavaScript application file; SimpleCov rejected an uncovered Ruby application file.
 - 2026-09-30: Final `docker compose run --rm web bin/ci` passed in 25.33 seconds on commit `ea04c62`, including RuboCop, ERB Lint, ESLint, Sorbet, gem/Rails RBI freshness, three security checks, 1 RSpec example, 1 Vitest test, database consistency, and seeds. Ruby line coverage was 10/10 (100%); JavaScript behavior-file lines were 1/1 (100%). No domain code exists yet, so these figures do not demonstrate domain behavior coverage.
 - 2026-09-30: Hosted GitHub Actions CI run `36663895978` passed on commit `d6c4175` in 2m38s. The Docker workspace permission setup, full `bin/ci`, and all hosted workflow steps passed. GitHub reported only runtime/future-runner deprecation notices for `actions/checkout@v4` and `ubuntu-latest`; neither failed the run.
+- 2026-09-30: Fetched merged T00A at `e69180a` (PR #9), resolved the task-index overlap by sequencing T00A → T00Q → T01, retained both Better Specs and typing/coverage rules, and generated FactoryBot gem RBIs. `docker compose build web`, `docker compose run --rm web bin/tapioca dsl --verify`, and `docker compose run --rm web bin/ci` passed on the combined working tree; full CI took 21.54 seconds and included 1 RSpec example, 1 Vitest test, Sorbet, RBI freshness, linters, security checks, database consistency, and seeds. Hosted CI on the merge revision is pending.
 
 ## Handoff
 
-Ready for human review in [PR #8](https://github.com/dccunha/CatalogConsolidation/pull/8), currently at commit `d6c4175`; hosted CI run `36663895978` passed. `config/ci.rb` runs Sorbet, sigil, and RBI freshness gates; `spec/spec_helper.rb` and `vitest.config.mjs` enforce the coverage floors; `.github/workflows/ci.yml` runs the same suite on pull requests; `sorbet/` contains generated interfaces. T01 must begin only after this PR is reviewed and merged, then apply the shared gates to its concept models and tests. The current baseline has no domain implementation; reviewers must inspect future behavior tests and type signatures rather than extrapolating from its 100% coverage report.
+Merge resolution for [PR #8](https://github.com/dccunha/CatalogConsolidation/pull/8) is locally validated and awaiting push and hosted CI. `config/ci.rb` runs Sorbet, sigil, and RBI freshness gates; `spec/spec_helper.rb` and `vitest.config.mjs` enforce the coverage floors; `.github/workflows/ci.yml` runs the same suite on pull requests; `sorbet/` includes FactoryBot interfaces from merged T00A. T01 must begin only after this PR is reviewed and merged, then apply the shared gates and Better Specs conventions to its models and tests. The current baseline has no domain implementation; reviewers must inspect future behavior tests and type signatures rather than extrapolating from its 100% coverage report.

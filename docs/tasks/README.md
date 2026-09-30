@@ -2,16 +2,17 @@
 
 This is the authoritative status index for the catalog consolidation implementation. The [PRD](../prds/catalog-consolidation-importer.md) defines the product, [RFC 0001](../rfcs/0001-import-review-lifecycle.md) defines its lifecycle, and [ADR 0001](../adrs/0001-organize-by-concepts.md) defines code ownership. Task briefs turn those requirements into bounded changes; they do not replace them.
 
-The Rails, PostgreSQL, and Docker foundation is present. T00Q establishes enforceable quality gates before domain implementation. Domain implementation has not started. A planned task or unchecked acceptance criterion is not evidence of working software.
+The Rails, PostgreSQL, and Docker foundation is present. T00A established Better Specs conventions; T00Q adds enforceable typing and coverage gates before domain implementation. Domain implementation has not started. A planned task or unchecked acceptance criterion is not evidence of working software.
 
 ## Task index
 
-Implement in index order, initially T00–T15 plus the T00Q quality preflight, one task and one PR at a time. The “After merge” column is a sequencing gate, not a requirement to read every preceding task. Relevant technical context is linked in each brief. Status lives only in this table; briefs hold checkpoints and evidence. Insert any later follow-up tasks where their dependencies require, preserving existing task IDs.
+Implement in index order, initially T00–T15 plus the T00A and T00Q quality preflights, one task and one PR at a time. The “After merge” column is a sequencing gate, not a requirement to read every preceding task. Relevant technical context is linked in each brief. Status lives only in this table; briefs hold checkpoints and evidence. Insert any later follow-up tasks where their dependencies require, preserving existing task IDs.
 
 | ID | Task | Status | After merge | PR | Current blocker |
 | --- | --- | --- | --- | --- | --- |
 | T00 | [Establish task records and workflow](00-task-workflow.md) | done | Foundation | [#6](https://github.com/dccunha/CatalogConsolidation/pull/6) | None |
-| T00Q | [Enforce implementation quality gates](00q-quality-gates.md) | in review | T00 | [#8](https://github.com/dccunha/CatalogConsolidation/pull/8) | None |
+| T00A | [Enforce Better Specs conventions](00a-better-specs-conventions.md) | done | T00 | [#9](https://github.com/dccunha/CatalogConsolidation/pull/9) | None |
+| T00Q | [Enforce implementation quality gates](00q-quality-gates.md) | in review | T00A | [#8](https://github.com/dccunha/CatalogConsolidation/pull/8) | None |
 | T01 | [Integrate concepts and Catalog persistence](01-concepts-and-catalog-persistence.md) | backlog | T00Q | Not opened | — |
 | T02 | [Load the reference catalog](02-reference-catalog-loading.md) | backlog | T01 | Not opened | — |
 | T03 | [Implement Catalog public writes](03-catalog-public-writes.md) | backlog | T02 | Not opened | — |
@@ -35,12 +36,12 @@ Milestones: T08 verifies importer/rerun services; T10 makes upload, results, and
 The user can invoke the [orchestrator instructions and starter prompt](orchestrator.md#starter-prompt) to run the remaining tasks with fresh implementers, two independent reviewers per task, automatic merges after passing gates, and a pause for final QA. Merely reading or editing those instructions does not start the run. Individual task requests can still use the manual workflow below.
 
 - Run state: `not_started`.
-- Current task/stage: T00Q / awaiting human PR review.
-- Working directory, branch, candidate revision, and PR: `/home/daniel/.codex/worktrees/010d/VTEX`, `codex/quality-gates`, `d6c4175`, [#8](https://github.com/dccunha/CatalogConsolidation/pull/8).
+- Current task/stage: T00Q / merge resolved locally; awaiting updated PR checks and human review. The orchestrator is idle.
+- Working directory, branch, candidate revision, and PR: `/home/daniel/.codex/worktrees/010d/VTEX`, `codex/quality-gates`, merge of `86a2a2f` with `e69180a` pending commit and push, [#8](https://github.com/dccunha/CatalogConsolidation/pull/8).
 - Active agent assignments and test-runner owner: none.
 - Unresolved orchestration findings or decisions: none.
 - Last completed orchestration milestone: none.
-- Next action: complete human review and merge T00Q; then T01 becomes ready.
+- Next action: push the validated merge resolution, verify PR checks, then complete human review and merge T00Q.
 
 During a run, update this checkpoint at stage transitions and before interruption. Keep task statuses in the table above and detailed findings/evidence in the owning briefs. See [records and recovery](orchestrator.md#records-and-recovery) for resume rules.
 
