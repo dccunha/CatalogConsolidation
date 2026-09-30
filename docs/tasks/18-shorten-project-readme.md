@@ -23,13 +23,13 @@ Make the root README a roughly 250–350-word quick start while preserving its o
 ## Current checkpoint
 
 - Completed: confirmed T17 merge commit `b0034e8` is an ancestor of this checkout; committed the guide and quick start as `7729245` on `codex/t18-short-readme`; checked links, headings, and local Markdown rendering; and passed the full Docker CI gate in an isolated Compose project.
-- Remaining: obtain explicit authorization for the GitHub destination after the automatic approval review rejected the branch push; then open a PR for human review and verify its merge before marking T18 done.
-- Next action: wait for the user's explicit answer about pushing this branch to `dccunha/CatalogConsolidation`.
+- Remaining: push the explicitly authorized branch, open a PR for human review, and verify its merge before marking T18 done.
+- Next action: publish the branch to `dccunha/CatalogConsolidation` and open the PR.
 
 ## Problems
 
 - **T18-P01 — 2026-09-30:** Two runs of `docker compose run --rm web bin/ci` in the default Compose project stopped during RSpec after 66 progress dots with exit 143 and no test failure report. A later direct RSpec attempt found `sqlite3-2.9.6` missing from the shared `catalog-consolidation:development` image and could not install it as the container user. An isolated Compose project with image `catalog-consolidation:t18-readme` built from this checkout passed the full gate. The cause of the default project's termination was not established; the isolated passing run is the validation evidence for this candidate.
-- **T18-P02 — 2026-09-30:** Automatic approval review twice rejected `git push -u origin codex/t18-short-readme`, even after confirming the configured remote matched prior PR records and the signed-in GitHub account. The reviewer said the GitHub destination's trust and ownership were not established by trusted user content and that the user had not explicitly authorized that destination. No push or PR occurred. The user must explicitly authorize this repository as the publishing destination before retrying.
+- **T18-P02 — 2026-09-30, resolved:** Automatic approval review twice rejected `git push -u origin codex/t18-short-readme`, even after confirming the configured remote matched prior PR records and the signed-in GitHub account. The reviewer said the GitHub destination's trust and ownership were not established by trusted user content. The user then explicitly authorized pushing this branch to `git@github.com:dccunha/CatalogConsolidation.git` and opening a PR there. No push or PR had occurred before that answer.
 
 ## Decisions
 
