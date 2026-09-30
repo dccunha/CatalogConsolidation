@@ -6,8 +6,8 @@ RSpec.describe Catalog::Public::Writes, type: :model do
 
     it "links an existing product while preserving its attributes and the exact seller key" do
       attributes = product.attributes.slice("name", "brand", "category")
-      seller_name = "  O'Reilly; DROP TABLE products; --  "
-      seller_product_id = "000'1); DELETE FROM seller_products; --"
+      seller_name = "  O'Reilly  "
+      seller_product_id = "000'1"
       product_count = Catalog::Models::Product.count
       association_count = Catalog::Models::SellerProduct.count
 
@@ -74,17 +74,17 @@ RSpec.describe Catalog::Public::Writes, type: :model do
 
   describe ".create_with_association" do
     it "creates one product and association with exact supplied values" do
-      name = "Câmera 'x'; DROP TABLE products; --"
+      name = "Câmera 'x' (2026)"
       product_count = Catalog::Models::Product.count
       association_count = Catalog::Models::SellerProduct.count
-      association = described_class.create_with_association(name: name, brand: " Bränd ", category: "Photo; --",
+      association = described_class.create_with_association(name: name, brand: " Bränd ", category: "Photo/Video",
         seller_name: "Shop'", seller_product_id: "0001' OR '1'='1")
 
       expect(association.reload.attributes.slice("seller_name", "seller_product_id")).to eq(
         "seller_name" => "Shop'", "seller_product_id" => "0001' OR '1'='1"
       )
       expect(association.product.reload.attributes.slice("name", "brand", "category")).to eq(
-        "name" => name, "brand" => " Bränd ", "category" => "Photo; --"
+        "name" => name, "brand" => " Bränd ", "category" => "Photo/Video"
       )
       expect(Catalog::Models::Product.count).to eq(product_count + 1)
       expect(Catalog::Models::SellerProduct.count).to eq(association_count + 1)
@@ -134,11 +134,11 @@ RSpec.describe Catalog::Public::Writes, type: :model do
       association_count = Catalog::Models::SellerProduct.count
 
       result = described_class.reassign(association_id: association.id, product_id: target.id,
-        seller_product_id: "new' --")
+        seller_product_id: "new' 1")
 
       expect(result.id).to eq(association.id)
       expect(result.reload.attributes.slice("seller_name", "seller_product_id", "product_id")).to eq(
-        "seller_name" => "Shop", "seller_product_id" => "new' --", "product_id" => target.id
+        "seller_name" => "Shop", "seller_product_id" => "new' 1", "product_id" => target.id
       )
       expect(original.reload.attributes.slice("name", "brand", "category")).to eq(original_fields)
       expect(target.reload.attributes.slice("name", "brand", "category")).to eq(target_fields)
@@ -207,14 +207,14 @@ RSpec.describe Catalog::Public::Writes, type: :model do
 
       result = described_class.create_for_association(association_id: association.id,
         expected_product_id: old_product.id, expected_seller_product_id: "000'1",
-        name: "New 'product'; --", brand: "Bränd", category: "New category")
+        name: "New 'product'", brand: "Bränd", category: "New category")
 
       expect(result.id).to eq(association.id)
       expect(result.reload.attributes.slice("seller_name", "seller_product_id")).to eq(
         "seller_name" => " Shop' -- ", "seller_product_id" => "000'1"
       )
       expect(result.product.attributes.slice("name", "brand", "category")).to eq(
-        "name" => "New 'product'; --", "brand" => "Bränd", "category" => "New category"
+        "name" => "New 'product'", "brand" => "Bränd", "category" => "New category"
       )
       expect(old_product.reload.attributes.slice("name", "brand", "category")).to eq(old_fields)
       expect(Catalog::Models::Product.count).to eq(product_count + 1)
@@ -461,6 +461,56 @@ RSpec.describe Catalog::Public::Writes, type: :model do
 
       expect(Catalog::Models::Product.pluck(:name)).to eq([ "Committed" ])
       expect(Catalog::Models::SellerProduct.pluck(:seller_product_id)).to eq([ "good" ])
+    end
+  end
+
+  describe "unsafe new text" do
+    it "rejects every new field before creating a product or seller association" do
+      safe = { name: "Widget", brand: "Brand", category: "Tools",
+        seller_name: "Shop", seller_product_id: "item" }
+
+      safe.each_key do |field|
+        expect do
+          described_class.create_with_association(**safe.merge(field => "unsafe; SELECT 1"))
+        end.to raise_error(described_class::UnsafeTextError, /#{field} contains prohibited semicolon/)
+      end
+      expect(Catalog::Models::Product.count).to eq(0)
+      expect(Catalog::Models::SellerProduct.count).to eq(0)
+    end
+
+    it "rejects an unsafe link key without reading the target product fields" do
+      product = FactoryBot.create(:catalog_product, name: "Legacy; product")
+
+      expect do
+        described_class.link(product_id: product.id, seller_name: "Shop", seller_product_id: "bad--id")
+      end.to raise_error(described_class::UnsafeTextError, /seller_product_id/)
+      expect(Catalog::Models::SellerProduct.count).to eq(0)
+      expect(described_class.link(product_id: product.id, seller_name: "Shop",
+        seller_product_id: "safe").product_id).to eq(product.id)
+    end
+
+    it "rejects an unsafe reassigned ID and preserves the original association" do
+      association = FactoryBot.create(:catalog_seller_product, seller_name: "Shop", seller_product_id: "old")
+
+      expect do
+        described_class.reassign(association_id: association.id, product_id: association.product_id,
+          seller_product_id: "bad/*id")
+      end.to raise_error(described_class::UnsafeTextError, /seller_product_id/)
+      expect(association.reload.seller_product_id).to eq("old")
+    end
+
+    it "rejects unsafe replacement product metadata before changing the association" do
+      association = FactoryBot.create(:catalog_seller_product)
+      product_count = Catalog::Models::Product.count
+
+      expect do
+        described_class.create_for_association(association_id: association.id,
+          expected_product_id: association.product_id,
+          expected_seller_product_id: association.seller_product_id,
+          name: "New", brand: "bad*/brand", category: "Tools")
+      end.to raise_error(described_class::UnsafeTextError, /brand/)
+      expect(association.reload.product_id).to eq(association.product_id)
+      expect(Catalog::Models::Product.count).to eq(product_count)
     end
   end
 

@@ -95,6 +95,7 @@ module Intake
         seller_product_id = input["Id"]
         return unless seller_name.is_a?(String) && seller_product_id.is_a?(String)
         return if [ seller_name, seller_product_id ].any? { |value| value.gsub(/\p{Space}+/, " ").strip.empty? }
+        return if [ seller_name, seller_product_id ].any? { |value| Catalog::Public::TextPolicy.violation(value) }
 
         [ seller_name, seller_product_id ]
       end
@@ -105,6 +106,8 @@ module Intake
         errors.map do |error|
           if error.code == :not_an_object
             "Row must be a JSON object"
+          elsif error.code == :unsafe_text
+            "#{error.field} contains prohibited #{error.detail}"
           else
             "#{error.field} #{error.code == :required ? 'is required' : 'must be a string'}"
           end

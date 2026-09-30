@@ -2,11 +2,11 @@
 
 This is the authoritative status index for the catalog consolidation implementation. The [PRD](../prds/catalog-consolidation-importer.md) defines the product, [RFC 0001](../rfcs/0001-import-review-lifecycle.md) defines its lifecycle, and [ADR 0001](../adrs/0001-organize-by-concepts.md) defines code ownership. Task briefs turn those requirements into bounded changes; they do not replace them.
 
-The Rails/PostgreSQL application, Catalog and Intake domain code, browser review workflow, and integrated acceptance journeys are implemented through T14. T00A established Better Specs conventions and T00Q established typing and coverage gates. T15 is preparing the verified delivery runbook and demo. The task status and linked evidence below distinguish merged work from work still under review.
+The Rails/PostgreSQL application, Catalog and Intake domain code, browser review workflow, and integrated acceptance journeys are implemented through T14. T00A established Better Specs conventions and T00Q established typing and coverage gates. T15 delivered the verified runbook and demo. T16 addresses the SQL control syntax found during final QA. The task status and linked evidence below distinguish merged work from work still under review.
 
 ## Task index
 
-Implement in index order, initially T00–T15 plus the T00A and T00Q quality preflights and follow-up T00R, one task and one PR at a time. The “After merge” column is a sequencing gate, not a requirement to read every preceding task. Relevant technical context is linked in each brief. Status lives only in this table; briefs hold checkpoints and evidence. Insert any later follow-up tasks where their dependencies require, preserving existing task IDs.
+Implement in index order, initially T00–T15 plus the T00A and T00Q quality preflights and follow-up T00R, then T16, one task and one PR at a time. The “After merge” column is a sequencing gate, not a requirement to read every preceding task. Relevant technical context is linked in each brief. Status lives only in this table; briefs hold checkpoints and evidence. Insert any later follow-up tasks where their dependencies require, preserving existing task IDs.
 
 | ID | Task | Status | After merge | PR | Current blocker |
 | --- | --- | --- | --- | --- | --- |
@@ -29,6 +29,7 @@ Implement in index order, initially T00–T15 plus the T00A and T00Q quality pre
 | T13 | [Resolve reassignment and listing conflicts](13-reassignment-and-listing-conflicts.md) | done | T12 | [#23](https://github.com/dccunha/CatalogConsolidation/pull/23) · merge `d3c9246` | None |
 | T14 | [Verify acceptance journeys](14-acceptance-journeys.md) | done | T13 | [#24](https://github.com/dccunha/CatalogConsolidation/pull/24) · merge `685d26e` | None |
 | T15 | [Prepare delivery and demo](15-delivery-and-demo.md) | done | T14 | [#25](https://github.com/dccunha/CatalogConsolidation/pull/25) · merge `ac839ef` | None |
+| T16 | [Block SQL control syntax from Catalog writes](16-block-sql-control-syntax.md) | in review | T15 | — | None |
 
 Milestones: T08 verifies importer/rerun services; T10 makes upload, results, and review evidence available in the browser; T13 completes the required user actions; T14 verifies integrated acceptance journeys; T15 completes delivery verification.
 
@@ -36,13 +37,13 @@ Milestones: T08 verifies importer/rerun services; T10 makes upload, results, and
 
 The user can invoke the [orchestrator instructions and starter prompt](orchestrator.md#starter-prompt) to run the remaining tasks with fresh implementers, two independent reviewers per task, automatic merges after passing gates, and a pause for final QA. Merely reading or editing those instructions does not start the run. Individual task requests can still use the manual workflow below.
 
-- Run state: `awaiting_final_qa`.
-- Current task/stage: all numbered tasks merged; application ready for user final QA.
-- Working directory, branch, candidate revision, and PR: `/home/daniel/.codex/worktrees/137d/VTEX`, `codex/t15-merge-record` from verified main `ac839ef`; T15 [PR #25](https://github.com/dccunha/CatalogConsolidation/pull/25) merged at `ac839ef`.
-- Active agent assignments and test-runner owner: T15 implementer and both reviewers finished; no shared Docker runner active. Isolated `t15_delivery` web and PostgreSQL services remain running for final QA on localhost:3105.
-- Unresolved orchestration findings or decisions: none. T15-COR-01/02/03 and T15-TEST-01/02 resolved and independently approved. Final user QA remains pending.
-- Last completed orchestration milestone: T15 isolated link/create/review/unchanged-rerun demo passed, along with T14 AC1–AC12/RFC integrated and real Chromium journeys; reference inputs and screenshots remained unchanged through review.
-- Next action: user performs final QA using the README demo and evidence links. Record `complete` only after explicit user acceptance; use the task loop for any reported defect.
+- Run state: `running`.
+- Current task/stage: T16 implementation and full isolated Docker CI passed; candidate is frozen for two independent reviews.
+- Working directory, branch, candidate revision, and PR: `/home/daniel/.codex/worktrees/t16-catalog-text-guard/VTEX`, `codex/t16-catalog-text-guard` from verified main `a081718`; candidate commit and PR pending.
+- Active agent assignments and test-runner owner: implementer finished and stopped writing; correctness and test reviewers to be dispatched. Test reviewer alone owns any further Docker checks. Isolated `t16_guard` web and PostgreSQL services run on localhost:3116. Existing main-branch QA database and T15 demo remain untouched.
+- Unresolved orchestration findings or decisions: none. User chose an input-only Catalog guard and retention of historical QA data.
+- Last completed orchestration milestone: T15 merged as [PR #25](https://github.com/dccunha/CatalogConsolidation/pull/25) at `ac839ef`; final QA identified the new T16 behavior change.
+- Next action: commit frozen candidate, obtain two independent reviews, then open and merge one T16 PR if all gates pass.
 
 During a run, update this checkpoint at stage transitions and before interruption. Keep task statuses in the table above and detailed findings/evidence in the owning briefs. See [records and recovery](orchestrator.md#records-and-recovery) for resume rules.
 
@@ -97,7 +98,7 @@ The owner is responsible for the criterion's core behavior. Supporting tasks add
 | AC6: equivalent duplicates and reruns | T08 | T04, T14 | T08 [importer spec](../../spec/concepts/intake/services/import_processor_spec.rb) checks exact keys, `Câmera`/`Camera`, whitespace, and pending reuse; T14 [integrated spec](../../spec/concepts/intake/acceptance_journeys_spec.rb) checks all 269 rows rerun without extra products, associations, seller items, or cases; [browser spec](../../spec/system/acceptance_journeys_spec.rb) uploads the same file twice. |
 | AC7: materially changed identity | T08 | T06, T13, T14 | T14 [integrated spec](../../spec/concepts/intake/acceptance_journeys_spec.rb) checks unchanged association during changed-source review, explicit candidate reassignment, decision replay, historical-source return to pending, and superseded case refusal; [T13 spec](../../spec/concepts/intake/services/review_conflicts_spec.rb) checks both reassignment paths and rollback. |
 | AC8: one seller, conflicting item IDs | T13 | T01, T03, T05, T07, T14 | T14 [browser spec](../../spec/system/acceptance_journeys_spec.rb) clicks both keep and replace choices, reruns both IDs, and asserts one surviving association; [T13 spec](../../spec/concepts/intake/services/review_conflicts_spec.rb) checks decision details and rollback. |
-| AC9: atomic create and SQL-like text | T07 | T03, T05, T14 | T14 [integrated spec](../../spec/concepts/intake/acceptance_journeys_spec.rb) checks a new product, distinct material variant, and SQL-like values stored as data; [importer spec](../../spec/concepts/intake/services/import_processor_spec.rb) forces Catalog and Intake failures and checks no partial product/association. |
+| AC9: atomic create and control-syntax rejection | T07, T16 | T03, T05, T14 | T16 [integrated spec](../../spec/concepts/intake/acceptance_journeys_spec.rb) checks row 181 Failed with its full source only in Intake and reconciled 269-row totals; [importer spec](../../spec/concepts/intake/services/import_processor_spec.rb) checks continuation, rerun, and no partial writes; [Catalog public-write spec](../../spec/concepts/catalog/public/writes_spec.rb) checks atomic rejection of new unsafe strings. The [T16 brief](16-block-sql-control-syntax.md#validation-evidence) records clean-file and CI evidence. |
 | AC10: invalid/incomplete rows do not stop later rows | T07 | T04, T06, T09, T14 | T14 [integrated spec](../../spec/concepts/intake/acceptance_journeys_spec.rb) puts invalid and incomplete rows between valid outcomes and checks later creation; [browser spec](../../spec/system/acceptance_journeys_spec.rb) verifies four displayed outcomes and exact summary. |
 | AC11: review decisions survive reruns | T13 | T08, T11, T12, T14 | T14 [integrated spec](../../spec/concepts/intake/acceptance_journeys_spec.rb) runs real correction, approval, reassignment, rejection, and stale-candidate commands, then checks replay and immutable prior results; [browser spec](../../spec/system/acceptance_journeys_spec.rb) clicks approval, rejection, correction, creation, keep, and replace, followed by reruns. [T12 spec](../../spec/concepts/intake/services/review_creation_spec.rb) checks new candidates after rejection and final-decision rollback. |
 | AC12: material variants never auto-link | T05 | T04, T07, T14 | T14 [integrated spec](../../spec/concepts/intake/acceptance_journeys_spec.rb) imports `128GB` and `256GB` under one seller and checks distinct product IDs; [matcher spec](../../spec/concepts/intake/services/product_matcher_spec.rb) checks capacity/color candidates do not auto-link. |

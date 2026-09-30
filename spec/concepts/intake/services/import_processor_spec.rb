@@ -211,19 +211,50 @@ RSpec.describe Intake::Services::ImportProcessor, type: :model do
       expect_reconciled(result)
     end
 
-    it "stores SQL-like seller strings as data without executing them" do
+    it "retains a flagged source only in Intake and continues to the next row" do
       quoted = row.merge("Id" => "001'; DROP TABLE products; --",
         "SellerName" => "O'Reilly; DELETE FROM intake_batches; --",
         "Name" => "Widget'); DROP TABLE products; --")
+      later = row.merge("Id" => "002", "SellerName" => "O'Reilly", "Name" => "Widget (safe)")
 
-      result = import(quoted)
+      result = import(quoted, later)
 
-      expect(result.rows.first.outcome).to eq("created")
-      expect(Catalog::Models::Product.find(result.rows.first.product_id).name).to eq(quoted["Name"])
-      expect(Catalog::Models::SellerProduct.find_by!(seller_name: quoted["SellerName"],
-        seller_product_id: quoted["Id"]).product_id).to eq(result.rows.first.product_id)
-      expect(Intake::Models::Batch.find(result.batch_id).input_count).to eq(1)
+      expect(result.rows.map(&:outcome)).to eq(%w[failed created])
+      expect(result.rows.first.reason).to include("Id", "SellerName", "Name", "prohibited")
+      stored = Intake::Models::RowResult.find_by!(batch_id: result.batch_id, source_position: 1)
+      expect(JSON.parse(stored.input_json)).to eq(quoted)
+      expect(stored).to have_attributes(product_id: nil, review_case_id: nil, outcome: "failed")
+      expect(Catalog::Models::Product.where(name: quoted["Name"])).to be_empty
+      expect(Catalog::Models::SellerProduct.where(seller_name: quoted["SellerName"])).to be_empty
+      expect(Intake::Models::SellerItem.where(seller_name: quoted["SellerName"])).to be_empty
+      expect(Intake::Models::ReviewCase.count).to eq(0)
+      expect(Intake::Models::Batch.find(result.batch_id).input_count).to eq(2)
       expect_reconciled(result)
+    end
+
+    it "rejects flagged rows again on rerun without restoring a seller item" do
+      flagged = row.merge("Brand" => "BadBrand; SELECT 1 --")
+
+      first = import(flagged)
+      second = import(flagged)
+
+      expect([ first.rows.sole.outcome, second.rows.sole.outcome ]).to eq(%w[failed failed])
+      expect(Intake::Models::SellerItem.count).to eq(0)
+      expect(Catalog::Models::SellerProduct.count).to eq(0)
+      expect(Intake::Models::RowResult.where(outcome: "failed").count).to eq(2)
+      expect_reconciled(second)
+    end
+
+    it "keeps control characters in Intake JSON without putting them in database seller-key columns" do
+      flagged = row.merge("Id" => "unsafe\u0000id")
+
+      result = import(flagged)
+
+      stored = Intake::Models::RowResult.find_by!(batch_id: result.batch_id, source_position: 1)
+      expect(result.rows.sole.outcome).to eq("failed")
+      expect(stored.seller_product_id).to be_nil
+      expect(JSON.parse(stored.input_json)).to eq(flagged)
+      expect(Intake::Models::SellerItem.count).to eq(0)
     end
   end
 
@@ -466,11 +497,14 @@ RSpec.describe Intake::Services::ImportProcessor, type: :model do
       expect([ first.rows[55].outcome, first.rows[55].product_id ]).to eq([ "linked", 18 ])
       expect([ first.rows[76].outcome, first.rows[76].product_id ]).to eq([ "already_imported", 18 ])
       expect(first.rows[87].outcome).to eq("pending_review")
+      expect(first.rows[180]).to have_attributes(outcome: "failed", product_id: nil, review_case_id: nil)
+      expect(first.rows[180].reason).to include("Brand", "semicolon")
       expect([ second.rows[0].outcome, second.rows[0].product_id ]).to eq([ "already_imported", 2 ])
       expect([ second.rows[55].outcome, second.rows[55].product_id ]).to eq([ "already_imported", 18 ])
       expect([ second.rows[76].outcome, second.rows[76].product_id ]).to eq([ "already_imported", 18 ])
       expect(second.rows[53].review_case_id).to eq(first.rows[53].review_case_id)
       expect(second.rows[87].review_case_id).to eq(first.rows[87].review_case_id)
+      expect(second.rows[180].outcome).to eq("failed")
       expect(second.totals.fetch("created")).to eq(0)
       expect(second.totals.fetch("linked")).to eq(0)
       expect(Intake::Models::SellerItem.count).to eq(item_count)

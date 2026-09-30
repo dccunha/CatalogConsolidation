@@ -6,6 +6,8 @@ module Intake
     class ReviewActions
       extend T::Sig
 
+      class InvalidCaseError < StandardError; end
+
       class Result < T::Struct
         extend T::Sig
 
@@ -132,19 +134,27 @@ module Intake
 
           input = current_input(review_case).merge("Name" => name, "Brand" => brand, "Category" => category)
           validation = RowValidator.call(input)
-          next result(:invalid, "Enter a name and text values for the comparison fields.") unless
-            validation.is_a?(RowValidator::Valid)
+          next result(:invalid, invalid_input_message(validation)) if validation.is_a?(RowValidator::Invalid)
           next result(:invalid, "Comparison values have not changed.") if
             comparison_hash(validation) == current_comparison(review_case)
 
-          match = ProductMatcher.call(valid: validation)
-          Models::ReviewCorrection.create!(review_case: review_case, reviewer: Reviewer.name,
-            corrected_at: Time.current, corrected_input: input,
-            corrected_comparison: comparison_hash(validation))
-          append_evidence(review_case, match, reason: "Comparison corrected; explicit review still required")
-          result(:corrected, "Comparison updated. Review the new evidence before deciding.")
+          save_correction(review_case, input, validation)
         end
       end
+
+      sig do
+        params(review_case: Models::ReviewCase, input: T::Hash[String, Object],
+          validation: RowValidator::Valid).returns(Result)
+      end
+      def self.save_correction(review_case, input, validation)
+        match = ProductMatcher.call(valid: validation)
+        Models::ReviewCorrection.create!(review_case: review_case, reviewer: Reviewer.name,
+          corrected_at: Time.current, corrected_input: input,
+          corrected_comparison: comparison_hash(validation))
+        append_evidence(review_case, match, reason: "Comparison corrected; explicit review still required")
+        result(:corrected, "Comparison updated. Review the new evidence before deciding.")
+      end
+      private_class_method :save_correction
 
       sig { params(review_case: Models::ReviewCase).returns(Symbol) }
       def self.creation_state(review_case:)
@@ -152,8 +162,10 @@ module Intake
 
         seller_item = Models::SellerItem.find(review_case.seller_item_id)
         return :not_actionable unless active_pending_case?(review_case, seller_item)
+        validation = RowValidator.call(current_input(review_case))
+        return :invalid_input if validation.is_a?(RowValidator::Invalid)
         return :association_conflict if seller_item.product_id || existing_item_conflict?(review_case, seller_item)
-        return :incomplete if current_validation(review_case).review_required?
+        return :incomplete if validation.review_required?
 
         remaining_candidates?(review_case) ? :candidates : :ready
       end
@@ -164,8 +176,10 @@ module Intake
 
         seller_item = Models::SellerItem.find(review_case.seller_item_id)
         return :not_actionable unless active_pending_case?(review_case, seller_item)
+        validation = RowValidator.call(current_input(review_case))
+        return :invalid_input if validation.is_a?(RowValidator::Invalid)
         return :no_association unless existing_item_conflict?(review_case, seller_item)
-        return :incomplete if current_validation(review_case).review_required?
+        return :incomplete if validation.review_required?
 
         remaining_candidates?(review_case) ? :candidates : :ready
       end
@@ -472,13 +486,14 @@ module Intake
           lock_seller_items(seller_item.id, additional_seller_item_id)
           seller_item.reload
           review_case = Models::ReviewCase.lock.find(review_case_id)
-          if !review_case.actionable? || seller_item.resolution != "pending" ||
-              seller_item.active_case&.id != review_case.id
+          unless review_case.actionable? && active_pending_case?(review_case, seller_item)
             next result(:not_actionable, "This case is no longer pending. No action was saved.")
           end
 
           block.call(review_case, seller_item)
         end
+      rescue InvalidCaseError, Catalog::Public::Writes::UnsafeTextError => error
+        result(:invalid, "#{error.message} Correct the comparison fields or submit a new import.")
       end
       private_class_method :with_locked_case
 
@@ -546,11 +561,20 @@ module Intake
       sig { params(review_case: Models::ReviewCase).returns(RowValidator::Valid) }
       def self.current_validation(review_case)
         validation = RowValidator.call(current_input(review_case))
-        raise "Saved review comparison is invalid" unless validation.is_a?(RowValidator::Valid)
+        raise InvalidCaseError, invalid_input_message(validation) if validation.is_a?(RowValidator::Invalid)
 
         validation
       end
       private_class_method :current_validation
+
+      sig { params(validation: RowValidator::Invalid).returns(String) }
+      def self.invalid_input_message(validation)
+        fields = validation.errors.map do |error|
+          error.field ? "#{error.field} #{error.detail || error.code.to_s.tr('_', ' ')}" : "row is invalid"
+        end
+        "Review input is invalid: #{fields.join(', ')}."
+      end
+      private_class_method :invalid_input_message
 
       sig { params(valid: RowValidator::Valid).returns(T::Hash[String, T.nilable(String)]) }
       def self.comparison_hash(valid)

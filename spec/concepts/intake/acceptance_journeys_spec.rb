@@ -35,10 +35,21 @@ RSpec.describe "Integrated acceptance journeys", type: :model do
     expect([ first.rows[0].outcome, first.rows[0].product_id ]).to eq([ "linked", 2 ])
     expect(first.rows[53].outcome).to eq("pending_review")
     expect(first.rows[87].outcome).to eq("pending_review")
+    flagged_source = JSON.parse(json)[180]
+    flagged = Intake::Models::RowResult.find_by!(batch_id: first.batch_id, source_position: 181)
+    expect(flagged).to have_attributes(outcome: "failed", product_id: nil, review_case_id: nil)
+    expect(flagged.reason).to include("Brand", "semicolon")
+    expect(JSON.parse(flagged.input_json)).to eq(flagged_source)
+    expect(Intake::Models::SellerItem.where(seller_name: flagged_source.fetch("SellerName"),
+      seller_product_id: flagged_source.fetch("Id"))).to be_empty
+    expect(Catalog::Models::Product.where(brand: flagged_source.fetch("Brand"))).to be_empty
+    expect(Catalog::Models::SellerProduct.where(seller_name: flagged_source.fetch("SellerName"),
+      seller_product_id: flagged_source.fetch("Id"))).to be_empty
     canon_case = Intake::Models::ReviewCase.find(first.rows[87].review_case_id)
     expect(canon_case.review_candidates.first.differing_fields).to include("category")
     expect(second.rows[53].review_case_id).to eq(first.rows[53].review_case_id)
     expect(second.rows[87].review_case_id).to eq(first.rows[87].review_case_id)
+    expect(second.rows[180].outcome).to eq("failed")
     expect(second.totals.values_at("linked", "created")).to eq([ 0, 0 ])
     expect([ Catalog::Models::Product.count, Catalog::Models::SellerProduct.count,
       Intake::Models::SellerItem.count, Intake::Models::ReviewCase.count ]).to eq(before_rerun)
@@ -58,12 +69,12 @@ RSpec.describe "Integrated acceptance journeys", type: :model do
     result = import(first, 42, incomplete, variant, quoted)
 
     expect(result.rows.map(&:position)).to eq([ 1, 2, 3, 4, 5 ])
-    expect(result.rows.map(&:outcome)).to eq(%w[created failed pending_review created created])
+    expect(result.rows.map(&:outcome)).to eq(%w[created failed pending_review created failed])
     expect(result.rows[1].reason).to include("JSON object")
     expect(result.rows[2].review_case_id).to be_present
     expect(result.rows[3].product_id).not_to eq(result.rows[0].product_id)
-    expect(result.rows[4].product_id).to be_present
-    expect(Catalog::Models::Product.find(result.rows[4].product_id).name).to eq(quoted.fetch("Name"))
+    expect(result.rows[4].reason).to include("Id", "Name", "prohibited")
+    expect(Catalog::Models::Product.where(name: quoted.fetch("Name"))).to be_empty
     expect(result.totals.values.sum).to eq(5)
     expect(Intake::Models::RowResult.where(batch_id: result.batch_id).order(:source_position).pluck(:outcome))
       .to eq(result.rows.map(&:outcome))
