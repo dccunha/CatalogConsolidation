@@ -15,15 +15,25 @@ module Intake
 
       def show
         @review_case = Models::ReviewCase.includes(:seller_item, :batch, :review_decision).find(params[:id])
-        @candidates = @review_case.review_candidates.where(evidence_revision: @review_case.evidence_revision)
-          .includes(:review_rejection).order(:rank)
-        @corrections = @review_case.review_corrections.order(:corrected_at, :id)
-        @rejections = Models::ReviewRejection.includes(:review_candidate)
-          .where(review_candidate_id: @review_case.review_candidates.select(:id)).order(:rejected_at, :id)
-        @rows = @review_case.row_results.includes(:batch).order(:created_at, :id)
+        load_case_evidence
+        load_history
       end
 
       private
+
+      def load_case_evidence
+        @candidates = @review_case.review_candidates.where(evidence_revision: @review_case.evidence_revision)
+          .includes(:review_rejection).order(:rank)
+        @rows = @review_case.row_results.includes(:batch).order(:created_at, :id)
+      end
+
+      def load_history
+        @corrections = @review_case.review_corrections.order(:corrected_at, :id)
+        @rejections = Models::ReviewRejection.includes(:review_candidate)
+          .where(review_candidate_id: @review_case.review_candidates.select(:id)).order(:rejected_at, :id)
+        @history_events = (@corrections.to_a + @rejections.to_a + [ @review_case.review_decision ].compact)
+          .sort_by { |event| history_sort_key(event) }
+      end
 
       def load_filters
         @status = params[:status].presence_in(%w[pending resolved superseded all]) || "pending"
@@ -47,6 +57,14 @@ module Intake
         return scope if @seller_name.blank?
 
         scope.joins(:seller_item).where(intake_seller_items: { seller_name: @seller_name })
+      end
+
+      def history_sort_key(event)
+        case event
+        when Models::ReviewCorrection then [ event.corrected_at, 0, event.id ]
+        when Models::ReviewRejection then [ event.rejected_at, 1, event.id ]
+        when Models::ReviewDecision then [ event.decided_at, 2, event.id ]
+        end
       end
     end
   end

@@ -106,20 +106,73 @@ RSpec.describe Intake::Controllers::ReviewCasesController, type: :request do
       expect(page.css("[aria-labelledby='imports-heading'] tbody tr").map(&:text).join).not_to include("Linked")
     end
 
+    it "orders interleaved reviewer actions by time with stable ties" do
+      FactoryBot.create(:catalog_product, name: "Camera Canon EOS R6", brand: "Canon", category: "Electronics")
+      batch = import(row)
+      review_case = batch.row_results.sole.review_case
+      first_candidate, second_candidate = review_case.review_candidates.order(:rank).to_a
+      decided_product = FactoryBot.create(:catalog_product, name: "New camera", brand: "Canon", category: "Photo")
+      first_time = Time.current.change(usec: 0)
+      second_time = first_time + 1.minute
+      decision_time = second_time + 1.minute
+      Intake::Models::ReviewRejection.create!(review_candidate: first_candidate, reviewer: "Rejection one",
+        reason: "Wrong category", rejected_at: first_time)
+      Intake::Models::ReviewRejection.create!(review_candidate: second_candidate, reviewer: "Rejection two",
+        reason: "Wrong edition", rejected_at: second_time)
+      Intake::Models::ReviewCorrection.create!(review_case: review_case, reviewer: "Correction reviewer",
+        corrected_at: second_time, corrected_input: row.merge("Category" => "Photo and Video"),
+        corrected_comparison: { "name" => "camera canon eos r6", "brand" => "canon", "category" => "photo and video" })
+      Intake::Models::ReviewDecision.create!(review_case: review_case, reviewer: "Decision reviewer",
+        result: "created", product_id: decided_product.id, reason: "No suitable catalog product", decided_at: decision_time)
+      review_case.update!(status: "resolved")
+
+      get review_case_path(review_case)
+
+      expect(page.css(".history-list li").map { |item| item.text.squish }).to eq([
+        "Product ##{first_candidate.product_id} rejected by Rejection one at #{first_time.strftime('%Y-%m-%d %H:%M %Z')}: Wrong category",
+        "Correction by Correction reviewer at #{second_time.strftime('%Y-%m-%d %H:%M %Z')}.",
+        "Product ##{second_candidate.product_id} rejected by Rejection two at #{second_time.strftime('%Y-%m-%d %H:%M %Z')}: Wrong edition",
+        "Final decision: Created, product ##{decided_product.id}, by Decision reviewer at #{decision_time.strftime('%Y-%m-%d %H:%M %Z')}: No suitable catalog product."
+      ])
+    end
+
     it "keeps a superseded case accessible and explains absent candidates" do
       blank_brand = row.merge("Id" => "no-brand", "Name" => "Unlisted item", "Brand" => nil)
       batch = import(blank_brand)
       review_case = batch.row_results.sole.review_case
+
+      get review_case_path(review_case)
+      expect(page.at_css("[aria-labelledby='candidates-heading'] .empty-state").text).to include("remains pending review")
+
       review_case.update!(status: "superseded")
 
       get review_case_path(review_case)
 
       expect(response).to have_http_status(:ok)
       expect(page.at_css(".case-summary").text).to include("historical case", "superseded")
-      expect(page.at_css("#candidates-heading").parent.text).to include("No candidates in this evidence revision")
+      expect(page.at_css("[aria-labelledby='candidates-heading'] .empty-state").text).to include("The case was superseded")
+      expect(page.at_css("[aria-labelledby='candidates-heading'] .empty-state").text).not_to include("needs an explicit reviewer decision")
       expect(page.at_css(".history-list")).to be_nil
       get review_cases_path(status: "superseded")
       expect(page.css("tbody th a").map(&:text)).to eq([ "Case ##{review_case.id}" ])
+    end
+
+    it "does not ask for another decision when a no-candidate case is resolved" do
+      blank_brand = row.merge("Id" => "resolved-no-candidate", "Name" => "Unlisted item", "Brand" => nil)
+      batch = import(blank_brand)
+      review_case = batch.row_results.sole.review_case
+      created_product = FactoryBot.create(:catalog_product, name: "Unlisted item", brand: "Canon", category: "Photo")
+      Intake::Models::ReviewCorrection.create!(review_case: review_case, reviewer: "Saved reviewer",
+        corrected_at: Time.current, corrected_input: blank_brand.merge("Brand" => "Canon"),
+        corrected_comparison: { "name" => "unlisted item", "brand" => "canon", "category" => "photo" })
+      Intake::Models::ReviewDecision.create!(review_case: review_case, reviewer: "Saved reviewer",
+        result: "created", product_id: created_product.id, decided_at: Time.current)
+      review_case.update!(status: "resolved")
+
+      get review_case_path(review_case)
+
+      expect(page.at_css("[aria-labelledby='candidates-heading'] .empty-state").text).to include("This case has a final decision")
+      expect(page.at_css("[aria-labelledby='candidates-heading'] .empty-state").text).not_to include("needs an explicit reviewer decision")
     end
   end
 end

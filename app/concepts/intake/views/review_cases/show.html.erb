@@ -49,7 +49,16 @@
   <h2 id="candidates-heading">Candidate evidence</h2>
   <p class="muted">Evidence revision <%= @review_case.evidence_revision %>. Scores and differences explain possible matches; they do not authorize a link.</p>
   <% if @candidates.empty? %>
-    <div class="panel empty-state"><h3>No candidates in this evidence revision</h3><p>The case still needs an explicit reviewer decision after the applicable checks.</p></div>
+    <div class="panel empty-state">
+      <h3>No candidates in this evidence revision</h3>
+      <% if @review_case.status == "pending" %>
+        <p>This case remains pending review.</p>
+      <% elsif @review_case.status == "superseded" %>
+        <p>This historical evidence is retained for audit. The case was superseded.</p>
+      <% else %>
+        <p>This case has a final decision. No candidates were recorded in this evidence revision.</p>
+      <% end %>
+    </div>
   <% else %>
     <% @candidates.each do |candidate| %>
       <article class="panel candidate-card">
@@ -75,13 +84,20 @@
 
 <section class="case-section" aria-labelledby="history-heading">
   <h2 id="history-heading">Review history</h2>
-  <% if @corrections.empty? && @rejections.empty? && !@review_case.review_decision %>
+  <% if @history_events.empty? %>
     <p class="panel empty-state">No reviewer actions have been recorded.</p>
   <% else %>
     <ol class="panel history-list">
-      <% @corrections.each do |correction| %><li>Correction by <%= correction.reviewer %> at <%= time_tag correction.corrected_at, correction.corrected_at.strftime("%Y-%m-%d %H:%M %Z") %>.</li><% end %>
-      <% @rejections.each do |rejection| %><li>Product #<%= rejection.review_candidate.product_id %> rejected by <%= rejection.reviewer %> at <%= time_tag rejection.rejected_at, rejection.rejected_at.strftime("%Y-%m-%d %H:%M %Z") %>: <%= rejection.reason %></li><% end %>
-      <% if @review_case.review_decision %><li>Final decision: <%= @review_case.review_decision.result.humanize %>, product #<%= @review_case.review_decision.product_id %>, by <%= @review_case.review_decision.reviewer %> at <%= time_tag @review_case.review_decision.decided_at, @review_case.review_decision.decided_at.strftime("%Y-%m-%d %H:%M %Z") %>.</li><% end %>
+      <% @history_events.each do |event| %>
+        <% case event %>
+        <% when Intake::Models::ReviewCorrection %>
+          <li>Correction by <%= event.reviewer %> at <%= time_tag event.corrected_at, event.corrected_at.strftime("%Y-%m-%d %H:%M %Z") %>.</li>
+        <% when Intake::Models::ReviewRejection %>
+          <li>Product #<%= event.review_candidate.product_id %> rejected by <%= event.reviewer %> at <%= time_tag event.rejected_at, event.rejected_at.strftime("%Y-%m-%d %H:%M %Z") %>: <%= event.reason %></li>
+        <% when Intake::Models::ReviewDecision %>
+          <li>Final decision: <%= event.result.humanize %>, product #<%= event.product_id %>, by <%= event.reviewer %> at <%= time_tag event.decided_at, event.decided_at.strftime("%Y-%m-%d %H:%M %Z") %><% if event.reason.present? %>: <%= event.reason %><% end %>.</li>
+        <% end %>
+      <% end %>
     </ol>
   <% end %>
 </section>
