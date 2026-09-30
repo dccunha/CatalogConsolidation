@@ -24,15 +24,15 @@ Process a valid JSON array into persistent, explainable row outcomes and a recon
 
 ## Current checkpoint
 
-- Completed: internal `Intake::Services::ImportProcessor` and first-round test-review fixes on candidate `db375f1768a6626b65c9ad3ef12b10f139da3ee0` plus the review-fix working tree. The focused file now has 15 passing examples, and full Docker CI passed with 137 RSpec examples.
-- Remaining: reviewer reassessment of the fixes, any further findings, PR, and merge. T08 owns repeated-key and rerun semantics before web upload is exposed.
-- Next action: reviewers reassess the T07 review-fix revision.
+- Completed: internal `Intake::Services::ImportProcessor`, first-round test-review fixes, independent approvals at `f0d4569490de29eb60d5dc766ea6c7e3ce7dde6b`, and exact-commit Docker CI with 137 passing RSpec examples.
+- Remaining: PR creation, final head verification, and merge. T08 owns repeated-key and rerun semantics before web upload is exposed.
+- Next action: the orchestrator opens and verifies the T07 PR.
 
 ## Problems
 
 - The first focused run had three test assertion/fault-injection issues; the corrected focused examples passed. Focused RSpec exits 2 because its repository-wide SimpleCov denominator misses unrelated files, while full CI passes both coverage floors.
 - The first full CI run found two RuboCop method-size offenses and one Sorbet nilability error in candidate persistence. Signed helper extraction resolved them; the final full CI passed.
-- First-round test review identified T07-TEST-01 (the reconciliation helper only checked the sum, without exact totals on a mixed batch) and T07-TEST-02 (pending evidence tests did not check multiple ordered candidate snapshots, scores, differing fields, and case source/comparison). Two integration examples now assert these contracts; reviewer reassessment remains.
+- First-round test review identified T07-TEST-01 (the reconciliation helper only checked the sum, without exact totals on a mixed batch) and T07-TEST-02 (pending evidence tests did not check multiple ordered candidate snapshots, scores, differing fields, and case source/comparison). Two integration examples now assert these contracts; both reviewers approved the fixes in round 2.
 
 ## Decisions
 
@@ -49,7 +49,8 @@ Process a valid JSON array into persistent, explainable row outcomes and a recon
 
 ### Review rounds
 
-- **Round 1, candidate `db375f1` (2026-09-30):** test review requested T07-TEST-01 and T07-TEST-02 as specified above. The review-fix working tree adds two focused integration examples and passes full Docker CI. Both findings await reviewer reassessment; this brief does not claim review approval.
+- **Round 1, candidate `db375f1768a6626b65c9ad3ef12b10f139da3ee0` (2026-09-30):** correctness reviewer approved with no blocking findings after inspecting requirements, service diff, transactions, Catalog ownership, and persistence contracts. Test reviewer requested T07-TEST-01 and T07-TEST-02 as specified above; exact-commit `docker compose run --rm web bin/ci` passed 135 RSpec examples, Ruby 99.44% lines/92.59% branches, and all other gates. Both findings were fixed and reassessed in round 2.
+- **Round 2, candidate `f0d4569490de29eb60d5dc766ea6c7e3ce7dde6b` (2026-09-30):** correctness reviewer approved the full diff plus test/documentation delta with no blocking findings. Test reviewer approved resolution of T07-TEST-01/02 after inspecting the two real-model integration examples and running `docker compose run --rm web bin/ci` on this exact clean commit: 137 RSpec examples, 0 failures, Ruby 99.44% line/92.59% branch coverage, and all other gates passed. `git diff --check` passed. Supplied-file/rerun journeys remain assigned to T08/T14.
 
 ## Handoff
 
