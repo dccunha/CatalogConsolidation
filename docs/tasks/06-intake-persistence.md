@@ -24,9 +24,9 @@ Persist the Intake records needed to audit every row and preserve review/version
 
 ## Current checkpoint
 
-- Completed: eight Intake tables, typed model mappings, generated Rails RBIs, fresh migration/schema-load checks, first-round review fixes, and approval from both independent reviewers. Docker CI passes on the reviewed commit.
-- Remaining: final [PR #16](https://github.com/dccunha/CatalogConsolidation/pull/16) head verification and merge by the orchestrator; the task index owns merge status.
-- Next action: the orchestrator verifies the final reviewed PR head before merge.
+- Completed: eight Intake tables, typed model mappings, generated Rails RBIs, fresh migration/schema-load checks, first-round review fixes, independent approvals, Docker CI, and [PR #16](https://github.com/dccunha/CatalogConsolidation/pull/16) merged at `07df42000f76048b7cc3f8659c2632a75acf8692`.
+- Remaining: none for T06; the task index owns merge status.
+- Next action: T07 consumes the persistence handoff below.
 
 ## Problems
 
@@ -57,6 +57,7 @@ Persist the Intake records needed to audit every row and preserve review/version
 
 - **Round 1, candidate `a2f1f3848438210101bc7454ec84b2778c6bf90a` (2026-09-30):** correctness review requested `T06-COR-01` for `#delete` bypassing the Active Record read-only guard. Test review requested `T06-TEST-01` for position-zero constraints and exact batch position coverage, and `T06-TEST-02` for real second-revision evidence, coherent resolved/displaced state, historical foreign keys, and final-decision uniqueness. `AppendOnlyRecord`, five additional persistence examples, and the exact-position T07 handoff address those findings; round 2 verified them.
 - **Round 2, candidate `623c2f4f65c00c9adddc1757f6a136ef7271d009` (2026-09-30):** correctness reviewer approved the full diff and resolved `T06-COR-01`; `git diff --check` passed. Test reviewer approved the full diff, resolved `T06-TEST-01/02`, and reran `docker compose run --rm web bin/ci` on this exact commit: 122 RSpec examples, 0 failures, Ruby 99.28% line/94.33% branch coverage, and all other gates passed. Fresh migration and schema-load checks from round 1 remained valid because the migration/schema did not change. Both found no open blocker; model guards still exclude bulk writes and direct SQL as documented in T06-D05.
+- **2026-09-30 — Merge verification:** both reviewers approved documentation-only follow-ups through PR head `02199cfde658a657720cd3b03c4bf41fd16bf8d4`. GitHub reported PR #16 `MERGEABLE`/`CLEAN` with that exact head, no required hosted checks, and then `MERGED` at `07df42000f76048b7cc3f8659c2632a75acf8692`; the main branch pointed to that merge commit. T07 is unblocked.
 
 ## Handoff
 
