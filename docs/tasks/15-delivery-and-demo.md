@@ -25,9 +25,9 @@ Make the completed local application easy to run, evaluate, and explain using ve
 
 ## Current checkpoint
 
-- Completed: first candidate `1d18c51` delivered the [README runbook and demo](../../README.md), separate [three-row fixture](../demo/delivery-sample.json), isolated browser rehearsal, three inspected screenshots, and passing full Docker CI. Two independent first-round reviewers requested documentation fixes. The parent corrected the stale index introduction and checkpoint in `1792b68`; this review-fix working tree corrects the README reviewer-name instruction and verifies web-container recreation without changing demo state. All 34 local links and the fixture still validate. No application behavior changed.
-- Remaining: parent commits the README/brief review fix, both reviewers reassess that exact revision, then PR and merge verification. The task index owns status and the parent's orchestration checkpoint.
-- Next action: hand this stable review-fix tree to the parent for a new candidate and independent re-review. Do not mark T15 `done` before verified merge.
+- Completed: first candidate `1d18c51` delivered the [README runbook and demo](../../README.md), separate [three-row fixture](../demo/delivery-sample.json), isolated browser rehearsal, three inspected screenshots, and passing full Docker CI. Two independent first-round reviewers requested documentation fixes. The index and README fixes are committed; web-container recreation was verified without changing demo state. All 34 local links and the fixture still validate. No application behavior changed.
+- Remaining: both reviewers reassess the committed documentation revision, then PR and merge verification. The task index owns status and the parent's orchestration checkpoint.
+- Next action: complete independent re-review of the committed fixes, then record PR and merge evidence. Do not mark T15 `done` before verified merge.
 
 ## Problems
 

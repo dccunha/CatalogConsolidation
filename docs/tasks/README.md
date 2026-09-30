@@ -38,11 +38,11 @@ The user can invoke the [orchestrator instructions and starter prompt](orchestra
 
 - Run state: `running`.
 - Current task/stage: T15 / independent reassessment of first-round documentation fixes.
-- Working directory, branch, candidate revision, and PR: `/home/daniel/.codex/worktrees/137d/VTEX`, `codex/t15-delivery-demo` from integrated main `6b348d1`; first candidate `1d18c51`, fixed documentation candidate `230de90`, no T15 PR yet.
-- Active agent assignments and test-runner owner: T15 implementer stopped writing; correctness and test reviewers to reassess final diff. No shared Docker runner active.
-- Unresolved orchestration findings or decisions: T15-COR-01/TEST-01, T15-COR-02/TEST-02, and T15-COR-03 fixes await both independent reassessments. No user decision needed.
+- Working directory, branch, candidate revision, and PR: `/home/daniel/.codex/worktrees/137d/VTEX`, `codex/t15-delivery-demo` from integrated main `6b348d1`; runtime candidate `1d18c51`, later documentation fixes committed, current branch HEAD is the review target, no T15 PR yet.
+- Active agent assignments and test-runner owner: T15 implementer stopped writing; both reviewers reassessing the current documentation delta. No shared Docker runner active.
+- Unresolved orchestration findings or decisions: T15-COR-01/TEST-01 and T15-COR-03 resolved; T15-COR-02 checkpoint correction awaits final reviewer confirmation. No user decision needed.
 - Last completed orchestration milestone: T14 integrated AC1–AC12/RFC and real Chromium browser journeys passed on `fefeb52`; unchanged reference inputs and committed screenshot hashes verified.
-- Next action: commit this review-stage checkpoint and ask both independent reviewers to reassess the stable T15 revision before PR.
+- Next action: obtain both independent approvals of the current committed revision, then prepare the T15 PR.
 
 During a run, update this checkpoint at stage transitions and before interruption. Keep task statuses in the table above and detailed findings/evidence in the owning briefs. See [records and recovery](orchestrator.md#records-and-recovery) for resume rules.
 
