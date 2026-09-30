@@ -25,8 +25,8 @@ Process a valid JSON array into persistent, explainable row outcomes and a recon
 ## Current checkpoint
 
 - Completed: internal `Intake::Services::ImportProcessor`, first-round test-review fixes, independent approvals at `f0d4569490de29eb60d5dc766ea6c7e3ce7dde6b`, and exact-commit Docker CI with 137 passing RSpec examples.
-- Remaining: PR creation, final head verification, and merge. T08 owns repeated-key and rerun semantics before web upload is exposed.
-- Next action: the orchestrator opens and verifies the T07 PR.
+- Remaining: final [PR #17](https://github.com/dccunha/CatalogConsolidation/pull/17) head verification and merge. T08 owns repeated-key and rerun semantics before web upload is exposed.
+- Next action: the orchestrator verifies the final reviewed PR head before merge.
 
 ## Problems
 
