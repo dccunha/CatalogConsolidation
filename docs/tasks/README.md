@@ -11,7 +11,7 @@ Implement in index order, initially T00–T15 plus the T00Q quality preflight, o
 | ID | Task | Status | After merge | PR | Current blocker |
 | --- | --- | --- | --- | --- | --- |
 | T00 | [Establish task records and workflow](00-task-workflow.md) | done | Foundation | [#6](https://github.com/dccunha/CatalogConsolidation/pull/6) | None |
-| T00Q | [Enforce implementation quality gates](00q-quality-gates.md) | in review | T00 | Not opened | None |
+| T00Q | [Enforce implementation quality gates](00q-quality-gates.md) | in review | T00 | Not opened | [T00Q-P01](00q-quality-gates.md#problems): publication approval |
 | T01 | [Integrate concepts and Catalog persistence](01-concepts-and-catalog-persistence.md) | backlog | T00Q | Not opened | — |
 | T02 | [Load the reference catalog](02-reference-catalog-loading.md) | backlog | T01 | Not opened | — |
 | T03 | [Implement Catalog public writes](03-catalog-public-writes.md) | backlog | T02 | Not opened | — |

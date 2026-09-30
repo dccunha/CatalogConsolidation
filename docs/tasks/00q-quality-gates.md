@@ -22,12 +22,12 @@ Make static typing and coverage expectations executable in Docker CI, and bind e
 ## Current checkpoint
 
 - Completed: the existing CI baseline and updated full CI passed; Sorbet and Tapioca were installed, gem/Rails RBIs generated, coverage floors and CI steps added; targeted negative checks rejected a missing sigil, a type error, and uncovered JavaScript/Ruby.
-- Remaining: human PR review and verified merge before T01 becomes ready.
-- Next action: open the quality preflight PR and request human review.
+- Remaining: explicit approval to publish the branch, human PR review, and verified merge before T01 becomes ready.
+- Next action: wait for the user's answer to the publication dialog, then push and open the quality preflight PR if approved.
 
 ## Problems
 
-None recorded.
+T00Q-P01 (2026-09-30): Automatic approval review rejected `git push -u origin codex/quality-gates`. It said the user request authorized audit and quality-gate work, but did not establish the GitHub destination's trust or authorize publication of repository contents. The local branch and commit `ea04c62` are intact; no push or PR occurred. Required input: explicit user approval to push this branch to `git@github.com:dccunha/CatalogConsolidation.git` and open a PR, or a different review path. Owner: user for the publication decision, then this task for execution.
 
 ## Decisions
 
@@ -43,4 +43,4 @@ None recorded.
 
 ## Handoff
 
-Ready for human review. `config/ci.rb` runs Sorbet, sigil, and RBI freshness gates; `spec/spec_helper.rb` and `vitest.config.mjs` enforce the coverage floors; `.github/workflows/ci.yml` runs the same suite on pull requests; `sorbet/` contains generated interfaces. `bin/ci` passes on the final application configuration. T01 must begin only after this PR is reviewed and merged, then apply the shared gates to its concept models and tests. The current baseline has no domain implementation; reviewers must inspect future behavior tests and type signatures rather than extrapolating from its 100% coverage report.
+Ready for human review at local commit `ea04c62`. `config/ci.rb` runs Sorbet, sigil, and RBI freshness gates; `spec/spec_helper.rb` and `vitest.config.mjs` enforce the coverage floors; `.github/workflows/ci.yml` runs the same suite on pull requests; `sorbet/` contains generated interfaces. `bin/ci` passes on the final application configuration. Publication is pending T00Q-P01. T01 must begin only after this PR is reviewed and merged, then apply the shared gates to its concept models and tests. The current baseline has no domain implementation; reviewers must inspect future behavior tests and type signatures rather than extrapolating from its 100% coverage report.
