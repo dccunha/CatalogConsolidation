@@ -25,6 +25,8 @@ RSpec.describe "Browser acceptance journeys", type: :system do
   end
 
   def screenshot(name)
+    return unless ENV["T14_CAPTURE_SCREENSHOTS"] == "1"
+
     File.binwrite(Rails.root.join("docs/tasks/screenshots/#{name}.png"),
       page.driver.browser.screenshot_as(:png))
   end
