@@ -22,9 +22,9 @@ Set up targeted, automated RSpec conventions before T01 adds domain specs. This 
 
 ## Current checkpoint
 
-- Completed: T00 merge commit `07ab9b358b68f76ab67989e07e3693ea472a2cc2` verified in integrated Git history; implementation on `codex/t00a-better-specs` from `b39354f8851ec22d190b93bb355e9907914b82a3`; targeted rules, RSpec syntax, FactoryBot dependency, and guidance added; focused checks and full CI passed.
+- Completed: T00 merge commit `07ab9b358b68f76ab67989e07e3693ea472a2cc2` verified in integrated Git history; implementation on `codex/t00a-better-specs` from `b39354f8851ec22d190b93bb355e9907914b82a3`; targeted rules, RSpec syntax, FactoryBot dependency, and guidance added in `9afd054`; focused checks and full CI passed; [PR #9](https://github.com/dccunha/CatalogConsolidation/pull/9) opened for human review.
 - Remaining: human PR review and verified merge. T01 stays in backlog until then.
-- Next action: open the T00A PR and await human review.
+- Next action: await human review of PR #9; after merge verification, mark T00A done and T01 ready in a tracking commit.
 
 ## Problems
 
@@ -45,6 +45,7 @@ None recorded.
 - **2026-09-30 — Passed:** The same two-expectation example supplied as `spec/requests/example_spec.rb` had no `RSpec/MultipleExpectations` offense. A separate disposable example produced the expected `ContextWording`, `ExampleWording`, and `InstanceVariable` offenses.
 - **2026-09-30 — Passed:** A Docker Rails runner confirmed `FactoryBot` loads in test; a Ruby check confirmed RSpec expectation and mock syntax are both `[:expect]`.
 - **2026-09-30 — Passed:** `docker compose run --rm web bin/ci` completed setup, Ruby/ERB/JavaScript linting, security audits, database checks, one RSpec example, one Vitest test, and seed checks. No domain acceptance criteria are implemented yet.
+- **2026-09-30 — In review:** [PR #9](https://github.com/dccunha/CatalogConsolidation/pull/9) was opened from commit `9afd054`; human review and merge remain pending.
 
 ## Handoff
 

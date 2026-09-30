@@ -11,7 +11,7 @@ Implement in index order, initially T00–T15, one task and one PR at a time. Th
 | ID | Task | Status | After merge | PR | Current blocker |
 | --- | --- | --- | --- | --- | --- |
 | T00 | [Establish task records and workflow](00-task-workflow.md) | done | Foundation | [#6](https://github.com/dccunha/CatalogConsolidation/pull/6) | None |
-| T00A | [Enforce Better Specs conventions](00a-better-specs-conventions.md) | in review | T00 | Not opened | None |
+| T00A | [Enforce Better Specs conventions](00a-better-specs-conventions.md) | in review | T00 | [#9](https://github.com/dccunha/CatalogConsolidation/pull/9) | None |
 | T01 | [Integrate concepts and Catalog persistence](01-concepts-and-catalog-persistence.md) | backlog | T00A | Not opened | — |
 | T02 | [Load the reference catalog](02-reference-catalog-loading.md) | backlog | T01 | Not opened | — |
 | T03 | [Implement Catalog public writes](03-catalog-public-writes.md) | backlog | T02 | Not opened | — |
