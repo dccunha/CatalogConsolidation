@@ -248,4 +248,214 @@ RSpec.describe Intake::Services::ImportProcessor, type: :model do
       expect { described_class.fetch(batch_id: batch.id) }.to raise_error(/Incomplete import batch/)
     end
   end
+
+  describe "seller identity reruns" do
+    it "uses the exact seller key and normalized source identity within and across batches" do
+      equivalent = row.merge("Name" => "  SMARTPHONE   Galaxy S23  ",
+        "Brand" => "SAMSUNG", "Category" => "  Electronics ")
+      accented = row.merge("Name" => "Smartphoné Galaxy S23")
+      distinct_key = row.merge("Id" => "001 ")
+
+      first = import(row, equivalent, accented)
+      second = import(accented, distinct_key)
+
+      expect(first.rows.map(&:outcome)).to eq(%w[created already_imported already_imported])
+      expect(second.rows.map(&:outcome)).to eq(%w[already_imported pending_review])
+      expect(first.rows.map(&:product_id).uniq).to eq([ first.rows.first.product_id ])
+      expect(Intake::Models::SellerItem.where(seller_name: "MegaStore").count).to eq(2)
+      expect(Catalog::Models::SellerProduct.where(seller_name: "MegaStore", seller_product_id: "001").count).to eq(1)
+      expect_reconciled(first)
+      expect_reconciled(second)
+    end
+
+    it "reuses a pending case for repeated keys in a file and on another run" do
+      incomplete = row.merge("Brand" => nil)
+
+      first = import(incomplete, incomplete)
+      second = import(incomplete)
+
+      expect(first.rows.map(&:outcome)).to eq(%w[pending_review pending_review])
+      expect(second.rows.first.outcome).to eq("pending_review")
+      expect((first.rows + second.rows).map(&:review_case_id).uniq).to eq([ first.rows.first.review_case_id ])
+      expect(Intake::Models::ReviewCase.count).to eq(1)
+      expect(Catalog::Models::SellerProduct.count).to eq(0)
+      expect_reconciled(first)
+      expect_reconciled(second)
+    end
+
+    it "retains a final decision after review and an equivalent source rerun" do
+      product = FactoryBot.create(:catalog_product)
+      incomplete = row.merge("Brand" => nil)
+      first = import(incomplete)
+      review_case = Intake::Models::ReviewCase.find(first.rows.first.review_case_id)
+      association = Catalog::Public::Writes.link(product_id: product.id,
+        seller_name: "MegaStore", seller_product_id: "001")
+      review_case.seller_item.update!(resolution: "linked", product_id: association.product_id)
+      review_case.update!(status: "resolved")
+      decision = Intake::Models::ReviewDecision.create!(review_case: review_case, reviewer: "Alex",
+        result: "linked", reason: "confirmed product", product_id: product.id, decided_at: Time.current)
+
+      rerun = import(incomplete)
+
+      expect(rerun.rows.first.outcome).to eq("already_imported")
+      expect(rerun.rows.first.product_id).to eq(product.id)
+      expect(rerun.rows.first.review_case_id).to eq(review_case.id)
+      expect(rerun.rows.first.reason).to include("decision #{decision.id}", "confirmed product")
+      expect(first.rows.first.outcome).to eq("pending_review")
+      expect(Intake::Models::ReviewCase.count).to eq(1)
+      expect(Catalog::Models::SellerProduct.count).to eq(1)
+      expect_reconciled(rerun)
+    end
+
+    it "keeps original source identity after correction and opens review for a later change" do
+      original = row.merge("Brand" => nil)
+      first = import(original)
+      review_case = Intake::Models::ReviewCase.find(first.rows.first.review_case_id)
+      corrected = original.merge("Brand" => "Samsung")
+      Intake::Models::ReviewCorrection.create!(review_case: review_case, reviewer: "Alex",
+        corrected_input: corrected, corrected_comparison: { "name" => "smartphone galaxy s23",
+          "brand" => "samsung", "category" => "electronics" }, corrected_at: Time.current)
+      unchanged = import(original)
+      product = FactoryBot.create(:catalog_product)
+      association = Catalog::Public::Writes.link(product_id: product.id,
+        seller_name: "MegaStore", seller_product_id: "001")
+      review_case.seller_item.update!(resolution: "linked", product_id: association.product_id)
+      review_case.update!(status: "resolved")
+      decision = Intake::Models::ReviewDecision.create!(review_case: review_case, reviewer: "Alex",
+        result: "linked", product_id: product.id, decided_at: Time.current)
+      resolved = import(original)
+      changed = import(corrected)
+
+      expect(unchanged.rows.first.review_case_id).to eq(review_case.id)
+      expect([ resolved.rows.first.outcome, resolved.rows.first.review_case_id ]).to eq(
+        [ "already_imported", review_case.id ])
+      expect(resolved.rows.first.reason).to include("decision #{decision.id}")
+      expect(changed.rows.first.outcome).to eq("pending_review")
+      expect(changed.rows.first.review_case_id).not_to eq(review_case.id)
+      expect(review_case.reload.status).to eq("superseded")
+      expect(review_case.seller_item.reload.active_source_input).to eq(corrected)
+      expect(Intake::Models::ReviewCase.find(changed.rows.first.review_case_id).source_input).to eq(corrected)
+      expect(Catalog::Models::SellerProduct.sole.product_id).to eq(product.id)
+      expect_reconciled(changed)
+    end
+
+    it "supersedes successive changes and treats a historical reversion as a new version" do
+      original = row.merge("Brand" => nil)
+      second_source = original.merge("Name" => "Galaxy S23 Plus")
+      third_source = original.merge("Name" => "Galaxy S23 Ultra")
+      first = import(original)
+      second = import(second_source)
+      third = import(third_source)
+      reverted = import(original)
+      cases = Intake::Models::ReviewCase.order(:id).to_a
+
+      expect([ first, second, third, reverted ].map { |result| result.rows.first.outcome }).to eq(
+        %w[pending_review pending_review pending_review pending_review]
+      )
+      expect(cases.map(&:status)).to eq(%w[superseded superseded superseded pending])
+      expect(cases.map(&:id)).to eq([ first, second, third, reverted ].map { |result| result.rows.first.review_case_id })
+      expect(Intake::Models::SellerItem.sole.active_source_input).to eq(original)
+      expect(Catalog::Models::SellerProduct.count).to eq(0)
+      expect_reconciled(reverted)
+    end
+
+    it "preserves the current association while changing a resolved source" do
+      first = import(row)
+      product_id = first.rows.first.product_id
+      changed = row.merge("Name" => "Galaxy S23 Ultra")
+
+      second = import(changed, changed)
+      seller_item = Intake::Models::SellerItem.sole
+      review_case = Intake::Models::ReviewCase.sole
+
+      expect(second.rows.map(&:outcome)).to eq(%w[pending_review pending_review])
+      expect(second.rows.map(&:review_case_id).uniq).to eq([ review_case.id ])
+      expect(seller_item.reload.product_id).to eq(product_id)
+      expect(seller_item.resolution).to eq("pending")
+      expect(Catalog::Models::SellerProduct.find_by!(seller_name: "MegaStore", seller_product_id: "001").product_id)
+        .to eq(product_id)
+      expect(first.rows.first.outcome).to eq("created")
+      reverted = import(row)
+      expect(reverted.rows.first.outcome).to eq("pending_review")
+      expect(reverted.rows.first.review_case_id).not_to eq(review_case.id)
+      expect(review_case.reload.status).to eq("superseded")
+      expect(seller_item.reload.product_id).to eq(product_id)
+      expect(Catalog::Models::SellerProduct.count).to eq(1)
+      expect_reconciled(second)
+      expect_reconciled(reverted)
+    end
+
+    it "rolls back supersession and source replacement when the new case cannot be saved" do
+      original = row.merge("Brand" => nil)
+      first = import(original)
+      review_case = Intake::Models::ReviewCase.find(first.rows.first.review_case_id)
+      allow(Intake::Models::ReviewCase).to receive(:create!).and_raise("forced case failure")
+
+      failed = import(original.merge("Name" => "Changed"))
+
+      expect(failed.rows.first.outcome).to eq("failed")
+      expect(failed.rows.first.reason).to include("forced case failure")
+      expect(review_case.reload.status).to eq("pending")
+      expect(review_case.seller_item.reload.active_source_input).to eq(original)
+      expect(Intake::Models::ReviewCase.count).to eq(1)
+      expect_reconciled(failed)
+    end
+
+    it "retains declined and displaced decisions without relinking either seller key" do
+      product = FactoryBot.create(:catalog_product)
+      first = import(row.merge("Brand" => nil))
+      review_case = Intake::Models::ReviewCase.find(first.rows.first.review_case_id)
+      review_case.seller_item.update!(resolution: "declined")
+      review_case.update!(status: "resolved")
+      Intake::Models::ReviewDecision.create!(review_case: review_case, reviewer: "Alex",
+        result: "kept_existing", reason: "keep original ID", product_id: product.id,
+        declined_seller_item_id: review_case.seller_item.id, decided_at: Time.current)
+      declined = import(row.merge("Brand" => nil))
+
+      expect([ declined.rows.first.outcome, declined.rows.first.product_id ]).to eq([ "already_imported", nil ])
+      expect(declined.rows.first.reason).to include("kept_existing", "without association")
+      expect(Catalog::Models::SellerProduct.count).to eq(0)
+
+      displaced_item = Intake::Models::SellerItem.create!(seller_name: "MegaStore", seller_product_id: "old",
+        active_source_input: row.merge("Id" => "old", "Brand" => nil),
+        active_source_comparison: review_case.source_comparison,
+        resolution: "displaced")
+      replacement_case = Intake::Models::ReviewCase.create!(seller_item: displaced_item,
+        batch: Intake::Models::Batch.find(first.batch_id), source_position: 1, status: "resolved",
+        reason: "listing replacement", source_input: displaced_item.active_source_input,
+        source_comparison: displaced_item.active_source_comparison)
+      Intake::Models::ReviewDecision.create!(review_case: replacement_case, reviewer: "Alex",
+        result: "linked", product_id: product.id, displaced_seller_item_id: displaced_item.id,
+        decided_at: Time.current)
+      displaced = import(row.merge("Id" => "old", "Brand" => nil))
+
+      expect([ displaced.rows.first.outcome, displaced.rows.first.product_id ]).to eq([ "already_imported", nil ])
+      expect(displaced.rows.first.reason).to include("displaced", "without association")
+      expect(Intake::Models::ReviewCase.count).to eq(2)
+      expect(Catalog::Models::SellerProduct.count).to eq(0)
+      expect_reconciled(displaced)
+    end
+
+    it "records every supplied file position on two equivalent runs without duplicate keys or associations" do
+      Catalog::Services::ReferenceCatalogLoader.call
+      json = File.read(Rails.root.join("docs/refs/ProductEntry.json"))
+      first = described_class.call(json: json, source_name: "ProductEntry.json")
+      item_count = Intake::Models::SellerItem.count
+      case_count = Intake::Models::ReviewCase.count
+      association_count = Catalog::Models::SellerProduct.count
+      second = described_class.call(json: json, source_name: "ProductEntry.json")
+
+      expect(first.input_count).to eq(269)
+      expect(second.input_count).to eq(269)
+      expect(first.rows.map(&:position)).to eq((1..269).to_a)
+      expect(second.rows.map(&:position)).to eq((1..269).to_a)
+      expect(second.totals.fetch("created")).to eq(0)
+      expect(second.totals.fetch("linked")).to eq(0)
+      expect(Intake::Models::SellerItem.count).to eq(item_count)
+      expect(Intake::Models::ReviewCase.count).to eq(case_count)
+      expect(Catalog::Models::SellerProduct.count).to eq(association_count)
+      expect_reconciled(first)
+      expect_reconciled(second)
+    end
+  end
 end
