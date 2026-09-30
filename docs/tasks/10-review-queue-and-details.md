@@ -24,9 +24,9 @@ Make pending/resolved cases, matching evidence, and history understandable in th
 
 ## Current checkpoint
 
-- Completed: queue/details pages, batch and global navigation, local reviewer configuration, request/configuration specs, generated route RBIs, visual screenshots, and first-round fixes for chronological review history and status-aware empty evidence. Both independent reviewers approved corrected commit `9d88d25`; exact-commit Docker CI passes.
-- Remaining: verified merge of [PR #20](https://github.com/dccunha/CatalogConsolidation/pull/20). The task index owns status.
-- Next action: verify PR head and merge gates, then merge.
+- Completed: queue/details pages, batch and global navigation, local reviewer configuration, request/configuration specs, generated route RBIs, visual screenshots, and first-round fixes for chronological review history and status-aware empty evidence. Both independent reviewers approved corrected commit `9d88d25` and documentation deltas through `68137a3`; exact-code-commit Docker CI passed. [PR #20](https://github.com/dccunha/CatalogConsolidation/pull/20) merged at `3123ff65b45f92c04cf196944aac79ee028a49ca`.
+- Remaining: none for T10; final integrated browser action QA remains in T14.
+- Next action: T11 consumes the review case and reviewer identity handoff below.
 
 ## Problems
 
@@ -52,6 +52,7 @@ Make pending/resolved cases, matching evidence, and history understandable in th
 
 - **Round 1, candidate `5100bea` (2026-09-30):** Correctness review raised T10-COR-01 (history event misordering) and T10-COR-02 (no-candidate copy inaccurate for resolved/superseded cases). Test review raised overlapping T10-TEST-01 (missing interleaved chronology assertion). The review-fix working tree addresses all three with time-ordered events, deterministic ties, status-aware text, and exact request assertions. A first full run passed 166 examples but failed only RuboCop complexity; the refactored candidate passed the full gate above.
 - **Round 2, corrected candidate `9d88d25` (2026-09-30):** Correctness reviewer approved with T10-COR-01/02 resolved at controller lines 30–35 and 62–67, view lines 51–60 and 85–101, and regression specs. Test reviewer independently approved with T10-TEST-01 resolved, reran exact-commit Docker `bin/ci` successfully, and inspected three stored screenshots. No new findings or blockers. T10 browser visibility milestone passed; actual browser click and keyboard journeys remain for T14.
+- **PR and merge, 2026-09-30:** Both reviewers approved documentation-only commits `efea6fc` and `68137a3`. [PR #20](https://github.com/dccunha/CatalogConsolidation/pull/20) had exact head `68137a3`, base `fa431ca`, clean mergeability, and no reported hosted checks or required GitHub reviews. GitHub reported it merged at `3123ff65b45f92c04cf196944aac79ee028a49ca`; fetched `origin/main` matched that merge commit.
 
 ## Handoff
 
