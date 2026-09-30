@@ -6,6 +6,8 @@ A full-stack Rails development environment for the catalog consolidation project
 
 See the [task index](docs/tasks/README.md) for the implementation sequence, current status, acceptance coverage, and workflow for fresh agent chats. Each task has a brief with its required context, acceptance checks, problems, decisions, and handoff. The index distinguishes planned work from verified, merged implementation.
 
+For agent-managed implementation, use the [orchestrator starter prompt](docs/tasks/orchestrator.md#starter-prompt). It delegates implementation and independent reviews, manages fixes and merges, and prepares the application for final human QA when explicitly invoked.
+
 ## Requirements
 
 - Docker Engine

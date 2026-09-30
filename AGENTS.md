@@ -8,11 +8,13 @@ For new domain code, follow `docs/adrs/0001-organize-by-concepts.md`: place Cata
 
 ## Implementation Tasks and Handoffs
 
-Use [the task index](docs/tasks/README.md) as the authoritative status record. Work on one numbered task at a time in sequence, normally in a fresh chat and one reviewed PR. Read its brief, linked requirements, and relevant dependency handoffs; do not load every task or earlier conversation by default. Verify the previous task's merge before starting the next. Mark `done` only after verifying a merge.
+Use [the task index](docs/tasks/README.md) as the authoritative status record. Work on one numbered task at a time in sequence and one reviewed PR. Read its brief, linked requirements, and relevant dependency handoffs; do not load every task or earlier conversation by default. Verify the previous task's merge before starting the next. Mark `done` only after verifying a merge.
+
+When the user explicitly invokes the [orchestrator workflow](docs/tasks/orchestrator.md), use fresh implementation sub-agents and two independent reviewers per task. The parent owns Git/PR operations and records, enforces one application writer and one shared test runner at a time, and automatically merges only after reviews and required checks pass. Report milestones and continue; pause for material decisions, blockers requiring user involvement, or final QA. Preparing these instructions does not start the loop. An assigned worker performs only its role and task. For individual task requests, retain the fresh-chat and human-review workflow unless the user authorizes otherwise.
 
 Keep the selected brief's checkpoint, problems, decisions, validation evidence, and handoff current, especially before pausing or requesting review. Record actual checks and remaining limitations. Add a linked follow-up task when new work exceeds the current task's boundaries. Keep durable architecture decisions in ADRs and approved behavior changes in the PRD/RFC.
 
-Choose and document routine local implementation details. Interview the user before changing agreed behavior, scope, or contracts affecting later tasks. Use interactive question dialogs whenever asking a question and wait for the user's explicit answer. Never treat silence, a timeout, or a preselected option as an answer; leave unanswered decisions unresolved and pause until the user responds.
+Choose and document routine local implementation details, including initial schema and service design owned by the task. Interview the user before changing agreed behavior, scope, architecture, or established contracts affecting other tasks. During orchestration, workers report questions to the parent, which asks the user. Use interactive question dialogs whenever asking a question and wait for the user's explicit answer. Never treat silence, a timeout, or a preselected option as an answer; leave unanswered decisions unresolved and pause until the user responds.
 
 ## Build, Test, and Development Commands
 

@@ -27,20 +27,34 @@ Implement in index order, initially T00–T15, one task and one PR at a time. Th
 | T14 | [Verify acceptance journeys](14-acceptance-journeys.md) | backlog | T13 | Not opened | — |
 | T15 | [Prepare delivery and demo](15-delivery-and-demo.md) | backlog | T14 | Not opened | — |
 
-Milestones: T08 verifies importer/rerun services; T10 makes upload, results, and review evidence available in the browser; T13 completes the required user actions; T15 completes delivery verification.
+Milestones: T08 verifies importer/rerun services; T10 makes upload, results, and review evidence available in the browser; T13 completes the required user actions; T14 verifies integrated acceptance journeys; T15 completes delivery verification.
+
+## Orchestrator run checkpoint
+
+The user can invoke the [orchestrator instructions and starter prompt](orchestrator.md#starter-prompt) to run the remaining tasks with fresh implementers, two independent reviewers per task, automatic merges after passing gates, and a pause for final QA. Merely reading or editing those instructions does not start the run. Individual task requests can still use the manual workflow below.
+
+- Run state: `not_started`.
+- Current task/stage: none / idle; T01 is the next ready task.
+- Working directory, branch, candidate revision, and PR: assigned and verified at launch.
+- Active agent assignments and test-runner owner: none.
+- Unresolved orchestration findings or decisions: none.
+- Last completed orchestration milestone: none.
+- Next action: invoke the starter prompt when ready to execute.
+
+During a run, update this checkpoint at stage transitions and before interruption. Keep task statuses in the table above and detailed findings/evidence in the owning briefs. See [records and recovery](orchestrator.md#records-and-recovery) for resume rules.
 
 ## Working a task
 
 1. Read the root `AGENTS.md`, this index, the selected brief, and its required-context links. Read dependency handoffs before following their implementation links. Expand into other files only as needed.
-2. Verify the predecessor's PR merged and its handoff matches the integrated code. Record the actual PR/merge evidence; then mark the selected task `ready` and, when work begins, `in progress`. Use a fresh chat and a `codex/` branch based on the integrated work.
+2. Verify the predecessor's PR merged and its handoff matches the integrated code. Record the actual PR/merge evidence; then mark the selected task `ready` and, when work begins, `in progress`. Use a `codex/` branch based on the integrated work and a fresh chat for a manual task, or a fresh implementer sub-agent in an explicitly invoked orchestration run.
 3. Keep the task's current checkpoint accurate. Update it when pausing, encountering a blocker, or preparing a PR. If a task outgrows its bounded outcome, add a linked follow-up brief using [the template](task-template.md) and update sequencing before expanding the work.
 4. Run focused tests while implementing and `docker compose run --rm web bin/ci` before submitting a PR. Record commands and actual outcomes, including failures or checks not run. Include screenshots for visible UI changes.
-5. Prepare the handoff and mark `in review` when the change is ready for human review. Add the PR link when it exists. This state can include local work awaiting PR creation; it never means merged.
-6. After verifying the PR merged, record `done` and the merge reference in a small follow-up tracking commit. Unblock the next task. Review or merge failure leaves the task unfinished.
+5. Prepare the handoff and mark `in review` when the change is ready for review. Manual tasks await human review. Orchestrated tasks require independent correctness and test reviews, with fixes and re-review before automatic merging. Add the PR link when it exists. This state can include local work awaiting PR creation; it never means merged.
+6. After verifying the PR merged, record `done` and the merge reference in a small follow-up tracking commit. Unblock the next task. Review or merge failure leaves the task unfinished. During an orchestration run, continue automatically and update the run checkpoint; preserve the merge requirements in [the orchestrator workflow](orchestrator.md#validate-and-merge).
 
 Normal transitions are `backlog` → `ready` → `in progress` → `in review` → `done`. Use `blocked` when unresolved input or a dependency prevents further task progress; link the problem entry and state the next required action. Expected future sequencing leaves a task in `backlog`, not `blocked`. Return review changes to `in progress`. Only one implementation task is active at a time.
 
-For a new chat, use:
+For a manual single-task chat, use:
 
 > Implement task TNN from its brief in docs/tasks/. Read AGENTS.md and the task index first, verify its merge gate, then read only the linked requirements and dependency handoffs needed for this task. Keep its checkpoint, problems, decisions, and validation evidence current. Finish with a reviewable change and handoff; do not begin the next task. Use interactive question dialogs for questions and wait for my explicit answer.
 
@@ -50,14 +64,17 @@ Keep each brief focused on its current outcome. Link test files, commits, PRs, a
 
 Use task-local problem IDs such as `T08-P01`: date, symptom, evidence, impact, attempted fixes, resolution or required input, and next action/owner. The index links only current blockers. Cross-task problems have one owning entry, with links from affected briefs.
 
-Use decision IDs such as `T06-D01`: date, choice, rationale, and affected contracts/tasks. Agents may choose routine local details. Interview the user before changing agreed behavior, scope, or contracts affecting downstream work. Use interactive dialogs and wait for an explicit answer; silence, expiration, and preselected options are not answers. Keep unanswered decisions unresolved.
+Use decision IDs such as `T06-D01`: date, choice, rationale, and affected contracts/tasks. Agents may choose routine local details, including initial schema and service design owned by a task. Interview the user before changing agreed behavior, scope, architecture, or established contracts affecting other tasks. Use interactive dialogs and wait for an explicit answer; silence, expiration, and preselected options are not answers. Keep unanswered decisions unresolved.
+
+For orchestrated tasks, append review rounds under validation evidence using [the template](task-template.md#review-rounds). Record both roles' revisions/verdicts, actionable finding IDs, fixes or deferral rationale, and actual checks. This preserves independent review evidence without carrying entire review conversations into later tasks.
 
 Promote lasting architectural decisions to an ADR. Update the PRD/RFC when an explicitly approved decision changes product or lifecycle behavior. Link the durable document from the task decision entry rather than duplicating its contents. The implementation task owns schema and service-signature details and records the resulting interface, transaction boundary, and errors in its handoff.
 
 ## Agreed delivery choices
 
 - Full PRD/RFC scope, organized for manageable tasks without an imposed submission deadline.
-- Repository Markdown is the source of truth; sequential fresh chats and one reviewed PR per task; `done` means merged.
+- Repository Markdown is the source of truth; tasks remain sequential with one reviewed PR per task; `done` means merged.
+- When explicitly invoked, orchestration uses a fresh implementer and two independent reviewers per task, automatic merges after reviews/checks, and milestone reports without routine human pauses. The overall run pauses for final QA or unresolved decisions/blockers. These user-approved choices replace per-task human review pauses for that run; manual single-task chats remain available.
 - Web upload and a clear, modestly styled Rails interface; no separate seller-import CLI deliverable. A command for reference-catalog loading remains necessary.
 - Synchronous imports initially, reflecting the local demonstration and small input. Background jobs need evidence and a scope decision.
 - One configured local reviewer name, without authentication. Persist the name used when each decision is made.

@@ -37,6 +37,17 @@ None recorded. For each decision, use `TNN-D01`, date, choice, rationale, and af
 
 Not run. Record command or manual scenario, date, outcome, and relevant spec/log/screenshot links. Separate passed, failed, and not-run checks.
 
+### Review rounds
+
+For orchestrated tasks, add one compact entry per round. Existing briefs can add this subsection under validation evidence when their run begins. No review has occurred merely because this format exists.
+
+- Round and date; base/candidate revision.
+- Correctness reviewer: agent/role, reviewed revision, verdict, and evidence.
+- Test reviewer: agent/role, reviewed revision, verdict, and commands/results.
+- Findings: stable IDs, severity, affected requirement, file/line or scenario, and requested correction.
+- Resolution: fix revision or rationale for a nonblocking deferral; both reviewers' reassessment.
+- Final gate: reviewed PR head, required checks, remaining limitations, and verified merge reference when available.
+
 ## Handoff
 
 Not implemented. Before review, replace this with implemented code entry points, actual interfaces and errors, transaction/persistence assumptions, tests run, limitations, and the next task's concrete integration notes. Add PR/commit references; record merge evidence only after verification.
