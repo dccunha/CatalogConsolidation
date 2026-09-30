@@ -13,6 +13,29 @@ RSpec.describe Intake::Services::ImportProcessor, type: :model do
     described_class.call(json: [ input ].to_json, source_name: "concurrent.json")
   end
 
+  def thread_result(thread)
+    Timeout.timeout(10) { thread.value }
+  end
+
+  def stop_threads(*threads)
+    threads.compact.each do |thread|
+      thread.join(5)
+      thread.kill if thread.alive?
+    end
+  end
+
+  def wait_for_advisory_block(pid)
+    Timeout.timeout(5) do
+      loop do
+        activity = Intake::Models::SellerItem.connection.select_one(
+          "SELECT wait_event_type, wait_event FROM pg_stat_activity WHERE pid = #{pid}")
+        break if activity == { "wait_event_type" => "Lock", "wait_event" => "advisory" }
+
+        sleep 0.01
+      end
+    end
+  end
+
   after do
     Intake::Models::RowResult.delete_all
     Intake::Models::ReviewRejection.delete_all
@@ -30,9 +53,16 @@ RSpec.describe Intake::Services::ImportProcessor, type: :model do
     incomplete = row.merge("Brand" => nil)
     entered = Queue.new
     release = Queue.new
-    started = Queue.new
+    attempting = Queue.new
     first_call = true
     guard = Mutex.new
+    allow(described_class).to receive(:lock_seller_key).and_wrap_original do |original, valid|
+      if Thread.current[:t08_second_import]
+        pid = Intake::Models::SellerItem.connection.select_value("SELECT pg_backend_pid()").to_i
+        attempting << pid
+      end
+      original.call(valid)
+    end
     allow(Intake::Services::ProductMatcher).to receive(:call).and_wrap_original do |original, **arguments|
       pause = guard.synchronize do
         current = first_call
@@ -49,13 +79,14 @@ RSpec.describe Intake::Services::ImportProcessor, type: :model do
     first_thread = Thread.new { import_row(incomplete) }
     Timeout.timeout(5) { entered.pop }
     second_thread = Thread.new do
-      started << true
+      Thread.current[:t08_second_import] = true
       import_row(incomplete)
     end
-    Timeout.timeout(5) { started.pop }
-    sleep 0.1
+    second_pid = Timeout.timeout(5) { attempting.pop }
+    wait_for_advisory_block(second_pid)
+    expect(second_thread).to be_alive
     release << true
-    results = [ first_thread.value, second_thread.value ]
+    results = [ thread_result(first_thread), thread_result(second_thread) ]
 
     expect(results.map { |result| result.rows.first.outcome }).to eq(%w[pending_review pending_review])
     expect(results.map { |result| result.rows.first.review_case_id }.uniq.length).to eq(1)
@@ -64,8 +95,7 @@ RSpec.describe Intake::Services::ImportProcessor, type: :model do
     expect(Catalog::Models::SellerProduct.count).to eq(0)
   ensure
     release&.push(true)
-    first_thread&.join(5)
-    second_thread&.join(5)
+    stop_threads(first_thread, second_thread)
   end
 
   it "serializes concurrent changed versions and leaves one actionable case" do
@@ -83,7 +113,7 @@ RSpec.describe Intake::Services::ImportProcessor, type: :model do
     end
     2.times { Timeout.timeout(5) { ready.pop } }
     2.times { go << true }
-    results = threads.map(&:value)
+    results = threads.map { |thread| thread_result(thread) }
     cases = Intake::Models::ReviewCase.order(:id).to_a
 
     expect(results.map { |result| result.rows.first.outcome }).to eq(%w[pending_review pending_review])
@@ -94,6 +124,6 @@ RSpec.describe Intake::Services::ImportProcessor, type: :model do
     expect(Intake::Models::SellerItem.sole.active_source_comparison).to eq(cases.last.source_comparison)
   ensure
     2.times { go&.push(true) }
-    threads&.each { |thread| thread.join(5) }
+    stop_threads(*threads) if threads
   end
 end
