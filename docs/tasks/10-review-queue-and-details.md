@@ -25,8 +25,8 @@ Make pending/resolved cases, matching evidence, and history understandable in th
 ## Current checkpoint
 
 - Completed: queue/details pages, batch and global navigation, local reviewer configuration, request/configuration specs, generated route RBIs, visual screenshots, and first-round fixes for chronological review history and status-aware empty evidence. Both independent reviewers approved corrected commit `9d88d25`; exact-commit Docker CI passes.
-- Remaining: PR and verified merge. The task index owns status.
-- Next action: open the T10 PR, verify merge gates, and merge.
+- Remaining: verified merge of [PR #20](https://github.com/dccunha/CatalogConsolidation/pull/20). The task index owns status.
+- Next action: verify PR head and merge gates, then merge.
 
 ## Problems
 
