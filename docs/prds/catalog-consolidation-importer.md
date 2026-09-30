@@ -74,7 +74,7 @@ For a complete row, the decision order is:
 
 For a row missing `Brand` or `Category`, hold it for review even if no candidate is found. Do not create an incomplete product automatically.
 
-**Proposed, deterministic candidate rule for review:** include a product when its normalized name is identical to the input name, regardless of brand/category, or when its normalized brand matches and normalized-name similarity is at least 0.85 using a documented character-similarity calculation. Candidate ranking affects what the reviewer sees; it never grants an automatic link. The implementation must document the exact calculation and show the comparison evidence in the review screen. This threshold is an implementation starting point to validate against the supplied examples and explicit variant tests.
+**Deterministic candidate rule for review:** include a product when its normalized name is identical to the input name, regardless of brand/category, or when its normalized brand matches and normalized-name similarity is at least 0.80 using the normalized Levenshtein calculation defined in [RFC 0001](../rfcs/0001-import-review-lifecycle.md). Candidate ranking affects what the reviewer sees; it never grants an automatic link. Show the comparison evidence in the review screen.
 
 If two names differ in a material variant token, such as `128GB` versus `256GB`, they must not be automatically linked. A close name can still be presented for review.
 
@@ -92,11 +92,11 @@ The importer stores pending rows with the original input, normalized comparison 
 The local web screen shows the seller item, the proposed catalog product and its differences, the decision reason, and the import batch. A reviewer can:
 
 1. **Approve the suggested product:** create or update the seller association after rechecking uniqueness and foreign-key constraints. Catalog attributes stay unchanged.
-2. **Reject the suggested product:** show the next plausible candidate. If all candidates are rejected and the row is complete, create a new product and associate the seller item.
+2. **Reject the suggested product:** record the rejection and show the next plausible candidate. After all candidates are rejected, a complete row becomes eligible for a separate, explicit create action. Recheck for new credible candidates before creation.
 3. **Correct missing or erroneous input metadata:** save the corrected `Brand`, `Category`, or other identity field, then rerun matching. The original input remains visible.
 4. **Resolve a same-seller listing conflict:** choose which of the two seller item IDs remains linked to the product. Record the displaced ID so reimporting it does not silently restore the old association.
 
-A changed identity for an existing `(SellerName, Id)` also enters review. The reviewer may approve a suggested product or reject candidates until a new product is created. Any reassignment of the existing seller association is atomic and recorded.
+A changed identity for an existing `(SellerName, Id)` also enters review. The reviewer may approve a suggested product or reject candidates and explicitly confirm creation of a new product. Any reassignment of the existing seller association is atomic and recorded.
 
 Store the reviewer, decision, time, and resulting `ProductId` or rejection reason. Reruns must honor resolved decisions. If a reviewer has not resolved a row, it remains pending; it is not silently created or linked.
 
