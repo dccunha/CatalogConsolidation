@@ -29,7 +29,7 @@ Make static typing and coverage expectations executable in Docker CI, and bind e
 
 T00Q-P01 (2026-09-30): Automatic approval review rejected the initial `git push -u origin codex/quality-gates`, stating the initial request did not establish the GitHub destination's trust or authorize publication. Resolved after the user explicitly requested a PR: pushed commits `ea04c62` and `b87f941` to `codex/quality-gates` and opened [PR #8](https://github.com/dccunha/CatalogConsolidation/pull/8). No further action required.
 
-T00Q-P02 (2026-09-30): The first hosted CI run failed because the GitHub Actions checkout user owns the mounted repository files while the Docker app runs as UID 1000, which could not write Rails log files. Added a workflow step to grant write access to the ephemeral `log`, `tmp`, and `storage` directories before running Compose. Waiting for the next hosted run to verify the fix.
+T00Q-P02 (2026-09-30): Hosted CI runs as a non-root Docker app user against a bind-mounted GitHub checkout. The first run could not write Rails logs; making `log`, `tmp`, and `storage` writable fixed those errors, but the second run then could not create `node_modules` or `coverage` under the root-owned checkout. Updated the workflow to grant write access to the ephemeral checkout root and runtime directories before Compose. Waiting for the next hosted run to verify the fix.
 
 ## Decisions
 
