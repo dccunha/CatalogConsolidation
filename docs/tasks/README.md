@@ -37,12 +37,12 @@ Milestones: T08 verifies importer/rerun services; T10 makes upload, results, and
 The user can invoke the [orchestrator instructions and starter prompt](orchestrator.md#starter-prompt) to run the remaining tasks with fresh implementers, two independent reviewers per task, automatic merges after passing gates, and a pause for final QA. Merely reading or editing those instructions does not start the run. Individual task requests can still use the manual workflow below.
 
 - Run state: `running`.
-- Current task/stage: T03 / final reviewer reassessment.
-- Working directory, branch, candidate revision, and PR: `/home/daniel/.codex/worktrees/137d/VTEX`, `codex/t03-catalog-public-writes`, base `12e43ad`, initial candidate `3a53fab`, no PR yet. T02 PR #12 merged at `e9acc56`; post-merge record `12e43ad` was pushed to main.
-- Active agent assignments and test-runner owner: T03 implementer finished second review fix; both reviewers reassess the revised candidate, with test reviewer owning shared checks.
-- Unresolved orchestration findings or decisions: `T03-COR-01/02`, `T03-TEST-01/02`, and `T03-TEST-03` fixed in code/specs, pending both reviewers' final reassessment; no user decision.
+- Current task/stage: T03 / PR preparation after both reviewer approvals.
+- Working directory, branch, candidate revision, and PR: `/home/daniel/.codex/worktrees/137d/VTEX`, `codex/t03-catalog-public-writes`, base `12e43ad`, reviewed code candidate `f195ed8123d0decfa5c758ad18104d72041254cb`, no PR yet. T02 PR #12 merged at `e9acc56`; post-merge record `12e43ad` was pushed to main.
+- Active agent assignments and test-runner owner: T03 implementer and both reviewers finished; no active writer or test runner.
+- Unresolved orchestration findings or decisions: `T03-COR-01/02` and `T03-TEST-01/02/03` resolved; both reviewers approved `f195ed8`; no user decision.
 - Last completed orchestration milestone: none.
-- Next action: obtain final reviewer verdicts on the revised candidate, then prepare the task PR and verify merge gates.
+- Next action: open T03 PR, verify final head and GitHub mergeability, then merge if all gates remain satisfied.
 
 During a run, update this checkpoint at stage transitions and before interruption. Keep task statuses in the table above and detailed findings/evidence in the owning briefs. See [records and recovery](orchestrator.md#records-and-recovery) for resume rules.
 
@@ -96,8 +96,8 @@ The owner is responsible for the criterion's core behavior. Supporting tasks add
 | AC5: missing brand requires review | T07 | T04, T05, T10, T11, T14 | Pending implementation |
 | AC6: equivalent duplicates and reruns | T08 | T04, T14 | Pending implementation |
 | AC7: materially changed identity | T08 | T06, T13, T14 | Pending implementation |
-| AC8: one seller, conflicting item IDs | T13 | T01, T03, T05, T07, T14 | Pending implementation |
-| AC9: atomic create and SQL-like text | T07 | T03, T05, T14 | Pending implementation |
+| AC8: one seller, conflicting item IDs | T13 | T01, T03, T05, T07, T14 | Supporting T03 [write specs](../../spec/concepts/catalog/public/writes_spec.rb) verify conflicts and explicit displacement; T13 journey pending |
+| AC9: atomic create and SQL-like text | T07 | T03, T05, T14 | Supporting T03 [write specs](../../spec/concepts/catalog/public/writes_spec.rb) verify atomic Catalog writes and exact SQL-like strings; T07 journey pending |
 | AC10: invalid/incomplete rows do not stop later rows | T07 | T04, T06, T09, T14 | Pending implementation |
 | AC11: review decisions survive reruns | T13 | T08, T11, T12, T14 | Pending implementation |
 | AC12: material variants never auto-link | T05 | T04, T07, T14 | Pending implementation |
