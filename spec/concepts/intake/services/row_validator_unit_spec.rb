@@ -49,10 +49,10 @@ RSpec.describe Intake::Services::RowValidator, type: :model do
     end
 
     it "marks blank category for review while preserving its whitespace" do
-      result = described_class.call(row.merge("Category" => " \t "))
+      result = described_class.call(row.merge("Category" => "   "))
 
       expect([ result.source.category, result.comparison.category, result.review_required? ]).to eq(
-        [ " \t ", nil, true ]
+        [ "   ", nil, true ]
       )
     end
 
@@ -125,6 +125,27 @@ RSpec.describe Intake::Services::RowValidator, type: :model do
       results = [ nil, row ].map { |element| described_class.call(element) }
 
       expect(results.map(&:class)).to eq([ described_class::Invalid, described_class::Valid ])
+    end
+
+    it "rejects each prohibited syntax in every incoming field" do
+      tokens = [ ";", "--", "/*", "*/", "\t", "\n", "\u0000", "\u007f", "\u0085" ]
+      %w[Id SellerName Name Brand Category].each do |field|
+        tokens.each do |token|
+          result = described_class.call(row.merge(field => "prefix#{token}suffix"))
+          expect(result.errors.map { |error| [ error.field, error.code ] }).to include([ field, :unsafe_text ]),
+            "expected #{field} to reject #{token.inspect}"
+        end
+      end
+    end
+
+    it "allows apostrophes and ordinary product punctuation" do
+      input = row.merge("Id" => "000'1", "SellerName" => "O'Reilly",
+        "Name" => "Tablet 12.9'' (2026) + case", "Brand" => "Levi's", "Category" => "Home/Kitchen & Décor")
+
+      expect(described_class.call(input).source).to have_attributes(
+        seller_product_id: "000'1", seller_name: "O'Reilly", name: "Tablet 12.9'' (2026) + case",
+        brand: "Levi's", category: "Home/Kitchen & Décor"
+      )
     end
   end
 end

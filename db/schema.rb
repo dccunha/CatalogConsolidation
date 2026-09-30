@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_30_000001) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_30_000002) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -116,7 +116,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_000001) do
     t.index ["review_case_id"], name: "index_intake_row_results_on_review_case_id"
     t.index ["seller_name", "seller_product_id"], name: "index_intake_row_results_on_seller_key"
     t.check_constraint "(seller_name IS NULL) = (seller_product_id IS NULL)", name: "intake_row_results_key_pair_complete"
-    t.check_constraint "input_json::jsonb IS NOT NULL", name: "intake_row_results_input_valid_json"
+    t.check_constraint "input_json IS JSON", name: "intake_row_results_input_valid_json"
     t.check_constraint "outcome <> 'pending_review'::text OR review_case_id IS NOT NULL", name: "intake_row_results_pending_has_case"
     t.check_constraint "outcome = ANY (ARRAY['linked'::text, 'created'::text, 'already_imported'::text, 'pending_review'::text, 'failed'::text])", name: "intake_row_results_outcome_valid"
     t.check_constraint "reason ~ '[^[:space:]]'::text", name: "intake_row_results_reason_not_blank"

@@ -16,6 +16,7 @@ module Intake
       class Error < T::Struct
         const :field, T.nilable(String)
         const :code, Symbol
+        const :detail, T.nilable(String), default: nil
       end
 
       class Valid < T::Struct
@@ -109,14 +110,23 @@ module Intake
           :required
         end
         errors << Error.new(field: field, code: code) if code
+        check_text(errors, field, value) if value.is_a?(String)
       end
       private_class_method :check_required
 
       sig { params(errors: T::Array[Error], field: String, value: Object).void }
       def self.check_optional(errors, field, value)
         errors << Error.new(field: field, code: :invalid_type) unless value.nil? || value.is_a?(String)
+        check_text(errors, field, value) if value.is_a?(String)
       end
       private_class_method :check_optional
+
+      sig { params(errors: T::Array[Error], field: String, value: String).void }
+      def self.check_text(errors, field, value)
+        violation = Catalog::Public::TextPolicy.violation(value)
+        errors << Error.new(field: field, code: :unsafe_text, detail: violation) if violation
+      end
+      private_class_method :check_text
     end
   end
 end

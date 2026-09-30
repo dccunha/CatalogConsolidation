@@ -15,7 +15,9 @@
   <% elsif @review_case.status == "resolved" %>
     <p>This case has a final decision. The import results below remain as recorded when each batch ran.</p>
   <% else %>
-    <% if @creation_state == :ready %>
+    <% if @creation_state == :invalid_input %>
+      <p>This older case has input that fails the current text rule. Correct Name, Brand, or Category below if possible. If Id or SellerName is unsafe, submit a corrected row in a new import. No Catalog action is available from this input.</p>
+    <% elsif @creation_state == :ready %>
       <p>This case is still pending and ready for explicit creation. No product or final decision has been recorded yet.</p>
     <% else %>
       <p>This case is pending review. No final decision has been recorded.</p>
@@ -89,7 +91,7 @@
           </table>
         </div>
         <%= render "conflict", conflict: candidate.conflicting_association %>
-        <% if @review_case.status == "pending" && !@rejected_product_ids.include?(candidate.product_id) %>
+        <% if @review_case.status == "pending" && @creation_state != :invalid_input && !@rejected_product_ids.include?(candidate.product_id) %>
           <div class="candidate-actions">
             <% if @review_case.seller_item.product_id.nil? && @review_case.conflicting_association.blank? && candidate.conflicting_association.blank? %>
               <%= form_with url: approve_review_case_path(@review_case), method: :post do |form| %>
@@ -141,6 +143,8 @@
     <h2 id="creation-heading">Create a new product</h2>
     <div class="panel">
       <% case @creation_state %>
+      <% when :invalid_input %>
+        <p>The current input fails validation. Correct Name, Brand, or Category where possible, or submit a corrected row in a new import.</p>
       <% when :ready %>
         <p>Ready for explicit creation from the current comparison values. Catalog candidates will be checked again when you submit.</p>
         <%= form_with url: create_product_review_case_path(@review_case), method: :post do |form| %>
