@@ -41,7 +41,6 @@ The user can invoke the [orchestrator instructions and starter prompt](orchestra
 - Working directory, branch, candidate revision, and PR: `/home/daniel/.codex/worktrees/137d/VTEX`, `codex/t09-web-upload-and-results` from integrated main `c2b5f25`; code/tests/UI approved at `a015ebb`, no PR yet. T08 PR #18 merged at `dd55280` after reviewed head `a22665f`.
 - Active agent assignments and test-runner owner: T09 implementer finished; both independent reviewers approved `a015ebb`, and test reviewer completed the shared Docker gate.
 - Unresolved orchestration findings or decisions: none. `T09-TEST-01` resolved and approved in round 2.
-- Unresolved orchestration findings or decisions: none. T08 findings were resolved and approved before merge.
 - Last completed orchestration milestone: T08 verified and merged at `dd55280`: supplied-file reruns, pending/resolved fixture replay, exact-key concurrency, and failure isolation passed. Real reviewer-command journeys remain for T11–T14.
 - Next action: open T09 PR, verify its final reviewed head and mergeability, then merge and record completion.
 
