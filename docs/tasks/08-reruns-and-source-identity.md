@@ -25,8 +25,8 @@ Complete importer behavior for repeated, changed, pending, and resolved seller i
 ## Current checkpoint
 
 - Completed: existing-key import transitions, exact-key concurrency lock, original-source comparison, atomic supersession, fixture-based decision replay, sequence and PostgreSQL-wait-verified concurrency specs, source-backed supplied-file double run, both independent approvals at `c31a60963b720ff0bb7574087ee5777a33742ce9`, and exact-commit Docker CI.
-- Remaining: PR creation, final head verification, and merge. T11–T13 will provide real reviewer commands, and T14 will repeat the full journeys through them.
-- Next action: the orchestrator opens and verifies the T08 PR.
+- Remaining: final [PR #18](https://github.com/dccunha/CatalogConsolidation/pull/18) head verification and merge. T11–T13 will provide real reviewer commands, and T14 will repeat the full journeys through them.
+- Next action: the orchestrator verifies the final reviewed PR head before merge.
 
 ## Problems
 
