@@ -9,6 +9,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     git \
     libpq-dev \
+    sqlite3 \
     libyaml-dev \
     pkg-config \
     postgresql-client \

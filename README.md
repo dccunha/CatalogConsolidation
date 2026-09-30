@@ -1,6 +1,6 @@
 # CatalogConsolidation
 
-A full-stack Rails development environment for the catalog consolidation project. Rails uses PostgreSQL for its application data. This foundation has no catalog tables, importer, or review screen yet. The files in `docs/refs/`, including `catalog.db`, remain unchanged reference inputs and are not loaded into PostgreSQL.
+A full-stack Rails development environment for the catalog consolidation project. Rails uses PostgreSQL for its application data. Catalog tables and an explicit reference loader are available; the importer and review screen are still in progress. The files in `docs/refs/`, including `catalog.db`, remain unchanged reference inputs.
 
 ## Implementation progress
 
@@ -21,7 +21,17 @@ Ruby, Bundler, Rails, PostgreSQL, Node, and the development dependencies run ins
 docker compose up --build
 ```
 
-Open <http://localhost:3000>. The Rails health endpoint is <http://localhost:3000/up>. Compose waits for PostgreSQL to become healthy; the web service then prepares an empty `catalog_consolidation_development` database. PostgreSQL data lives in the `postgres_data` Docker volume and survives `docker compose down`.
+Open <http://localhost:3000>. The Rails health endpoint is <http://localhost:3000/up>. Compose waits for PostgreSQL to become healthy; the web service then prepares the `catalog_consolidation_development` database. PostgreSQL data lives in the `postgres_data` Docker volume and survives `docker compose down`.
+
+## Load the reference catalog
+
+After building the web image and preparing the database, run:
+
+```sh
+docker compose run --rm web bin/rails catalog:load_reference
+```
+
+The command reads `docs/refs/catalog.db` with SQLite in read-only mode and inserts its 975 products into PostgreSQL with the same IDs, names, brands, and categories. It expects the supplied file to have no seller associations. An identical rerun reports zero inserts. If a reference ID already has different values, the command fails without changing existing products or loading part of the file. PostgreSQL allocates later product IDs above the loaded IDs. The command is explicit: app startup and `db:seed` do not run it.
 
 The default credentials are for local development only. To override the password or web port, copy `.env.example` to `.env` and edit `DB_PASSWORD` or `WEB_PORT` before startup. The PostgreSQL port is not published to the host; use the container commands below to inspect it.
 
