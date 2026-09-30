@@ -26,9 +26,9 @@ Complete AC7/AC8 and the remaining AC11 journeys: explicitly reassign changed se
 
 ## Current checkpoint
 
-- Completed: typed reassignment, creation, keep, and replace commands; Catalog retirement operation for a linked incoming ID; case forms and routes; import/decision sequence and rollback specs; generated route RBIs; visual inspection of two screenshots; passing Docker CI on the implementation working tree.
-- Remaining: independent correctness and test review, exact-revision CI reassessment, PR and merge verification.
-- Next action: parent creates a stable implementation commit and requests two independent reviews.
+- Completed: typed reassignment, creation, keep, and replace commands; Catalog retirement operation for a linked incoming ID; case forms and routes; import/decision sequence and rollback specs; generated route RBIs; visual inspection of two screenshots. Both independent reviewers approved candidate `e9fa9fa`; exact-commit Docker CI passed and the T13 command/request/import milestone is met.
+- Remaining: PR and verified merge; final interactive browser QA remains T14.
+- Next action: open the T13 PR, verify merge gates, and merge.
 
 ## Problems
 
@@ -45,8 +45,12 @@ Complete AC7/AC8 and the remaining AC11 journeys: explicitly reassign changed se
 ## Validation evidence
 
 - **Focused behavior, 2026-09-30, working tree atop integrated T12 main `1b61471`:** `docker compose run --rm web bundle exec rspec spec/concepts/intake/services/review_conflicts_spec.rb spec/concepts/intake/controllers/review_cases_controller_spec.rb spec/concepts/catalog/public/writes_spec.rb` ran 63 examples, 0 failures. The process exited 2 solely on whole-application SimpleCov floors for a three-file subset. [Conflict command specs](../../spec/concepts/intake/services/review_conflicts_spec.rb) drive actual import → decision → rerun sequences for changed identity approval and creation, both conflict choices with one or two linked IDs, changed/returning identities, stale and superseded forms, and transaction failure rollback. [Request specs](../../spec/concepts/intake/controllers/review_cases_controller_spec.rb) assert both IDs/forms, POST redirects, persisted outcomes, and repeated-submit blocking. [Catalog write specs](../../spec/concepts/catalog/public/writes_spec.rb) cover retirement success, expected-state mismatch, and outer rollback.
-- **Final full gate, 2026-09-30, implementation working tree atop `1b61471`:** `docker compose run --rm web bin/ci` passed in 1m20.98s: 214 RSpec examples, 0 failures; Ruby 1283/1298 lines (98.84%) and 280/325 branches (86.15%); one Vitest test, 0 failures, with 100% statements/lines/functions; Ruby/ERB/JS lint; Sorbet (`No errors`), concept sigils, gem/Rails RBI freshness; gem/importmap/Brakeman audits; test DB preparation/consistency; seeds. The two generated route-helper RBIs changed; no new model RBI or migration was needed. `git diff --check` is required before the parent commits.
+- **Final full gate, 2026-09-30, candidate `e9fa9fa`:** `docker compose run --rm web bin/ci` passed on the implementation tree in 1m20.98s and was rerun by the independent test reviewer on the exact clean commit in 1m20.36s: 214 RSpec examples, 0 failures; Ruby 1283/1298 lines (98.84%) and 280/325 branches (86.15%); one Vitest test, 0 failures, with 100% statements/lines/functions; Ruby/ERB/JS lint; Sorbet (`No errors`), concept sigils, gem/Rails RBI freshness; gem/importmap/Brakeman audits; test DB preparation/consistency; seeds. The two generated route-helper RBIs changed; no new model RBI or migration was needed. `git diff --check` passed.
 - **Browser visual inspection, 2026-09-30:** Headless Chromium at 1280px captured and I inspected [same-seller conflict choices](screenshots/t13-listing-conflict.png) and [changed-identity reassignment](screenshots/t13-reassignment.png). Both pages used isolated development cases created through real `ImportProcessor.call` sequences. The conflict screenshot shows old and incoming IDs with explicit keep/replace forms; the reassignment screenshot shows the retained product and candidate decision. Request specs cover actual POST/redirect behavior; T14 owns final browser click and keyboard journeys.
+
+### Review rounds
+
+- **Round 1, candidate `e9fa9fa` (2026-09-30):** Correctness reviewer approved with no actionable finding after tracing both listing choices, changed-identity paths, sorted lock order, Catalog public writes, multi-record rollback, and retained outcomes. Test reviewer independently approved with no findings, reran exact-commit Docker `bin/ci`, inspected both screenshots, and verified real action-command/request/import sequences through reruns. The T13 milestone passed for approval, rejection, correction, creation, reassignment, and keep/replace decisions. Production-scale concurrency stress and final browser click/keyboard journeys remain outside T13 and belong to the documented architecture limit and T14, respectively.
 
 ## Handoff
 
