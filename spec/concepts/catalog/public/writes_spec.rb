@@ -491,17 +491,27 @@ RSpec.describe Catalog::Public::Writes, type: :model do
 
     it "rejects an unsafe reassigned ID and preserves the original association" do
       association = FactoryBot.create(:catalog_seller_product, seller_name: "Shop", seller_product_id: "old")
+      target = FactoryBot.create(:catalog_product, name: "Distinct target")
+      original = association.attributes.slice("product_id", "seller_name", "seller_product_id")
+      product_ids = Catalog::Models::Product.order(:id).pluck(:id)
+      association_ids = Catalog::Models::SellerProduct.order(:id).pluck(:id)
 
       expect do
-        described_class.reassign(association_id: association.id, product_id: association.product_id,
+        described_class.reassign(association_id: association.id, product_id: target.id,
           seller_product_id: "bad/*id")
       end.to raise_error(described_class::UnsafeTextError, /seller_product_id/)
-      expect(association.reload.seller_product_id).to eq("old")
+      expect(association.reload.attributes.slice("product_id", "seller_name", "seller_product_id")).to eq(original)
+      expect(Catalog::Models::Product.order(:id).pluck(:id)).to eq(product_ids)
+      expect(Catalog::Models::SellerProduct.order(:id).pluck(:id)).to eq(association_ids)
+      expect(Catalog::Models::Product.count).to eq(product_ids.length)
+      expect(Catalog::Models::SellerProduct.count).to eq(association_ids.length)
     end
 
     it "rejects unsafe replacement product metadata before changing the association" do
       association = FactoryBot.create(:catalog_seller_product)
-      product_count = Catalog::Models::Product.count
+      original = association.attributes.slice("product_id", "seller_name", "seller_product_id")
+      product_ids = Catalog::Models::Product.order(:id).pluck(:id)
+      association_ids = Catalog::Models::SellerProduct.order(:id).pluck(:id)
 
       expect do
         described_class.create_for_association(association_id: association.id,
@@ -509,8 +519,11 @@ RSpec.describe Catalog::Public::Writes, type: :model do
           expected_seller_product_id: association.seller_product_id,
           name: "New", brand: "bad*/brand", category: "Tools")
       end.to raise_error(described_class::UnsafeTextError, /brand/)
-      expect(association.reload.product_id).to eq(association.product_id)
-      expect(Catalog::Models::Product.count).to eq(product_count)
+      expect(association.reload.attributes.slice("product_id", "seller_name", "seller_product_id")).to eq(original)
+      expect(Catalog::Models::Product.order(:id).pluck(:id)).to eq(product_ids)
+      expect(Catalog::Models::SellerProduct.order(:id).pluck(:id)).to eq(association_ids)
+      expect(Catalog::Models::Product.count).to eq(product_ids.length)
+      expect(Catalog::Models::SellerProduct.count).to eq(association_ids.length)
     end
   end
 

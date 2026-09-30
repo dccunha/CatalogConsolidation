@@ -22,7 +22,18 @@ RSpec.describe AllowControlEscapesInIntakeAudit, type: :model do
   it "refuses to restore the jsonb check while an escaped NUL audit row exists" do
     row = audit_row("Id" => "unsafe\u0000id")
 
-    expect { described_class.new.down }.to raise_error(ActiveRecord::IrreversibleMigration, /escaped NUL/)
+    expect { described_class.new.down }.to raise_error(ActiveRecord::IrreversibleMigration, /incompatible with jsonb/)
     expect(JSON.parse(row.reload.input_json).fetch("Id")).to eq("unsafe\u0000id")
+  end
+
+  it "restores the old check for a literal backslash-u0000 sequence compatible with jsonb" do
+    input = { "Id" => "literal\\u0000" }
+    row = audit_row(input)
+    migration = described_class.new
+
+    migration.down
+    expect(JSON.parse(row.reload.input_json)).to eq(input)
+    migration.up
+    expect(JSON.parse(row.reload.input_json)).to eq(input)
   end
 end

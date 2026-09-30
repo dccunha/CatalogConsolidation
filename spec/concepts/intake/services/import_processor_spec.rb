@@ -216,6 +216,8 @@ RSpec.describe Intake::Services::ImportProcessor, type: :model do
         "SellerName" => "O'Reilly; DELETE FROM intake_batches; --",
         "Name" => "Widget'); DROP TABLE products; --")
       later = row.merge("Id" => "002", "SellerName" => "O'Reilly", "Name" => "Widget (safe)")
+      before_products = Catalog::Models::Product.count
+      before_associations = Catalog::Models::SellerProduct.count
 
       result = import(quoted, later)
 
@@ -225,6 +227,8 @@ RSpec.describe Intake::Services::ImportProcessor, type: :model do
       expect(JSON.parse(stored.input_json)).to eq(quoted)
       expect(stored).to have_attributes(product_id: nil, review_case_id: nil, outcome: "failed")
       expect(Catalog::Models::Product.where(name: quoted["Name"])).to be_empty
+      expect(Catalog::Models::Product.count).to eq(before_products + 1)
+      expect(Catalog::Models::SellerProduct.count).to eq(before_associations + 1)
       expect(Catalog::Models::SellerProduct.where(seller_name: quoted["SellerName"])).to be_empty
       expect(Intake::Models::SellerItem.where(seller_name: quoted["SellerName"])).to be_empty
       expect(Intake::Models::ReviewCase.count).to eq(0)
@@ -239,6 +243,7 @@ RSpec.describe Intake::Services::ImportProcessor, type: :model do
       second = import(flagged)
 
       expect([ first.rows.sole.outcome, second.rows.sole.outcome ]).to eq(%w[failed failed])
+      expect(Catalog::Models::Product.count).to eq(0)
       expect(Intake::Models::SellerItem.count).to eq(0)
       expect(Catalog::Models::SellerProduct.count).to eq(0)
       expect(Intake::Models::RowResult.where(outcome: "failed").count).to eq(2)
@@ -254,6 +259,7 @@ RSpec.describe Intake::Services::ImportProcessor, type: :model do
       expect(result.rows.sole.outcome).to eq("failed")
       expect(stored.seller_product_id).to be_nil
       expect(JSON.parse(stored.input_json)).to eq(flagged)
+      expect(Catalog::Models::Product.count).to eq(0)
       expect(Intake::Models::SellerItem.count).to eq(0)
     end
   end

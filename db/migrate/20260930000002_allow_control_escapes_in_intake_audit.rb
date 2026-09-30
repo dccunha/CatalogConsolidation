@@ -6,15 +6,15 @@ class AllowControlEscapesInIntakeAudit < ActiveRecord::Migration[8.1]
   end
 
   def down
-    escaped_nul = connection.select_value(<<~SQL)
+    incompatible_jsonb = connection.select_value(<<~SQL)
       SELECT EXISTS (
         SELECT 1 FROM intake_row_results
-        WHERE position(chr(92) || 'u0000' in input_json) > 0
+        WHERE NOT pg_input_is_valid(input_json, 'jsonb')
       )
     SQL
-    if escaped_nul
+    if incompatible_jsonb
       raise ActiveRecord::IrreversibleMigration,
-        "Intake audit contains escaped NUL; restoring the jsonb constraint would discard valid source rows"
+        "Intake audit contains JSON text incompatible with jsonb; restoring the old constraint would reject valid source rows"
     end
 
     remove_check_constraint :intake_row_results, name: "intake_row_results_input_valid_json"

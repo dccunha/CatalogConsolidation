@@ -29,7 +29,7 @@ Implement in index order, initially T00–T15 plus the T00A and T00Q quality pre
 | T13 | [Resolve reassignment and listing conflicts](13-reassignment-and-listing-conflicts.md) | done | T12 | [#23](https://github.com/dccunha/CatalogConsolidation/pull/23) · merge `d3c9246` | None |
 | T14 | [Verify acceptance journeys](14-acceptance-journeys.md) | done | T13 | [#24](https://github.com/dccunha/CatalogConsolidation/pull/24) · merge `685d26e` | None |
 | T15 | [Prepare delivery and demo](15-delivery-and-demo.md) | done | T14 | [#25](https://github.com/dccunha/CatalogConsolidation/pull/25) · merge `ac839ef` | None |
-| T16 | [Block SQL control syntax from Catalog writes](16-block-sql-control-syntax.md) | in review | T15 | — | None |
+| T16 | [Block SQL control syntax from Catalog writes](16-block-sql-control-syntax.md) | in review | T15 | — | Awaiting both reviewers' reassessment |
 
 Milestones: T08 verifies importer/rerun services; T10 makes upload, results, and review evidence available in the browser; T13 completes the required user actions; T14 verifies integrated acceptance journeys; T15 completes delivery verification.
 
@@ -38,12 +38,12 @@ Milestones: T08 verifies importer/rerun services; T10 makes upload, results, and
 The user can invoke the [orchestrator instructions and starter prompt](orchestrator.md#starter-prompt) to run the remaining tasks with fresh implementers, two independent reviewers per task, automatic merges after passing gates, and a pause for final QA. Merely reading or editing those instructions does not start the run. Individual task requests can still use the manual workflow below.
 
 - Run state: `running`.
-- Current task/stage: T16 implementation and full isolated Docker CI passed; candidate is frozen for two independent reviews.
-- Working directory, branch, candidate revision, and PR: `/home/daniel/.codex/worktrees/t16-catalog-text-guard/VTEX`, `codex/t16-catalog-text-guard` from verified main `a081718`; candidate commit and PR pending.
-- Active agent assignments and test-runner owner: implementer finished and stopped writing; correctness and test reviewers to be dispatched. Test reviewer alone owns any further Docker checks. Isolated `t16_guard` web and PostgreSQL services run on localhost:3116. Existing main-branch QA database and T15 demo remain untouched.
-- Unresolved orchestration findings or decisions: none. User chose an input-only Catalog guard and retention of historical QA data.
+- Current task/stage: T16 first review findings fixed, full isolated Docker CI passed again, and candidate is frozen for both reviewers' reassessment.
+- Working directory, branch, candidate revision, and PR: `/home/daniel/.codex/worktrees/t16-catalog-text-guard/VTEX`, `codex/t16-catalog-text-guard` from verified main `a081718`; first candidate `6c54c4b`, review-fix commit pending, no PR yet.
+- Active agent assignments and test-runner owner: implementer finished and stopped writing; both reviewers to reassess. Test reviewer alone owns any further Docker checks. Isolated `t16_guard` web and PostgreSQL services run on localhost:3116. Existing main-branch QA database and T15 demo remain untouched.
+- Unresolved orchestration findings or decisions: T16-TEST-01/02/03 have proposed fixes awaiting independent reassessment; no user decision is pending. User chose an input-only Catalog guard and retention of historical QA data.
 - Last completed orchestration milestone: T15 merged as [PR #25](https://github.com/dccunha/CatalogConsolidation/pull/25) at `ac839ef`; final QA identified the new T16 behavior change.
-- Next action: commit frozen candidate, obtain two independent reviews, then open and merge one T16 PR if all gates pass.
+- Next action: commit the review fixes and obtain both reviewers' verdicts on the new revision, then open/merge the T16 PR if all gates pass.
 
 During a run, update this checkpoint at stage transitions and before interruption. Keep task statuses in the table above and detailed findings/evidence in the owning briefs. See [records and recovery](orchestrator.md#records-and-recovery) for resume rules.
 

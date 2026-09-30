@@ -21,6 +21,7 @@ RSpec.describe "Integrated acceptance journeys", type: :model do
     json = File.read(Rails.root.join("docs/refs/ProductEntry.json"))
 
     first = Intake::Services::ImportProcessor.call(json: json, source_name: "ProductEntry.json")
+    expect(Catalog::Models::Product.count).to eq(reference_count)
     before_rerun = [ Catalog::Models::Product.count, Catalog::Models::SellerProduct.count,
       Intake::Models::SellerItem.count, Intake::Models::ReviewCase.count ]
     second = Intake::Services::ImportProcessor.call(json: json, source_name: "ProductEntry.json")
