@@ -6,6 +6,14 @@ This is a Rails 8 application with PostgreSQL, import maps, Turbo, and Stimulus.
 
 For new domain code, follow `docs/adrs/0001-organize-by-concepts.md`: place Catalog and Intake code under `app/concepts/<context>/<role>/`, with matching Ruby namespaces. Mirror those paths in `spec/concepts/`. Intake writes Catalog data through `Catalog::Public`; keep cross-context ownership explicit. The concept directories have not been implemented yet.
 
+## Implementation Tasks and Handoffs
+
+Use [the task index](docs/tasks/README.md) as the authoritative status record. Work on one numbered task at a time in sequence, normally in a fresh chat and one reviewed PR. Read its brief, linked requirements, and relevant dependency handoffs; do not load every task or earlier conversation by default. Verify the previous task's merge before starting the next. Mark `done` only after verifying a merge.
+
+Keep the selected brief's checkpoint, problems, decisions, validation evidence, and handoff current, especially before pausing or requesting review. Record actual checks and remaining limitations. Add a linked follow-up task when new work exceeds the current task's boundaries. Keep durable architecture decisions in ADRs and approved behavior changes in the PRD/RFC.
+
+Choose and document routine local implementation details. Interview the user before changing agreed behavior, scope, or contracts affecting later tasks. Use interactive question dialogs whenever asking a question and wait for the user's explicit answer. Never treat silence, a timeout, or a preselected option as an answer; leave unanswered decisions unresolved and pause until the user responds.
+
 ## Build, Test, and Development Commands
 
 Run commands in Docker; host Ruby and Node installations are unnecessary.
