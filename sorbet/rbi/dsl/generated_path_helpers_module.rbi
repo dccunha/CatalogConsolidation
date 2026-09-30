@@ -10,10 +10,16 @@ module GeneratedPathHelpersModule
   include ::ActionDispatch::Routing::PolymorphicRoutes
 
   sig { params(args: T.untyped).returns(String) }
+  def approve_review_case_path(*args); end
+
+  sig { params(args: T.untyped).returns(String) }
   def batch_path(*args); end
 
   sig { params(args: T.untyped).returns(String) }
   def batches_path(*args); end
+
+  sig { params(args: T.untyped).returns(String) }
+  def correct_review_case_path(*args); end
 
   sig { params(args: T.untyped).returns(String) }
   def import_path(*args); end
@@ -107,6 +113,9 @@ module GeneratedPathHelpersModule
 
   sig { params(args: T.untyped).returns(String) }
   def rails_storage_redirect_path(*args); end
+
+  sig { params(args: T.untyped).returns(String) }
+  def reject_review_case_path(*args); end
 
   sig { params(args: T.untyped).returns(String) }
   def review_case_path(*args); end

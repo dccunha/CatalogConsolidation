@@ -18,6 +18,9 @@
     <p>This case is pending review. No final decision has been recorded.</p>
   <% end %>
   <%= render "conflict", conflict: @review_case.conflicting_association %>
+  <% if @review_case.status == "pending" && @review_case.seller_item.product_id %>
+    <p class="conflict-note">This seller ID already has an association. Reassignment will be available in a later review step.</p>
+  <% end %>
   <% if @review_case.review_decision %>
     <% decision = @review_case.review_decision %>
     <p><strong>Final decision:</strong> <%= decision.result.humanize %> · product #<%= decision.product_id %> · by <%= decision.reviewer %> at <%= time_tag decision.decided_at, decision.decided_at.strftime("%Y-%m-%d %H:%M %Z") %>.</p>
@@ -52,7 +55,7 @@
     <div class="panel empty-state">
       <h3>No candidates in this evidence revision</h3>
       <% if @review_case.status == "pending" %>
-        <p>This case remains pending review.</p>
+        <p>This case remains pending review. Explicit creation will be available in a later review step.</p>
       <% elsif @review_case.status == "superseded" %>
         <p>This historical evidence is retained for audit. The case was superseded.</p>
       <% else %>
@@ -65,6 +68,7 @@
         <h3>Rank <%= candidate.rank %> · Product #<%= candidate.product_id %></h3>
         <p><strong>Match score:</strong> <%= number_to_percentage(candidate.score * 100, precision: 1) %> · <strong>Different fields:</strong> <%= candidate.differing_fields.any? ? candidate.differing_fields.join(", ") : "None" %></p>
         <% if candidate.review_rejection %><p class="rejection-note">Rejected by <%= candidate.review_rejection.reviewer %> at <%= time_tag candidate.review_rejection.rejected_at, candidate.review_rejection.rejected_at.strftime("%Y-%m-%d %H:%M %Z") %>: <%= candidate.review_rejection.reason %></p><% end %>
+        <% if @rejected_product_ids.include?(candidate.product_id) && !candidate.review_rejection %><p class="rejection-note">Previously rejected. That rejection remains in effect after rematching.</p><% end %>
         <div class="table-wrap">
           <table class="identity-table">
             <caption>Candidate product values</caption>
@@ -77,10 +81,49 @@
           </table>
         </div>
         <%= render "conflict", conflict: candidate.conflicting_association %>
+        <% if @review_case.status == "pending" && !@rejected_product_ids.include?(candidate.product_id) %>
+          <div class="candidate-actions">
+            <% if @review_case.seller_item.product_id.nil? && @review_case.conflicting_association.blank? && candidate.conflicting_association.blank? %>
+              <%= form_with url: approve_review_case_path(@review_case), method: :post do |form| %>
+                <%= form.hidden_field :candidate_id, value: candidate.id %>
+                <%= form.hidden_field :evidence_revision, value: @review_case.evidence_revision %>
+                <%= form.submit "Approve product ##{candidate.product_id}", class: "button" %>
+              <% end %>
+            <% else %>
+              <p class="muted">This candidate needs same-seller conflict resolution, available in a later review step.</p>
+            <% end %>
+            <%= form_with url: reject_review_case_path(@review_case), method: :post, class: "reject-form" do |form| %>
+              <%= form.hidden_field :candidate_id, value: candidate.id %>
+              <%= form.hidden_field :evidence_revision, value: @review_case.evidence_revision %>
+              <%= form.label :reason, "Reason for rejecting product ##{candidate.product_id}" %>
+              <%= form.text_field :reason, required: true %>
+              <%= form.submit "Reject product ##{candidate.product_id}", class: "button button--secondary" %>
+            <% end %>
+          </div>
+        <% end %>
       </article>
+    <% end %>
+    <% if @review_case.status == "pending" && @candidates.all? { |candidate| @rejected_product_ids.include?(candidate.product_id) } %>
+      <p class="muted">All current candidates have been rejected. The case remains pending until a separate explicit creation action, available in a later review step.</p>
     <% end %>
   <% end %>
 </section>
+
+<% if @review_case.status == "pending" %>
+  <section class="case-section" aria-labelledby="correction-heading">
+    <h2 id="correction-heading">Correct comparison values</h2>
+    <div class="panel">
+      <p>Corrections leave the original seller row and seller ID unchanged. Matching runs again, and the case stays pending until a separate decision.</p>
+      <%= form_with url: correct_review_case_path(@review_case), method: :post, class: "correction-form" do |form| %>
+        <%= form.hidden_field :evidence_revision, value: @review_case.evidence_revision %>
+        <div><%= form.label :name, "Name" %><%= form.text_field :name, value: @current_input["Name"], required: true %></div>
+        <div><%= form.label :brand, "Brand" %><%= form.text_field :brand, value: @current_input["Brand"] %></div>
+        <div><%= form.label :category, "Category" %><%= form.text_field :category, value: @current_input["Category"] %></div>
+        <%= form.submit "Save correction and rematch", class: "button" %>
+      <% end %>
+    </div>
+  </section>
+<% end %>
 
 <section class="case-section" aria-labelledby="history-heading">
   <h2 id="history-heading">Review history</h2>

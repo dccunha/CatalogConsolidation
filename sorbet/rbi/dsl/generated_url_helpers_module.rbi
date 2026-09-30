@@ -10,10 +10,16 @@ module GeneratedUrlHelpersModule
   include ::ActionDispatch::Routing::PolymorphicRoutes
 
   sig { params(args: T.untyped).returns(String) }
+  def approve_review_case_url(*args); end
+
+  sig { params(args: T.untyped).returns(String) }
   def batch_url(*args); end
 
   sig { params(args: T.untyped).returns(String) }
   def batches_url(*args); end
+
+  sig { params(args: T.untyped).returns(String) }
+  def correct_review_case_url(*args); end
 
   sig { params(args: T.untyped).returns(String) }
   def import_url(*args); end
@@ -107,6 +113,9 @@ module GeneratedUrlHelpersModule
 
   sig { params(args: T.untyped).returns(String) }
   def rails_storage_redirect_url(*args); end
+
+  sig { params(args: T.untyped).returns(String) }
+  def reject_review_case_url(*args); end
 
   sig { params(args: T.untyped).returns(String) }
   def review_case_url(*args); end

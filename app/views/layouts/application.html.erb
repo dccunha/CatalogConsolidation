@@ -38,6 +38,9 @@
       <% if notice.present? %>
         <p class="notice" role="status"><%= notice %></p>
       <% end %>
+      <% if alert.present? %>
+        <p class="form-error" role="alert"><%= alert %></p>
+      <% end %>
       <%= yield %>
     </main>
   </body>
