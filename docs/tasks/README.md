@@ -30,7 +30,7 @@ Implement in index order, initially T00–T15 plus the T00A and T00Q quality pre
 | T14 | [Verify acceptance journeys](14-acceptance-journeys.md) | done | T13 | [#24](https://github.com/dccunha/CatalogConsolidation/pull/24) · merge `685d26e` | None |
 | T15 | [Prepare delivery and demo](15-delivery-and-demo.md) | done | T14 | [#25](https://github.com/dccunha/CatalogConsolidation/pull/25) · merge `ac839ef` | None |
 | T16 | [Block SQL control syntax from Catalog writes](16-block-sql-control-syntax.md) | done | T15 | [#27](https://github.com/dccunha/CatalogConsolidation/pull/27) · merge `960d0ee` | None |
-| T17 | [Export the current catalog as SQLite](17-export-current-catalog-as-sqlite.md) | in progress | T16 | Implementation PR pending; [plan #26](https://github.com/dccunha/CatalogConsolidation/pull/26) | None |
+| T17 | [Export the current catalog as SQLite](17-export-current-catalog-as-sqlite.md) | in review | T16 | Implementation PR pending; [plan #26](https://github.com/dccunha/CatalogConsolidation/pull/26) | None |
 
 Milestones: T08 verifies importer/rerun services; T10 makes upload, results, and review evidence available in the browser; T13 completes the required user actions; T14 verifies integrated acceptance journeys; T15 completes delivery verification.
 
@@ -39,12 +39,12 @@ Milestones: T08 verifies importer/rerun services; T10 makes upload, results, and
 The user can invoke the [orchestrator instructions and starter prompt](orchestrator.md#starter-prompt) to run the remaining tasks with fresh implementers, two independent reviewers per task, automatic merges after passing gates, and a pause for final QA. Merely reading or editing those instructions does not start the run. Individual task requests can still use the manual workflow below.
 
 - Run state: `running` for T17; T16's final QA evidence remains in its brief.
-- Current task/stage: T17 candidate passed full Docker CI and is entering independent review. T16 [PR #27](https://github.com/dccunha/CatalogConsolidation/pull/27) merged at `960d0ee`, and planning [PR #26](https://github.com/dccunha/CatalogConsolidation/pull/26) merged at `dc06ba0`, satisfying the gate.
-- Working directory, branch, candidate revision, and PR: `/home/daniel/.codex/worktrees/8fc6/VTEX` on `codex/t17-sqlite-catalog-export`, based on `dc06ba0`; implementation PR pending.
-- Active agent assignments and test-runner owner: T17 implementer finished and released the runner. Fresh independent correctness and test reviewers are next; only the test reviewer will run shared Docker checks.
-- Unresolved orchestration findings or decisions: no T17 product decision remains. The older historical QA batch #1/product #976 was absent from the available default volume before T16's fresh QA population; T17 must not reset or overwrite that volume or the reference inputs.
+- Current task/stage: T17 updated candidate passed full Docker CI and is ready for both reviewer reassessments. Round-one test findings T01/T02 have focused coverage additions. T16 [PR #27](https://github.com/dccunha/CatalogConsolidation/pull/27) and planning [PR #26](https://github.com/dccunha/CatalogConsolidation/pull/26) are merged.
+- Working directory, branch, candidate revision, and PR: `/home/daniel/.codex/worktrees/8fc6/VTEX` on `codex/t17-sqlite-catalog-export`, based on `dc06ba0`; original candidate `4d7df0d`, updated candidate commit pending; implementation PR pending.
+- Active agent assignments and test-runner owner: T17 implementer finished T01/T02 and released the Docker runner. Both reviewers will reassess the updated revision; only the test reviewer may run shared Docker checks.
+- Unresolved orchestration findings or decisions: test findings [T01/T02](17-export-current-catalog-as-sqlite.md#review-rounds) await reviewer confirmation. No T17 product decision remains. The older historical QA batch #1/product #976 was absent from the available default volume before T16's fresh QA population; T17 must not reset or overwrite that volume or the reference inputs.
 - Last completed orchestration milestone: T16 clean 269-row import, Docker CI, two independent reviews, and [PR #27](https://github.com/dccunha/CatalogConsolidation/pull/27) merge at `960d0ee`. The user-authorized local QA database contains the reference catalog and a fresh [batch #1](http://localhost:3000/batches/1), including 20 pending reviews and row 181 **Failed**.
-- Next action: commit the T17 candidate, obtain two independent reviews of that revision, resolve findings, then open the implementation PR after final checks. Final user QA follows the export task; locating older historical QA data remains a separate recovery question if needed.
+- Next action: commit the updated candidate, obtain both reviewer reassessments, then open the implementation PR. Final user QA follows the export task; locating older historical QA data remains a separate recovery question if needed.
 
 During a run, update this checkpoint at stage transitions and before interruption. Keep task statuses in the table above and detailed findings/evidence in the owning briefs. See [records and recovery](orchestrator.md#records-and-recovery) for resume rules.
 

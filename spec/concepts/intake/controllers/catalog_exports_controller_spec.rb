@@ -24,6 +24,12 @@ RSpec.describe Intake::Controllers::CatalogExportsController, type: :request do
     Intake::Services::ImportProcessor.call(json: [ row ].to_json, source_name: "export-spec.json")
   end
 
+  def summary_counts
+    Nokogiri::HTML(response.body).css(".summary-grid > div").to_h do |item|
+      [ item.at_css("dt").text.strip, item.at_css("dd").text.strip.to_i ]
+    end
+  end
+
   describe "GET /catalog/export" do
     it "shows counts, a download link, and navigation when the queue is clear" do
       product = FactoryBot.create(:catalog_product)
@@ -32,16 +38,19 @@ RSpec.describe Intake::Controllers::CatalogExportsController, type: :request do
       get catalog_export_path
 
       expect(response).to have_http_status(:ok)
-      expect(response.body).to include("Products", "Seller products", "Pending reviews")
+      expect(summary_counts).to eq("Products" => 1, "Seller products" => 1, "Pending reviews" => 0)
       expect(response.body).to include("Download catalog-updated.db", catalog_export_download_path)
       expect(response.body).to include("Export catalog")
     end
 
     it "hides the download and links the queue while any case is pending" do
+      product = FactoryBot.create(:catalog_product)
+      FactoryBot.create(:catalog_seller_product, product: product)
       import_row(id: "pending", name: "Incomplete item", brand: nil)
 
       get catalog_export_path
 
+      expect(summary_counts).to eq("Products" => 1, "Seller products" => 1, "Pending reviews" => 1)
       expect(response.body).to include("Resolve all active pending reviews", "Open review queue")
       expect(response.body).not_to include("Download catalog-updated.db")
     end
@@ -67,6 +76,21 @@ RSpec.describe Intake::Controllers::CatalogExportsController, type: :request do
       expect(response.headers["Content-Disposition"]).to be_nil
 
       review_case.update!(status: "resolved")
+      get catalog_export_download_path
+      expect(response).to have_http_status(:ok)
+      expect(response.headers["Content-Disposition"]).to include('attachment; filename="catalog-updated.db"')
+      expect(response.body).to start_with("SQLite format 3\x00")
+    end
+
+    it "enables the page and direct download when only superseded cases remain" do
+      import_row(id: "superseded", name: "Incomplete item", brand: nil)
+      Intake::Models::ReviewCase.sole.update!(status: "superseded")
+
+      get catalog_export_path
+      expect(response).to have_http_status(:ok)
+      expect(summary_counts).to eq("Products" => 0, "Seller products" => 0, "Pending reviews" => 0)
+      expect(response.body).to include("Download catalog-updated.db", catalog_export_download_path)
+
       get catalog_export_download_path
       expect(response).to have_http_status(:ok)
       expect(response.headers["Content-Disposition"]).to include('attachment; filename="catalog-updated.db"')
