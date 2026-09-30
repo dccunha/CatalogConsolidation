@@ -25,13 +25,14 @@ Provide a reproducible Docker command that loads the unchanged SQLite reference 
 
 ## Current checkpoint
 
-- Completed: read-only source inspection, Catalog loader and Rake command, Docker dependency, behavior specs, setup documentation, and passing full Docker CI on the T02 working tree based on `590fc8ac988eb3ceaa4a6721165829a389c7bda1`.
-- Remaining: independent reviews, parent-owned commit/PR/merge, and post-merge status update.
-- Next action: have the correctness and test reviewers inspect this implementation and its evidence.
+- Completed: read-only source inspection, Catalog loader and Rake command, Docker dependency, behavior specs, setup documentation, and passing full Docker CI. Round-one review fixes for the sequence and unrelated-row assertions are on HEAD `5e6b0ffee28c3e9ab3f06bcddb73f2f34ef3e37d` plus the spec delta identified below.
+- Remaining: reviewer reassessment, parent-owned commit/PR/merge, and post-merge status update.
+- Next action: have both reviewers reassess the focused spec changes and CI evidence, then proceed with the parent-owned Git/PR workflow.
 
 ## Problems
 
 - A loader-only focused RSpec run passed all 7 examples but exited 2 because the repository's global SimpleCov denominator includes unrelated files not exercised by that subset (73.19% line coverage). The full RSpec suite and full CI passed their coverage gates.
+- Round-one test review found that the two generated-ID assertions could pass because `products_id_seq` had already advanced (the reviewer observed 2031 with zero products), and that `other.reload.name == other.name` compared the same reloaded object. Both findings were fixed in the loader spec by setting a known low sequence state and saving unrelated attributes before loading.
 
 ## Decisions
 
@@ -46,6 +47,11 @@ Provide a reproducible Docker command that loads the unchanged SQLite reference 
 - **2026-09-30 — Docker image and command passed:** `docker compose build web` completed with `sqlite3`. In the disposable test database, `docker compose run --rm -e RAILS_ENV=test web bin/rails catalog:load_reference` reported 975 inserted; an identical second invocation reported 0 inserted and 975 already present. The test database was then reset with `db:drop db:create db:schema:load` before CI.
 - **2026-09-30 — Behavior specs passed:** [reference loader specs](../../spec/concepts/catalog/services/reference_catalog_loader_spec.rb) check all 975 source rows against PostgreSQL values, product 2, new-ID allocation, idempotent rerun, preservation of an unrelated high-ID product, clear conflict without writes, missing/unreadable/damaged/incomplete source, nonempty seller associations, and rollback when the final insert batch violates the product-name check. Full `docker compose run --rm web bundle exec rspec` passed 27 examples, 0 failures.
 - **2026-09-30 — Full gate passed on HEAD `590fc8a` plus T02 working tree:** `docker compose run --rm web bin/ci` passed in 20.65 seconds after the final spec changes: RuboCop (39 files), ERB/JS lint, Sorbet (`No errors`), concept sigils (4 files), gem and Rails RBI freshness (no changes needed), security audits, 27 RSpec examples, 1 Vitest test, database consistency, and seeds. Ruby coverage was 104/106 lines (98.11%) and 11/12 branches (91.66%); JavaScript coverage was 100% statements/lines/functions with no branches. `git diff --check` passed. New loader Ruby is `# typed: true` with method signatures; no new RBI was required.
+- **2026-09-30 — Round-one test fixes passed on candidate `5e6b0ffee28c3e9ab3f06bcddb73f2f34ef3e37d` plus the uncommitted spec-only patch:** The patch from `git diff --binary -- spec/concepts/catalog/services/reference_catalog_loader_spec.rb` has SHA-256 `a355e26f48ce625e318ecf8381f9523ac8c11b5c141bc8199fbc9a8ce2caa399`. `docker compose run --rm web bundle exec rspec spec/concepts/catalog/services/reference_catalog_loader_spec.rb` ran 9 examples, 0 failures; the command exited 2 solely because global line coverage was 75.47% for that isolated file. `docker compose run --rm web bin/ci` then passed every gate in 20.95 seconds: 27 RSpec examples, 0 failures, Ruby coverage 104/106 lines (98.11%) and 11/12 branches (91.66%), 1 passing Vitest test with 100% statement/line/function coverage, RuboCop, ERB/JS lint, Sorbet, concept sigils, both RBI freshness checks, security audits, database consistency, and seeds. `git diff --check` passed. The subsequent T02 brief update and parent-owned task-index edit do not affect code or test inputs.
+
+### Review rounds
+
+- **Round 1, candidate `5e6b0ff` (2026-09-30):** correctness review approved the implementation with no code finding. Test review requested `T02-TEST-01` (prove sequence advancement from a known low sequence value) and `T02-TEST-02` (compare unrelated product values captured before loading). The implementer changed only [reference loader specs](../../spec/concepts/catalog/services/reference_catalog_loader_spec.rb): both ID assertions now reset the sequence to 1 before loading and expect exact next IDs 976 and 2001; the unrelated row's name, brand, and category are captured and compared after reload. Focused examples and full CI passed on that delta. Reviewer reassessment is pending.
 
 ## Handoff
 

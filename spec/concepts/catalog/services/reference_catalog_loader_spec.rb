@@ -9,6 +9,7 @@ RSpec.describe Catalog::Services::ReferenceCatalogLoader, type: :model do
   describe ".call" do
     it "loads all reference values, preserves product 2, and advances new product IDs" do
       checksum = Digest::SHA256.file(reference_path).hexdigest
+      Catalog::Models::Product.connection.execute("SELECT setval(pg_get_serial_sequence('products', 'id'), 1, false)")
 
       expect(described_class.call).to eq(975)
       expect(Catalog::Models::Product.count).to eq(975)
@@ -21,18 +22,20 @@ RSpec.describe Catalog::Services::ReferenceCatalogLoader, type: :model do
       expect(status.success?).to be(true), error
       source_rows = JSON.parse(output).map { |row| row.values_at("Id", "Name", "Brand", "Category") }
       expect(Catalog::Models::Product.order(:id).pluck(:id, :name, :brand, :category)).to eq(source_rows)
-      expect(FactoryBot.create(:catalog_product).id).to be > 975
+      expect(FactoryBot.create(:catalog_product).id).to eq(976)
       expect(Digest::SHA256.file(reference_path).hexdigest).to eq(checksum)
     end
 
     it "skips identical products on a rerun without changing unrelated catalog data" do
       other = FactoryBot.create(:catalog_product, id: 2000)
+      original_attributes = other.attributes.slice("name", "brand", "category")
+      Catalog::Models::Product.connection.execute("SELECT setval(pg_get_serial_sequence('products', 'id'), 1, false)")
 
       expect(described_class.call).to eq(975)
       expect(described_class.call).to eq(0)
       expect(Catalog::Models::Product.count).to eq(976)
-      expect(other.reload.name).to eq(other.name)
-      expect(FactoryBot.create(:catalog_product).id).to be > 2000
+      expect(other.reload.attributes.slice("name", "brand", "category")).to eq(original_attributes)
+      expect(FactoryBot.create(:catalog_product).id).to eq(2001)
     end
 
     it "fails clearly on a conflicting ID without loading any other reference products" do
