@@ -2,11 +2,11 @@
 
 This is the authoritative status index for the catalog consolidation implementation. The [PRD](../prds/catalog-consolidation-importer.md) defines the product, [RFC 0001](../rfcs/0001-import-review-lifecycle.md) defines its lifecycle, and [ADR 0001](../adrs/0001-organize-by-concepts.md) defines code ownership. Task briefs turn those requirements into bounded changes; they do not replace them.
 
-The Rails/PostgreSQL application, Catalog and Intake domain code, browser review workflow, and integrated acceptance journeys are implemented through T14. T00A established Better Specs conventions and T00Q established typing and coverage gates. T15 delivered the verified runbook and demo, and T16 addressed SQL control syntax found during final QA. T17 is the next implementation task for the SQLite catalog download. The task status and linked evidence below distinguish merged work from work still under review.
+The Rails/PostgreSQL application, Catalog and Intake domain code, browser review workflow, and integrated acceptance journeys are implemented through T14. T00A established Better Specs conventions and T00Q established typing and coverage gates. T15 delivered the verified runbook and demo, T16 addressed SQL control syntax found during final QA, and T17 delivered the SQLite catalog download. T18 shortens the project README while retaining its complete original text. The task status and linked evidence below distinguish merged work from work still under review.
 
 ## Task index
 
-Implement in index order, initially T00–T15 plus the T00A and T00Q quality preflights and follow-up T00R, then T16 and T17, one implementation task and one reviewed PR at a time. The “After merge” column is a sequencing gate, not a requirement to read every preceding task. Relevant technical context is linked in each brief. Status lives only in this table; briefs hold checkpoints and evidence. Insert any later follow-up tasks where their dependencies require, preserving existing task IDs.
+Implement in index order, initially T00–T15 plus the T00A and T00Q quality preflights and follow-up T00R, then T16–T18, one implementation task and one reviewed PR at a time. The “After merge” column is a sequencing gate, not a requirement to read every preceding task. Relevant technical context is linked in each brief. Status lives only in this table; briefs hold checkpoints and evidence. Insert any later follow-up tasks where their dependencies require, preserving existing task IDs.
 
 | ID | Task | Status | After merge | PR | Current blocker |
 | --- | --- | --- | --- | --- | --- |
@@ -31,6 +31,7 @@ Implement in index order, initially T00–T15 plus the T00A and T00Q quality pre
 | T15 | [Prepare delivery and demo](15-delivery-and-demo.md) | done | T14 | [#25](https://github.com/dccunha/CatalogConsolidation/pull/25) · merge `ac839ef` | None |
 | T16 | [Block SQL control syntax from Catalog writes](16-block-sql-control-syntax.md) | done | T15 | [#27](https://github.com/dccunha/CatalogConsolidation/pull/27) · merge `960d0ee` | None |
 | T17 | [Export the current catalog as SQLite](17-export-current-catalog-as-sqlite.md) | done | T16 | [#28](https://github.com/dccunha/CatalogConsolidation/pull/28) · merge `b0034e8`; [plan #26](https://github.com/dccunha/CatalogConsolidation/pull/26) | None |
+| T18 | [Shorten the project README](18-shorten-project-readme.md) | in review | T17 | [#29](https://github.com/dccunha/CatalogConsolidation/pull/29) | None |
 
 Milestones: T08 verifies importer/rerun services; T10 makes upload, results, and review evidence available in the browser; T13 completes the required user actions; T14 verifies integrated acceptance journeys; T15 completes delivery verification.
 
