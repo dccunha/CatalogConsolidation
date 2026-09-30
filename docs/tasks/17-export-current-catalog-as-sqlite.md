@@ -1,6 +1,6 @@
 # T17: Export the current catalog as SQLite
 
-Status, sequencing gate, PR, and current blocker live in [the index](README.md). This task follows T16; reconcile its links and contracts against T16's merged handoff before implementation.
+Status, sequencing gate, PR, and current blocker live in [the index](README.md). This task follows merged T16 and its verified handoff.
 
 ## Outcome and boundaries
 
@@ -10,7 +10,7 @@ The user chose a full-catalog snapshot, not a batch-specific export. Any active 
 
 ## Required context
 
-- [T15 delivery handoff](15-delivery-and-demo.md#handoff) and the T16 handoff at `docs/tasks/16-block-sql-control-syntax.md` after T16 merges. Verify T16's actual merge and contract before work begins.
+- [T15 delivery handoff](15-delivery-and-demo.md#handoff) and [T16 handoff](16-block-sql-control-syntax.md#handoff), merged through [PR #27](https://github.com/dccunha/CatalogConsolidation/pull/27) at `960d0ee`.
 - [PRD assignment context](../prds/catalog-consolidation-importer.md#11-assignment-context), [Catalog and Intake ownership](../adrs/0001-organize-by-concepts.md#dependencies-and-public-surface), and [implementation quality gates](quality-gates.md).
 - [Reference-loader handoff](02-reference-catalog-loading.md#handoff), the unchanged [SQLite source](../refs/catalog.db), Catalog product and seller-association models, Intake review-case model, current routes, and application navigation.
 - New entry points belong under `app/concepts/intake/controllers/catalog_exports_controller.rb` and `app/concepts/intake/views/catalog_exports/` for the browser flow, and `app/concepts/catalog/public/exports.rb` plus a Catalog service for SQLite construction. These paths do not exist yet.
@@ -26,13 +26,13 @@ The user chose a full-catalog snapshot, not a batch-specific export. Any active 
 
 ## Current checkpoint
 
-- Completed: the T17 brief and index entry were prepared after a successful `git fetch origin main`; remote main was `a081718` on 2026-09-30. User decisions on scope, contents, pending reviews, and failed rows are recorded below. No export implementation or test has run.
-- Remaining: T16 merge verification, implementation, focused checks, independent reviews, full Docker CI, one T17 PR, merge, and final QA handoff.
-- Next action: after T16 merges, reconcile this brief and the index with its final handoff, then let the orchestrator start T17 from updated main.
+- Completed: T16 merged as [PR #27](https://github.com/dccunha/CatalogConsolidation/pull/27) at `960d0ee`, and this brief and index were reconciled against its handoff on 2026-09-30. User decisions on scope, contents, pending reviews, and failed rows are recorded below. [Draft planning PR #26](https://github.com/dccunha/CatalogConsolidation/pull/26) contains task records only; no export implementation or test has run.
+- Remaining: merge the task-planning PR, then implementation, focused checks, independent reviews, full Docker CI, an implementation PR, merge, and final QA handoff.
+- Next action: after planning PR #26 merges, let the orchestrator start T17 implementation from updated main.
 
 ## Problems
 
-None recorded. T16 is active in a separate worktree, so its unmerged files and index were not edited by this task-planning change.
+None recorded. The planning branch originally diverged before T16 merged; it was reconciled against T16's final index and handoff before this PR's merge.
 
 ## Decisions
 

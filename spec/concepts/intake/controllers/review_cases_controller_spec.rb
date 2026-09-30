@@ -61,6 +61,21 @@ RSpec.describe Intake::Controllers::ReviewCasesController, type: :request do
   end
 
   describe "GET /review_cases/:id" do
+    it "renders a legacy unsafe pending case without decision actions" do
+      batch = import(row)
+      review_case = batch.row_results.sole.review_case
+      Intake::Models::ReviewCase.where(id: review_case.id)
+        .update_all(source_input: row.merge("Name" => "Camera; SELECT 1"))
+
+      get review_case_path(review_case)
+
+      expect(response).to have_http_status(:ok)
+      expect(page.at_css(".case-summary").text).to include("older case", "current text rule")
+      expect(page.css("form[action$='/approve'], form[action$='/reject'], form[action$='/create_product']"))
+        .to be_empty
+      expect(page.css("form[action$='/correct']")).not_to be_empty
+    end
+
     it "shows original values, ranked evidence, conflicts, and safe source text" do
       Catalog::Models::SellerProduct.create!(seller_name: row.fetch("SellerName"), seller_product_id: "OTHER",
         product_id: product.id)

@@ -59,6 +59,7 @@ The supplied database has 975 `Product` rows and an empty `SellerProduct` table.
 
 1. Reject malformed JSON at the file level with a clear error. For a valid JSON array, process rows independently.
 2. Mark a row with a missing or invalid `Id`, `SellerName`, or `Name` as failed. Continue with other rows.
+   Before seller-key lookup or matching, reject `;`, `--`, `/*`, `*/`, or Unicode control characters in any of `Id`, `SellerName`, `Name`, `Brand`, or `Category`. Keep the full original row in Intake with a **Failed** result that names the offending field. Do not create a seller item, review case, product, or Catalog association. A corrected value requires a new import; the failed row has no review action. Apostrophes and ordinary product punctuation remain valid.
 3. If `(SellerName, Id)` has already been imported, compare its normalized identity fields (`Name`, `Brand`, `Category`). If they are unchanged, mark the row **skipped / already imported**. If they have materially changed, hold the row for review; do not silently relink it.
 4. Treat duplicate occurrences of the same seller item within one file by the same rule. Accent or whitespace differences alone do not create another association.
 
@@ -83,7 +84,7 @@ If two names differ in a material variant token, such as `128GB` versus `256GB`,
 - Use a transaction for each row's catalog and association writes. A failed row must not leave a partial product or association.
 - Continue processing the rest of a valid file after a row-level failure.
 - Existing `Product` values remain unchanged on link. The seller's original fields are retained in the import/review record for audit and later comparison.
-- Use parameterized SQL for every supplied string, including values containing quotes or SQL-like text.
+- Use parameterized SQL for every supplied string, including allowed quoted values. Apply the same control-syntax rule to new string values passed through `Catalog::Public::Writes`, including reviewer corrections. Do not revalidate stored fields on an existing target product during link or reassignment. This defined filter does not replace safe queries and output encoding for all downstream consumers.
 
 ## 6. Review workflow
 
@@ -127,7 +128,7 @@ Each run returns a batch identifier and totals for linked, created, already impo
 | AC6 | Import the same `(SellerName, Id)` twice with `Câmera` versus `Camera`, then rerun the file. | The equivalent normalized identity produces one seller association and no duplicate review decision. |
 | AC7 | Reuse an existing `(SellerName, Id)` with materially changed identity fields. | The old association is not silently changed; the row enters review. |
 | AC8 | A second ID from one seller would link to a product that seller already offers. | The row enters review; the reviewer chooses which ID remains, and the database never contains both associations. |
-| AC9 | A complete row has no credible existing candidate. | Exactly one product and seller association are created atomically. SQL-like text in a field is stored as data and cannot execute. |
+| AC9 | A complete safe row has no credible existing candidate, or a row contains `;`, `--`, `/*`, `*/`, or a control character in any input field. | A safe row creates exactly one product and seller association atomically. A flagged row is **Failed** with its full source retained only in Intake and an offending-field reason; it creates no seller item, review case, product, or association. Catalog public writes reject unsafe new strings atomically. |
 | AC10 | An incomplete or invalid row occurs between valid rows. | Invalid required fields yield a failed row; missing brand/category yields review; later valid rows still import. |
 | AC11 | The reviewer approves, rejects, corrects, or resolves a conflict, then reruns the same input. | The decision is recorded, reflected in catalog associations, and preserved across reruns. |
 | AC12 | Two listings differ only by a material variant attribute such as color or capacity. | They are not automatically linked to the same `Product`. |

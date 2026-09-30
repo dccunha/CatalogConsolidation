@@ -25,6 +25,50 @@ RSpec.describe Intake::Services::ReviewActions, type: :model do
     described_class.approve(review_case_id: review_case.id, candidate_id: selected.id, evidence_revision: revision)
   end
 
+  describe "legacy unsafe pending cases" do
+    it "refuses decisions while preserving the case, then accepts a safe correction" do
+      import
+      Intake::Models::ReviewCase.where(id: review_case.id)
+        .update_all(source_input: source.merge("Name" => "Canon Camera; SELECT 1"))
+      review_case.reload
+      selected = candidate
+
+      expect(described_class.creation_state(review_case: review_case)).to eq(:invalid_input)
+      blocked = approve(selected)
+      expect(blocked).to have_attributes(status: :invalid)
+      expect(blocked.message).to include("Name", "semicolon")
+      expect(Catalog::Models::SellerProduct.count).to eq(0)
+      expect(review_case.reload.status).to eq("pending")
+      expect(Intake::Models::ReviewDecision.count).to eq(0)
+
+      bad = described_class.correct(review_case_id: review_case.id, evidence_revision: 1,
+        name: "Canon Camera--", brand: "Canon", category: "Photography")
+      expect(bad.status).to eq(:invalid)
+      expect(bad.message).to include("Name", "SQL line comment")
+      expect(Intake::Models::ReviewCorrection.count).to eq(0)
+
+      corrected = described_class.correct(review_case_id: review_case.id, evidence_revision: 1,
+        name: "Canon Camera", brand: "Canon", category: "Photography")
+      expect(corrected.status).to eq(:corrected)
+      expect(described_class.creation_state(review_case: review_case.reload)).not_to eq(:invalid_input)
+      expect(review_case.review_corrections.sole.corrected_input.fetch("Name")).to eq("Canon Camera")
+    end
+
+    it "requires a new import when the legacy seller key is unsafe" do
+      import
+      Intake::Models::ReviewCase.where(id: review_case.id).update_all(source_input: source.merge("Id" => "bad;id"))
+      review_case.reload
+
+      expect(described_class.creation_state(review_case: review_case)).to eq(:invalid_input)
+      result = described_class.correct(review_case_id: review_case.id, evidence_revision: 1,
+        name: "Canon Camera", brand: "Canon", category: "Photography")
+      expect(result.status).to eq(:invalid)
+      expect(result.message).to include("Id", "semicolon")
+      expect(Intake::Models::ReviewCorrection.count).to eq(0)
+      expect(Catalog::Models::SellerProduct.count).to eq(0)
+    end
+  end
+
   describe ".approve" do
     it "approves a stable non-exact candidate without endlessly refreshing its rounded score" do
       import(source.merge("Name" => "Canon Cameras"))

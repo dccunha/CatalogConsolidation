@@ -22,11 +22,14 @@ module Catalog
         end
       end
 
+      class UnsafeTextError < ArgumentError; end
+
       sig do
         params(product_id: Integer, seller_name: String, seller_product_id: String)
           .returns(Catalog::Models::SellerProduct)
       end
       def self.link(product_id:, seller_name:, seller_product_id:)
+        check_text({ seller_name: seller_name, seller_product_id: seller_product_id })
         write do
           Catalog::Models::Product.find(product_id)
           create_association(product_id: product_id, seller_name: seller_name, seller_product_id: seller_product_id)
@@ -38,6 +41,8 @@ module Catalog
           seller_product_id: String).returns(Catalog::Models::SellerProduct)
       end
       def self.create_with_association(name:, brand:, category:, seller_name:, seller_product_id:)
+        check_text({ name: name, brand: brand, category: category,
+          seller_name: seller_name, seller_product_id: seller_product_id })
         write do
           product = Catalog::Models::Product.create!(name: name, brand: brand, category: category)
           create_association(product_id: product.id, seller_name: seller_name, seller_product_id: seller_product_id)
@@ -49,6 +54,7 @@ module Catalog
           .returns(Catalog::Models::SellerProduct)
       end
       def self.reassign(association_id:, product_id:, seller_product_id:)
+        check_text({ seller_product_id: seller_product_id })
         write do
           association = Catalog::Models::SellerProduct.lock.find(association_id)
           Catalog::Models::Product.find(product_id)
@@ -80,6 +86,7 @@ module Catalog
       end
       def self.create_for_association(association_id:, expected_product_id:, expected_seller_product_id:,
         name:, brand:, category:)
+        check_text({ name: name, brand: brand, category: category })
         write do
           association = Catalog::Models::SellerProduct.lock.find(association_id)
           check_expected_state(association, product_id: expected_product_id,
@@ -143,6 +150,17 @@ module Catalog
           message: "Associations #{survivor.id} and #{displaced.id} belong to different sellers")
       end
       private_class_method :check_replacement_state
+
+      sig { params(values: T::Hash[Symbol, T.nilable(String)]).void }
+      def self.check_text(values)
+        values.each do |field, value|
+          next unless value
+
+          violation = Catalog::Public::TextPolicy.violation(value)
+          raise UnsafeTextError, "#{field} contains prohibited #{violation}" if violation
+        end
+      end
+      private_class_method :check_text
 
       sig { params(block: T.proc.returns(Catalog::Models::SellerProduct)).returns(Catalog::Models::SellerProduct) }
       def self.write(&block)
