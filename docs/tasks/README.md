@@ -11,7 +11,7 @@ Implement in index order, initially T00–T15 plus the T00Q quality preflight, o
 | ID | Task | Status | After merge | PR | Current blocker |
 | --- | --- | --- | --- | --- | --- |
 | T00 | [Establish task records and workflow](00-task-workflow.md) | done | Foundation | [#6](https://github.com/dccunha/CatalogConsolidation/pull/6) | None |
-| T00Q | [Enforce implementation quality gates](00q-quality-gates.md) | in review | T00 | Not opened | [T00Q-P01](00q-quality-gates.md#problems): publication approval |
+| T00Q | [Enforce implementation quality gates](00q-quality-gates.md) | in review | T00 | [#8](https://github.com/dccunha/CatalogConsolidation/pull/8) | None |
 | T01 | [Integrate concepts and Catalog persistence](01-concepts-and-catalog-persistence.md) | backlog | T00Q | Not opened | — |
 | T02 | [Load the reference catalog](02-reference-catalog-loading.md) | backlog | T01 | Not opened | — |
 | T03 | [Implement Catalog public writes](03-catalog-public-writes.md) | backlog | T02 | Not opened | — |
@@ -35,12 +35,12 @@ Milestones: T08 verifies importer/rerun services; T10 makes upload, results, and
 The user can invoke the [orchestrator instructions and starter prompt](orchestrator.md#starter-prompt) to run the remaining tasks with fresh implementers, two independent reviewers per task, automatic merges after passing gates, and a pause for final QA. Merely reading or editing those instructions does not start the run. Individual task requests can still use the manual workflow below.
 
 - Run state: `not_started`.
-- Current task/stage: none / idle; T00Q is being prepared outside the orchestrator and T01 follows its merge.
-- Working directory, branch, candidate revision, and PR: assigned and verified at launch.
+- Current task/stage: T00Q / awaiting human PR review.
+- Working directory, branch, candidate revision, and PR: `/home/daniel/.codex/worktrees/010d/VTEX`, `codex/quality-gates`, `b87f941`, [#8](https://github.com/dccunha/CatalogConsolidation/pull/8).
 - Active agent assignments and test-runner owner: none.
 - Unresolved orchestration findings or decisions: none.
 - Last completed orchestration milestone: none.
-- Next action: finish and merge T00Q, then invoke the starter prompt when ready to execute T01 onward.
+- Next action: complete human review and merge T00Q; then T01 becomes ready and the orchestrator can be invoked.
 
 During a run, update this checkpoint at stage transitions and before interruption. Keep task statuses in the table above and detailed findings/evidence in the owning briefs. See [records and recovery](orchestrator.md#records-and-recovery) for resume rules.
 
