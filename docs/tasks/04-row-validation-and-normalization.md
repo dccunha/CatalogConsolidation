@@ -25,8 +25,8 @@ Turn one input element into validated source data and comparison values without 
 ## Current checkpoint
 
 - Completed: Intake row validator, reusable comparison normalizer, 28 focused examples, resolved round-one findings, and both independent approvals of code candidate `44e492d1aaf218d2e006061f961f3c84f976cbbf`. The test reviewer reran full Docker CI on that exact commit.
-- Remaining: PR and merge verification; the task index owns status.
-- Next action: parent opens the reviewed PR and verifies its final head and merge gates.
+- Remaining: merge verification; the task index owns status.
+- Next action: parent verifies [PR #14](https://github.com/dccunha/CatalogConsolidation/pull/14) at the final reviewed head and merges after all gates pass.
 
 ## Problems
 
