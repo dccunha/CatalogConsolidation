@@ -19,12 +19,40 @@ module Intake
         load_history
       end
 
+      def approve
+        review_result = Services::ReviewActions.approve(review_case_id: params[:id].to_i,
+          candidate_id: params[:candidate_id].to_i, evidence_revision: params[:evidence_revision].to_i)
+        finish_action(review_result)
+      end
+
+      def reject
+        review_result = Services::ReviewActions.reject(review_case_id: params[:id].to_i,
+          candidate_id: params[:candidate_id].to_i, evidence_revision: params[:evidence_revision].to_i,
+          reason: params[:reason].to_s)
+        finish_action(review_result)
+      end
+
+      def correct
+        review_result = Services::ReviewActions.correct(review_case_id: params[:id].to_i,
+          evidence_revision: params[:evidence_revision].to_i, name: params[:name].to_s,
+          brand: params[:brand], category: params[:category])
+        finish_action(review_result)
+      end
+
       private
 
       def load_case_evidence
         @candidates = @review_case.review_candidates.where(evidence_revision: @review_case.evidence_revision)
           .includes(:review_rejection).order(:rank)
         @rows = @review_case.row_results.includes(:batch).order(:created_at, :id)
+        @rejected_product_ids = @review_case.review_candidates.joins(:review_rejection).pluck(:product_id).to_set
+        latest_correction = @review_case.review_corrections.order(:id).last
+        @current_input = latest_correction ? latest_correction.corrected_input : @review_case.source_input
+      end
+
+      def finish_action(review_result)
+        flash[review_result.success? ? :notice : :alert] = review_result.message
+        redirect_to review_case_path(params[:id]), status: :see_other
       end
 
       def load_history

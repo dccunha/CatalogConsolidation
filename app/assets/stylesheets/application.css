@@ -76,6 +76,13 @@ details summary { color: #075985; cursor: pointer; }
 .history-list { padding-left: 3rem; }
 .history-list li + li { margin-top: .7rem; }
 .source-detail { margin-top: 1rem; }
+.candidate-actions { display: flex; flex-direction: column; align-items: flex-start; gap: 1rem; margin-top: 1.25rem; }
+.candidate-actions form, .correction-form, .reject-form { display: flex; flex-wrap: wrap; align-items: end; gap: .65rem; }
+.correction-form > div { display: flex; flex-direction: column; flex: 1 1 11rem; }
+.candidate-actions label, .correction-form label { font-weight: 700; }
+.candidate-actions input[type="text"], .correction-form input[type="text"] { min-height: 2.7rem; padding: .5rem; border: 1px solid #9eb2bc; border-radius: .4rem; font: inherit; }
+.button--secondary { background: #526879; }
+.button--secondary:hover { background: #355364; }
 
 @media (max-width: 600px) {
   .site-header__inner { align-items: flex-start; flex-direction: column; }

@@ -24,7 +24,7 @@ Implement in index order, initially T00–T15 plus the T00A and T00Q quality pre
 | T08 | [Preserve decisions across reruns](08-reruns-and-source-identity.md) | done | T07 | [#18](https://github.com/dccunha/CatalogConsolidation/pull/18) · merge `dd55280` | None |
 | T09 | [Add web upload and batch results](09-web-upload-and-results.md) | done | T08 | [#19](https://github.com/dccunha/CatalogConsolidation/pull/19) · merge `3f464aa` | None |
 | T10 | [Add review queue and case details](10-review-queue-and-details.md) | done | T09 | [#20](https://github.com/dccunha/CatalogConsolidation/pull/20) · merge `3123ff6` | None |
-| T11 | [Approve, reject, and correct](11-review-approval-rejection-correction.md) | in progress | T10 | Not opened | None |
+| T11 | [Approve, reject, and correct](11-review-approval-rejection-correction.md) | in review | T10 | Not opened | Independent reviews pending |
 | T12 | [Create explicitly and recheck evidence](12-review-creation-and-freshness.md) | backlog | T11 | Not opened | — |
 | T13 | [Resolve reassignment and listing conflicts](13-reassignment-and-listing-conflicts.md) | backlog | T12 | Not opened | — |
 | T14 | [Verify acceptance journeys](14-acceptance-journeys.md) | backlog | T13 | Not opened | — |
@@ -37,12 +37,12 @@ Milestones: T08 verifies importer/rerun services; T10 makes upload, results, and
 The user can invoke the [orchestrator instructions and starter prompt](orchestrator.md#starter-prompt) to run the remaining tasks with fresh implementers, two independent reviewers per task, automatic merges after passing gates, and a pause for final QA. Merely reading or editing those instructions does not start the run. Individual task requests can still use the manual workflow below.
 
 - Run state: `running`.
-- Current task/stage: T11 / implementation.
-- Working directory, branch, candidate revision, and PR: `/home/daniel/.codex/worktrees/137d/VTEX`, `codex/t11-review-actions` from integrated main `9d10f91`; no T11 candidate or PR yet. T10 [PR #20](https://github.com/dccunha/CatalogConsolidation/pull/20) merged at `3123ff6`.
-- Active agent assignments and test-runner owner: fresh T11 implementer to be assigned as sole application writer and Docker runner; T10 agents completed.
+- Current task/stage: T11 / first independent reviews.
+- Working directory, branch, candidate revision, and PR: `/home/daniel/.codex/worktrees/137d/VTEX`, `codex/t11-review-actions` from integrated main `9d10f91`; first T11 candidate pending commit, no PR yet. T10 [PR #20](https://github.com/dccunha/CatalogConsolidation/pull/20) merged at `3123ff6`.
+- Active agent assignments and test-runner owner: T11 implementer completed candidate and full Docker CI, stopped application writes; fresh independent reviewers pending, test reviewer to own shared Docker runner.
 - Unresolved orchestration findings or decisions: none.
 - Last completed orchestration milestone: T10 browser upload/results, queue filters, case comparison/history, and screenshots verified on `9d88d25`; T13–T14 will cover real reviewer-command and browser action journeys.
-- Next action: dispatch fresh T11 implementer for approval, rejection, and correction commands, UI, specs, screenshots, and full Docker CI.
+- Next action: commit stable T11 candidate and dispatch correctness and test reviewers on the exact revision.
 
 During a run, update this checkpoint at stage transitions and before interruption. Keep task statuses in the table above and detailed findings/evidence in the owning briefs. See [records and recovery](orchestrator.md#records-and-recovery) for resume rules.
 

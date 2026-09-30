@@ -78,7 +78,9 @@ RSpec.describe Intake::Controllers::ReviewCasesController, type: :request do
       expect(page.at_css(".source-detail pre").text).to include(row.fetch("SellerName"))
       expect(response.body).to include("&lt;script&gt;alert(1)&lt;/script&gt;")
       expect(response.body).not_to include("<script>alert(1)</script>")
-      expect(page.css("form[action*='review_cases']")).to be_empty
+      expect(page.css("form[action$='/approve']")).to be_empty
+      expect(page.css("form[action$='/reject']")).not_to be_empty
+      expect(page.css("form[action$='/correct']")).not_to be_empty
     end
 
     it "shows corrections and saved action history apart from import-time outcomes" do
@@ -173,6 +175,65 @@ RSpec.describe Intake::Controllers::ReviewCasesController, type: :request do
 
       expect(page.at_css("[aria-labelledby='candidates-heading'] .empty-state").text).to include("This case has a final decision")
       expect(page.at_css("[aria-labelledby='candidates-heading'] .empty-state").text).not_to include("needs an explicit reviewer decision")
+    end
+  end
+
+  describe "review actions" do
+    it "offers ordinary candidate controls and shows the saved approval after a POST" do
+      batch = import(row)
+      review_case = batch.row_results.sole.review_case
+      candidate = review_case.review_candidates.sole
+
+      get review_case_path(review_case)
+      expect(page.css("form[action$='/approve'] input[name='candidate_id']").map { |field| field["value"] }).to eq([ candidate.id.to_s ])
+      expect(page.css("form[action$='/reject'] label").map(&:text)).to include("Reason for rejecting product ##{product.id}")
+
+      post approve_review_case_path(review_case), params: { candidate_id: candidate.id, evidence_revision: 1 }
+      expect(response).to redirect_to(review_case_path(review_case))
+      follow_redirect!
+      expect(page.at_css("[role='status']").text).to include("approved and linked")
+      expect(page.at_css(".page-heading").text).to include("Resolved")
+      expect(page.at_css(".case-summary").text).to include("Final decision", "Local reviewer")
+      expect(page.css("form[action$='/approve'], form[action$='/reject'], form[action$='/correct']")).to be_empty
+    end
+
+    it "shows a rejection, keeps correction pending, and refuses an old approval" do
+      batch = import(row)
+      review_case = batch.row_results.sole.review_case
+      candidate = review_case.review_candidates.sole
+
+      post reject_review_case_path(review_case), params: { candidate_id: candidate.id,
+        evidence_revision: 1, reason: "Wrong model" }
+      follow_redirect!
+      expect(page.at_css("[role='status']").text).to include("rejected")
+      expect(page.at_css(".candidate-card").text).to include("Wrong model")
+      expect(page.css("form[action$='/approve'], form[action$='/reject']")).to be_empty
+      expect(page.at_css("[aria-labelledby='candidates-heading']").text).to include("separate explicit creation action")
+
+      post correct_review_case_path(review_case), params: { evidence_revision: 1, name: "Canon EOS R6 Mark II",
+        brand: "Canon", category: "Photo" }
+      follow_redirect!
+      expect(page.at_css("[role='status']").text).to include("Comparison updated")
+      expect(page.at_css(".case-summary").text).to include("pending")
+      expect(page.at_css("[aria-labelledby='identity-heading']").text).to include("Canon EOS R6 Mark II", "Camera Canon EOS R6")
+
+      post approve_review_case_path(review_case), params: { candidate_id: candidate.id, evidence_revision: 1 }
+      follow_redirect!
+      expect(page.at_css("[role='alert']").text).to include("older evidence")
+      expect(review_case.reload.status).to eq("pending")
+    end
+
+    it "does not offer approval for a same-seller listing conflict" do
+      Catalog::Models::SellerProduct.create!(seller_name: row.fetch("SellerName"),
+        seller_product_id: "OTHER", product_id: product.id)
+      batch = import(row)
+      review_case = batch.row_results.sole.review_case
+
+      get review_case_path(review_case)
+
+      expect(page.css("form[action$='/approve']")).to be_empty
+      expect(page.at_css(".candidate-actions").text).to include("needs same-seller conflict resolution")
+      expect(page.css("form[action$='/reject'], form[action$='/correct']")).not_to be_empty
     end
   end
 end

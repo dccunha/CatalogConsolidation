@@ -12,5 +12,11 @@ Rails.application.routes.draw do
   root "intake/controllers/imports#new"
   resource :import, only: %i[new create], controller: "intake/controllers/imports"
   resources :batches, only: %i[index show], controller: "intake/controllers/batches"
-  resources :review_cases, only: %i[index show], controller: "intake/controllers/review_cases"
+  resources :review_cases, only: %i[index show], controller: "intake/controllers/review_cases" do
+    member do
+      post :approve
+      post :reject
+      post :correct
+    end
+  end
 end
