@@ -28,8 +28,8 @@ Make the accepted concept layout work in Rails and persist Catalog products and 
 ## Current checkpoint
 
 - Completed: Catalog model and controller foundations, PostgreSQL migration and schema, model and request specs, generated model RBIs, fresh migration and schema-load verification, round-one review fixes, and Docker CI on the review-fix working tree.
-- Remaining: independent reassessment, PR, and merge verification. The task index owns status and the merge gate.
-- Next action: parent commits the review fixes and requests independent reassessment.
+- Remaining: PR and merge verification. The task index owns status and the merge gate.
+- Next action: parent opens the reviewed PR, verifies GitHub mergeability, and merges after final head checks.
 
 ## Problems
 
@@ -51,6 +51,11 @@ Make the accepted concept layout work in Rails and persist Catalog products and 
 - **2026-09-30 — Passed on the original candidate later committed as `c27e62f1a6a1fdf3b3603b7ddb8191f4662f23ff`:** `docker compose run --rm web bin/ci` passed all style, type/RBI freshness, security, RSpec, Vitest, schema consistency, and seed gates in 21.20 seconds. The command ran on base `152d879` plus the T01 working tree before that tree was committed as `c27e62f`; it was not a post-commit run. Ruby coverage was 100% line/branch; JavaScript coverage was 100% statements, lines, and functions (no branches).
 - **2026-09-30 — Passed on review-fix working tree:** `docker compose run --rm web bundle exec rspec spec/concepts/catalog` ran 17 examples, 0 failures, with 33/33 lines covered. The working tree is HEAD `c27e62f1a6a1fdf3b3603b7ddb8191f4662f23ff` plus the two model-spec changes for T01-TEST-01/02; their `git diff --binary` SHA-256 is `aa0a13df539575108fa28396df6d4c5e5aa8760cfc8258b8ca78e311453e5867`. [Seller association specs](../../spec/concepts/catalog/models/seller_product_spec.rb) now prove seller-name case distinctions, and [product specs](../../spec/concepts/catalog/models/product_spec.rb) prove duplicate names are allowed.
 - **2026-09-30 — Passed on the same review-fix working tree:** `docker compose run --rm web bin/ci` passed every gate in 20.65 seconds: 18 RSpec examples, 0 failures, 33/33 Ruby lines and 100% branches; existing Vitest coverage 100% statements, lines, and functions with no branches; RuboCop, ERB/JS lint, Sorbet, concept sigils, both RBI freshness checks, security audits, database consistency, and seeds all passed. Revision attribution is HEAD `c27e62f1a6a1fdf3b3603b7ddb8191f4662f23ff` plus only the two uncommitted model-spec changes identified by SHA-256 above; the brief and task index edits do not affect application behavior or test inputs.
+
+### Review rounds
+
+- **Round 1, candidate `c27e62f` (2026-09-30):** correctness reviewer approved after inspecting the complete diff, migration/data constraints, Rails loading, and typing; read-only `git diff --check` passed. Test reviewer requested `T01-TEST-01` (case-distinct seller identities) and `T01-TEST-02` (duplicate product names) after inspecting assertions and running 15 focused examples and full `bin/ci` (16 examples), both passing. The implementer added the two requested specs; no application code changed.
+- **Round 2, candidate `0dcd3a8c209000acbbc3dc739a22208fa7e7848f` (2026-09-30):** correctness reviewer approved the full diff and test-only delta with no findings; verified the CI evidence fingerprint and `git diff --check`. Test reviewer approved, confirming `T01-TEST-01` and `T01-TEST-02` resolved. The implementer ran 17 focused examples and full `bin/ci` with 18 examples on the equivalent pre-commit tree. The test reviewer inspected that evidence and did not rerun Docker; no application/schema code changed after round 1. Fresh migration/schema-load evidence remains from initial implementation.
 
 ## Handoff
 

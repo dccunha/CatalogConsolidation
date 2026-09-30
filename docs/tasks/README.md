@@ -37,12 +37,12 @@ Milestones: T08 verifies importer/rerun services; T10 makes upload, results, and
 The user can invoke the [orchestrator instructions and starter prompt](orchestrator.md#starter-prompt) to run the remaining tasks with fresh implementers, two independent reviewers per task, automatic merges after passing gates, and a pause for final QA. Merely reading or editing those instructions does not start the run. Individual task requests can still use the manual workflow below.
 
 - Run state: `running`.
-- Current task/stage: T01 / reviewer reassessment.
-- Working directory, branch, candidate revision, and PR: `/home/daniel/.codex/worktrees/137d/VTEX`, `codex/t01-catalog-persistence`, base `152d879`, revised candidate is the next branch commit after `c27e62f`, no PR yet. GitHub main was verified at `152d879` and T00R PR #10 merged at `87089b9`.
-- Active agent assignments and test-runner owner: T01 implementer finished review fixes; correctness and test reviewers to reassess revised candidate, with the test reviewer owning any shared checks.
-- Unresolved orchestration findings or decisions: `T01-TEST-01` and `T01-TEST-02` fixed in specs, pending both reviewers' reassessment; no user decision.
+- Current task/stage: T01 / PR preparation after both reviewer approvals.
+- Working directory, branch, candidate revision, and PR: `/home/daniel/.codex/worktrees/137d/VTEX`, `codex/t01-catalog-persistence`, base `152d879`, reviewed code candidate `0dcd3a8c209000acbbc3dc739a22208fa7e7848f`, no PR yet. GitHub main was verified at `152d879` and T00R PR #10 merged at `87089b9`.
+- Active agent assignments and test-runner owner: T01 implementer and both reviewers finished; no active writer or test runner.
+- Unresolved orchestration findings or decisions: round-one `T01-TEST-01` and `T01-TEST-02` resolved; both reviewers approved `0dcd3a8`; no user decision.
 - Last completed orchestration milestone: none.
-- Next action: obtain both reviewer verdicts on the revised candidate, then prepare the task PR and verify merge gates.
+- Next action: open T01 PR, verify final head and GitHub mergeability, then merge if all gates remain satisfied.
 
 During a run, update this checkpoint at stage transitions and before interruption. Keep task statuses in the table above and detailed findings/evidence in the owning briefs. See [records and recovery](orchestrator.md#records-and-recovery) for resume rules.
 
