@@ -36,12 +36,12 @@ Milestones: T08 verifies importer/rerun services; T10 makes upload, results, and
 The user can invoke the [orchestrator instructions and starter prompt](orchestrator.md#starter-prompt) to run the remaining tasks with fresh implementers, two independent reviewers per task, automatic merges after passing gates, and a pause for final QA. Merely reading or editing those instructions does not start the run. Individual task requests can still use the manual workflow below.
 
 - Run state: `not_started`.
-- Current task/stage: T00Q / merge resolved locally; awaiting updated PR checks and human review. The orchestrator is idle.
-- Working directory, branch, candidate revision, and PR: `/home/daniel/.codex/worktrees/010d/VTEX`, `codex/quality-gates`, merge of `86a2a2f` with `e69180a` pending commit and push, [#8](https://github.com/dccunha/CatalogConsolidation/pull/8).
+- Current task/stage: T00Q / awaiting human PR review. The orchestrator is idle.
+- Working directory, branch, candidate revision, and PR: `/home/daniel/.codex/worktrees/010d/VTEX`, `codex/quality-gates`, merge commit `725594e` with hosted CI passing, [#8](https://github.com/dccunha/CatalogConsolidation/pull/8).
 - Active agent assignments and test-runner owner: none.
 - Unresolved orchestration findings or decisions: none.
 - Last completed orchestration milestone: none.
-- Next action: push the validated merge resolution, verify PR checks, then complete human review and merge T00Q.
+- Next action: complete human review and merge T00Q; then T01 becomes ready.
 
 During a run, update this checkpoint at stage transitions and before interruption. Keep task statuses in the table above and detailed findings/evidence in the owning briefs. See [records and recovery](orchestrator.md#records-and-recovery) for resume rules.
 
