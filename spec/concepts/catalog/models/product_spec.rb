@@ -16,6 +16,14 @@ RSpec.describe Catalog::Models::Product, type: :model do
       )
     end
 
+    it "allows separate products with identical names" do
+      first = FactoryBot.create(:catalog_product, name: "Shared name")
+      second = FactoryBot.create(:catalog_product, name: "Shared name")
+
+      expect(second.id).not_to eq(first.id)
+      expect(described_class.where(name: "Shared name").count).to eq(2)
+    end
+
     it "rejects blank names through the database check" do
       expect do
         described_class.insert_all!([ { name: " \t\n" } ])

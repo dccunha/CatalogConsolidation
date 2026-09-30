@@ -27,13 +27,14 @@ Make the accepted concept layout work in Rails and persist Catalog products and 
 
 ## Current checkpoint
 
-- Completed: Catalog model and controller foundations, PostgreSQL migration and schema, model and request specs, generated model RBIs, fresh migration and schema-load verification, and Docker CI.
-- Remaining: independent reviews, PR, and merge verification. The task index owns status and the merge gate.
-- Next action: parent reviews the candidate, records the PR, and requests the two independent reviews.
+- Completed: Catalog model and controller foundations, PostgreSQL migration and schema, model and request specs, generated model RBIs, fresh migration and schema-load verification, round-one review fixes, and Docker CI on the review-fix working tree.
+- Remaining: independent reassessment, PR, and merge verification. The task index owns status and the merge gate.
+- Next action: parent commits the review fixes and requests independent reassessment.
 
 ## Problems
 
 - The first `bin/ci` run found that `database_consistency` requires model uniqueness validators corresponding to unique indexes. Both validators and model-level conflict examples were added; the database indexes remain the final integrity guard. The subsequent run passed.
+- Round-one correctness review approved implementation commit `c27e62f1a6a1fdf3b3603b7ddb8191f4662f23ff` and requested exact revision attribution for CI evidence. Round-one test review requested T01-TEST-01, proving `MegaStore` and `megastore` may both use the same item ID and product, and T01-TEST-02, proving identical product names may both persist. Both focused specs were added without changing application behavior; reassessment remains pending.
 
 ## Decisions
 
@@ -45,9 +46,11 @@ Make the accepted concept layout work in Rails and persist Catalog products and 
 
 - **2026-09-30 — Passed on base `152d879` plus the T01 working tree:** `docker compose run --rm -e RAILS_ENV=test web bin/rails db:drop db:create db:migrate` with the old `db/schema.rb` temporarily moved aside ran `CreateCatalogProducts` from scratch. `docker compose run --rm -e RAILS_ENV=test web bin/rails db:drop db:create db:schema:load` then loaded the generated schema; the full specs passed against it. The generated schema retains all checks, indexes, and the foreign key.
 - **2026-09-30 — Passed:** `docker compose run --rm web bin/rails zeitwerk:check` reported “All is good!”; [loading spec](../../spec/concepts/catalog/loading_spec.rb) checks the eager-loaded root and role constants, and the [controller request spec](../../spec/concepts/catalog/controllers/base_controller_spec.rb) checks routing and Catalog view lookup.
-- **2026-09-30 — Passed:** `docker compose run --rm web bundle exec rspec` ran 16 examples, 0 failures; final `bin/ci` reported 33/33 lines covered and SimpleCov recorded 100% line and 100% branch coverage. [Product specs](../../spec/concepts/catalog/models/product_spec.rb) cover explicit IDs, nullable attributes, and database blank checks; [seller association specs](../../spec/concepts/catalog/models/seller_product_spec.rb) cover exact text values, both uniqueness constraints and model errors, foreign keys, and independent sellers.
+- **2026-09-30 — Passed on the original candidate:** `docker compose run --rm web bundle exec rspec` ran 16 examples, 0 failures; original `bin/ci` reported 33/33 lines covered and SimpleCov recorded 100% line and 100% branch coverage. [Product specs](../../spec/concepts/catalog/models/product_spec.rb) cover explicit IDs, nullable attributes, and database blank checks; [seller association specs](../../spec/concepts/catalog/models/seller_product_spec.rb) cover exact text values, both uniqueness constraints and model errors, foreign keys, and independent sellers.
 - **2026-09-30 — Passed:** `docker compose run --rm web bundle exec srb tc` reported no errors for three `# typed: true` concept files; generated model RBIs live under `sorbet/rbi/dsl/catalog/models/`. The controller's view-prefix method has a Sorbet signature. There are no T01 public write operations or service/value-object methods to sign yet.
-- **2026-09-30 — Passed on the final working tree:** `docker compose run --rm web bin/ci` passed all style, type/RBI freshness, security, RSpec, Vitest, schema consistency, and seed gates in 21.20 seconds. Ruby coverage was 100% line/branch; JavaScript coverage was 100% statements, lines, and functions (no branches).
+- **2026-09-30 — Passed on the original candidate later committed as `c27e62f1a6a1fdf3b3603b7ddb8191f4662f23ff`:** `docker compose run --rm web bin/ci` passed all style, type/RBI freshness, security, RSpec, Vitest, schema consistency, and seed gates in 21.20 seconds. The command ran on base `152d879` plus the T01 working tree before that tree was committed as `c27e62f`; it was not a post-commit run. Ruby coverage was 100% line/branch; JavaScript coverage was 100% statements, lines, and functions (no branches).
+- **2026-09-30 — Passed on review-fix working tree:** `docker compose run --rm web bundle exec rspec spec/concepts/catalog` ran 17 examples, 0 failures, with 33/33 lines covered. The working tree is HEAD `c27e62f1a6a1fdf3b3603b7ddb8191f4662f23ff` plus the two model-spec changes for T01-TEST-01/02; their `git diff --binary` SHA-256 is `aa0a13df539575108fa28396df6d4c5e5aa8760cfc8258b8ca78e311453e5867`. [Seller association specs](../../spec/concepts/catalog/models/seller_product_spec.rb) now prove seller-name case distinctions, and [product specs](../../spec/concepts/catalog/models/product_spec.rb) prove duplicate names are allowed.
+- **2026-09-30 — Passed on the same review-fix working tree:** `docker compose run --rm web bin/ci` passed every gate in 20.65 seconds: 18 RSpec examples, 0 failures, 33/33 Ruby lines and 100% branches; existing Vitest coverage 100% statements, lines, and functions with no branches; RuboCop, ERB/JS lint, Sorbet, concept sigils, both RBI freshness checks, security audits, database consistency, and seeds all passed. Revision attribution is HEAD `c27e62f1a6a1fdf3b3603b7ddb8191f4662f23ff` plus only the two uncommitted model-spec changes identified by SHA-256 above; the brief and task index edits do not affect application behavior or test inputs.
 
 ## Handoff
 

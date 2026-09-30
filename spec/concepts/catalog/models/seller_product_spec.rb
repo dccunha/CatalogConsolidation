@@ -60,6 +60,17 @@ RSpec.describe Catalog::Models::SellerProduct, type: :model do
       expect(other.reload.product).to eq(product)
     end
 
+    it "treats seller names with different letter case as distinct identities" do
+      FactoryBot.create(:catalog_seller_product, product: product,
+        seller_name: "MegaStore", seller_product_id: "same-item")
+      FactoryBot.create(:catalog_seller_product, product: product,
+        seller_name: "megastore", seller_product_id: "same-item")
+
+      expect(described_class.where(product: product, seller_product_id: "same-item").pluck(:seller_name)).to match_array(
+        %w[MegaStore megastore]
+      )
+    end
+
     it "rejects an association with a nonexistent product" do
       expect do
         described_class.insert_all!([ { seller_name: "Shop", seller_product_id: "missing", product_id: -1 } ])
