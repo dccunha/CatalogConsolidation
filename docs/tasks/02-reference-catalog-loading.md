@@ -25,9 +25,9 @@ Provide a reproducible Docker command that loads the unchanged SQLite reference 
 
 ## Current checkpoint
 
-- Completed: read-only source inspection, Catalog loader and Rake command, Docker dependency, behavior specs, setup documentation, and passing full Docker CI. Round-one review fixes for the sequence and unrelated-row assertions are on HEAD `5e6b0ffee28c3e9ab3f06bcddb73f2f34ef3e37d` plus the spec delta identified below.
-- Remaining: reviewer reassessment, parent-owned commit/PR/merge, and post-merge status update.
-- Next action: have both reviewers reassess the focused spec changes and CI evidence, then proceed with the parent-owned Git/PR workflow.
+- Completed: read-only source inspection, Catalog loader and Rake command, Docker dependency, behavior specs, setup documentation, passing full Docker CI, and both independent reviews of revised code candidate `7ccb0fbb3c8055036a395422ba5d9d914d3df86d`.
+- Remaining: parent-owned PR/merge and post-merge status update.
+- Next action: parent opens the reviewed PR and verifies its final head and merge gates.
 
 ## Problems
 
@@ -51,7 +51,8 @@ Provide a reproducible Docker command that loads the unchanged SQLite reference 
 
 ### Review rounds
 
-- **Round 1, candidate `5e6b0ff` (2026-09-30):** correctness review approved the implementation with no code finding. Test review requested `T02-TEST-01` (prove sequence advancement from a known low sequence value) and `T02-TEST-02` (compare unrelated product values captured before loading). The implementer changed only [reference loader specs](../../spec/concepts/catalog/services/reference_catalog_loader_spec.rb): both ID assertions now reset the sequence to 1 before loading and expect exact next IDs 976 and 2001; the unrelated row's name, brand, and category are captured and compared after reload. Focused examples and full CI passed on that delta. Reviewer reassessment is pending.
+- **Round 1, candidate `5e6b0ff` (2026-09-30):** correctness review approved the implementation with no code finding. Test review requested `T02-TEST-01` (prove sequence advancement from a known low sequence value) and `T02-TEST-02` (compare unrelated product values captured before loading). The implementer changed only [reference loader specs](../../spec/concepts/catalog/services/reference_catalog_loader_spec.rb): both ID assertions now reset the sequence to 1 before loading and expect exact next IDs 976 and 2001; the unrelated row's name, brand, and category are captured and compared after reload. Focused examples and full CI passed on that delta.
+- **Round 2, candidate `7ccb0fbb3c8055036a395422ba5d9d914d3df86d` (2026-09-30):** correctness reviewer approved after inspecting the spec and record delta; no application code changed. Test reviewer approved and confirmed `T02-TEST-01`/`T02-TEST-02` resolved. The committed spec diff's SHA-256 matches the pre-commit CI-tested patch `a355e26f48ce625e318ecf8381f9523ac8c11b5c141bc8199fbc9a8ce2caa399`. Reviewers ran read-only diff/whitespace/hash checks and did not rerun Docker on the commit; the implementer's full CI evidence above is retained for the equivalent code/test tree. The remaining delta is task documentation only.
 
 ## Handoff
 
