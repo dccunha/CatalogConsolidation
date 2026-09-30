@@ -25,8 +25,8 @@ Provide the synchronous `Catalog::Public` operations Intake will use to link, cr
 ## Current checkpoint
 
 - Completed: all three review rounds and fixes; both reviewers approved code candidate `f195ed8123d0decfa5c758ad18104d72041254cb`. The test reviewer reran full Docker CI on that exact commit: 57 RSpec examples passed with 99.01% line and 95.83% branch coverage.
-- Remaining: parent-owned PR and merge workflow. The task index owns status and AC evidence.
-- Next action: parent opens the reviewed PR and verifies its final head and merge gates.
+- Remaining: merge verification. The task index owns status and AC evidence.
+- Next action: parent verifies [PR #13](https://github.com/dccunha/CatalogConsolidation/pull/13) at the final reviewed head and merges after all gates pass.
 
 ## Problems
 
