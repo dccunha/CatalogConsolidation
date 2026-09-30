@@ -10,6 +10,8 @@ Rails.application.routes.draw do
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
   root "intake/controllers/imports#new"
+  get "catalog/export", to: "intake/controllers/catalog_exports#show", as: :catalog_export
+  get "catalog/export/download", to: "intake/controllers/catalog_exports#download", as: :catalog_export_download
   resource :import, only: %i[new create], controller: "intake/controllers/imports"
   resources :batches, only: %i[index show], controller: "intake/controllers/batches"
   resources :review_cases, only: %i[index show], controller: "intake/controllers/review_cases" do

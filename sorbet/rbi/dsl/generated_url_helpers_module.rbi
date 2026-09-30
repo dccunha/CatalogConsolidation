@@ -19,6 +19,12 @@ module GeneratedUrlHelpersModule
   def batches_url(*args); end
 
   sig { params(args: T.untyped).returns(String) }
+  def catalog_export_download_url(*args); end
+
+  sig { params(args: T.untyped).returns(String) }
+  def catalog_export_url(*args); end
+
+  sig { params(args: T.untyped).returns(String) }
   def correct_review_case_url(*args); end
 
   sig { params(args: T.untyped).returns(String) }

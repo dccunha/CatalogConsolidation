@@ -29,6 +29,12 @@ At **Review queue**, filter by status, batch, or seller. Open a case to compare 
 
 The case page displays the reviewer and time of each action. Resolved and superseded cases remain in the queue's corresponding filters. Each batch row keeps its import-time outcome even after a review decision; an unchanged later upload reports **Already imported** and retains that decision. See the [acceptance evidence matrix](docs/tasks/README.md#acceptance-coverage) for the tested edge cases.
 
+## Download the current catalog
+
+Open **Export catalog** in the navigation, or visit <http://localhost:3000/catalog/export>. The page shows current Product and SellerProduct counts and the number of active pending reviews. Once every pending review case is resolved, select **Download catalog-updated.db**. The downloaded SQLite file contains the full committed catalog in `Product` and `SellerProduct`, with original IDs and exact stored values. It contains no import batches or review history. The supplied `docs/refs/catalog.db` is never changed by export.
+
+If cases are pending, use the page's **Open review queue** link to resolve them. The download URL also checks pending cases and returns HTTP 409 while any remain. Resolved and superseded cases do not block download. Historical **Failed** rows do not block it; they are absent unless a later successful import added them to the catalog. Each download is a fresh snapshot of the current PostgreSQL catalog, with no persistent exported file on the server. [Export page screenshot](docs/tasks/screenshots/t17-export-ready.png).
+
 ## Short demo
 
 Use the separate [`delivery-sample.json`](docs/demo/delivery-sample.json) so the first run shows all three outcomes without changing either supplied reference file. For a clean, isolated rehearsal, choose an unused host port and Compose project name. This example uses a separate `t15_delivery` PostgreSQL volume; it does not touch the default project's database.
@@ -53,7 +59,7 @@ For candidate **review**, identical normalized names are included even if brand 
 
 Material differences such as `128GB` versus `256GB` or color are distinct sellable products and never pass the exact-name automatic-link rule. A close variant may be offered for review, or a complete item with no credible candidate may be created as a separate product. Matching currently scans the catalog per row; the supplied 975-product reference is small, but larger catalogs would need a faster candidate lookup. The import is synchronous, the local review screen has no authentication, and large concurrent imports have not been validated.
 
-The [assignment context](docs/prds/catalog-consolidation-importer.md#11-assignment-context) requested writing to the supplied SQLite database. This application's deliberate target is PostgreSQL for products, seller associations, batches, and decisions; `catalog.db` is an unchanged, read-only source for the explicit loader. See the [PRD](docs/prds/catalog-consolidation-importer.md), [review lifecycle RFC](docs/rfcs/0001-import-review-lifecycle.md), and [concept ownership ADR](docs/adrs/0001-organize-by-concepts.md) for the agreed scope and reasoning. The separate Guideline Document mentioned by the assignment was not supplied, so its contents could not be verified.
+The [assignment context](docs/prds/catalog-consolidation-importer.md#11-assignment-context) requested a SQLite result. PostgreSQL stores products, seller associations, batches, and decisions; the export action provides the catalog result as a new SQLite download. The supplied `catalog.db` remains an unchanged, read-only source for the explicit loader. See the [PRD](docs/prds/catalog-consolidation-importer.md), [review lifecycle RFC](docs/rfcs/0001-import-review-lifecycle.md), and [concept ownership ADR](docs/adrs/0001-organize-by-concepts.md) for the agreed scope and reasoning. The separate Guideline Document mentioned by the assignment was not supplied, so its contents could not be verified.
 
 ## Checks and development commands
 
