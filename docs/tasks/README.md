@@ -16,7 +16,7 @@ Implement in index order, initially T00–T15 plus the T00A and T00Q quality pre
 | T00R | [Remove hosted CI requirement](00r-remove-hosted-ci.md) | done | T00Q | [#10](https://github.com/dccunha/CatalogConsolidation/pull/10) · merge `87089b9` | None |
 | T01 | [Integrate concepts and Catalog persistence](01-concepts-and-catalog-persistence.md) | done | T00R | [#11](https://github.com/dccunha/CatalogConsolidation/pull/11) · merge `ff3b548` | None |
 | T02 | [Load the reference catalog](02-reference-catalog-loading.md) | done | T01 | [#12](https://github.com/dccunha/CatalogConsolidation/pull/12) · merge `e9acc56` | None |
-| T03 | [Implement Catalog public writes](03-catalog-public-writes.md) | ready | T02 | Not opened | None |
+| T03 | [Implement Catalog public writes](03-catalog-public-writes.md) | in review | T02 | [#13](https://github.com/dccunha/CatalogConsolidation/pull/13) | None |
 | T04 | [Validate and normalize seller rows](04-row-validation-and-normalization.md) | backlog | T03 | Not opened | — |
 | T05 | [Implement matching and evidence](05-matching-and-candidate-evidence.md) | backlog | T04 | Not opened | — |
 | T06 | [Persist Intake history and state](06-intake-persistence.md) | backlog | T05 | Not opened | — |
@@ -37,12 +37,12 @@ Milestones: T08 verifies importer/rerun services; T10 makes upload, results, and
 The user can invoke the [orchestrator instructions and starter prompt](orchestrator.md#starter-prompt) to run the remaining tasks with fresh implementers, two independent reviewers per task, automatic merges after passing gates, and a pause for final QA. Merely reading or editing those instructions does not start the run. Individual task requests can still use the manual workflow below.
 
 - Run state: `running`.
-- Current task/stage: T02 merged; preparing T03.
-- Working directory, branch, candidate revision, and PR: `/home/daniel/.codex/worktrees/137d/VTEX`, post-merge record branch `codex/t02-merge-record` based on verified T02 merge `e9acc56`; T03 branch/candidate/PR not assigned yet.
-- Active agent assignments and test-runner owner: T02 agents finished; no active writer or test runner.
-- Unresolved orchestration findings or decisions: none. T02 `T02-TEST-01` and `T02-TEST-02` resolved; both reviewers approved final PR head `c84375a`.
+- Current task/stage: T03 / pre-merge verification after both reviewer approvals.
+- Working directory, branch, candidate revision, and PR: `/home/daniel/.codex/worktrees/137d/VTEX`, `codex/t03-catalog-public-writes`, base `12e43ad`, reviewed code candidate `f195ed8123d0decfa5c758ad18104d72041254cb`, documentation-reviewed head `ab6e1a644c11211e1290180c0197a866ddc0bff0`, [PR #13](https://github.com/dccunha/CatalogConsolidation/pull/13). T02 PR #12 merged at `e9acc56`; post-merge record `12e43ad` was pushed to main.
+- Active agent assignments and test-runner owner: T03 implementer and both reviewers finished; no active writer or test runner.
+- Unresolved orchestration findings or decisions: `T03-COR-01/02` and `T03-TEST-01/02/03` resolved; both reviewers approved `f195ed8`; no user decision.
 - Last completed orchestration milestone: none.
-- Next action: publish this post-merge record, verify T03's dependency handoff, and start T03 on a branch from integrated main.
+- Next action: verify PR #13's final reviewed head and merge gates, merge it, then record the verified merge and unblock T04.
 
 During a run, update this checkpoint at stage transitions and before interruption. Keep task statuses in the table above and detailed findings/evidence in the owning briefs. See [records and recovery](orchestrator.md#records-and-recovery) for resume rules.
 
@@ -96,8 +96,8 @@ The owner is responsible for the criterion's core behavior. Supporting tasks add
 | AC5: missing brand requires review | T07 | T04, T05, T10, T11, T14 | Pending implementation |
 | AC6: equivalent duplicates and reruns | T08 | T04, T14 | Pending implementation |
 | AC7: materially changed identity | T08 | T06, T13, T14 | Pending implementation |
-| AC8: one seller, conflicting item IDs | T13 | T01, T03, T05, T07, T14 | Pending implementation |
-| AC9: atomic create and SQL-like text | T07 | T03, T05, T14 | Pending implementation |
+| AC8: one seller, conflicting item IDs | T13 | T01, T03, T05, T07, T14 | Supporting T03 [write specs](../../spec/concepts/catalog/public/writes_spec.rb) verify conflicts and explicit displacement; T13 journey pending |
+| AC9: atomic create and SQL-like text | T07 | T03, T05, T14 | Supporting T03 [write specs](../../spec/concepts/catalog/public/writes_spec.rb) verify atomic Catalog writes and exact SQL-like strings; T07 journey pending |
 | AC10: invalid/incomplete rows do not stop later rows | T07 | T04, T06, T09, T14 | Pending implementation |
 | AC11: review decisions survive reruns | T13 | T08, T11, T12, T14 | Pending implementation |
 | AC12: material variants never auto-link | T05 | T04, T07, T14 | Pending implementation |
