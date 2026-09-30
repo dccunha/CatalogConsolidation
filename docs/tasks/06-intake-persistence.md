@@ -25,8 +25,8 @@ Persist the Intake records needed to audit every row and preserve review/version
 ## Current checkpoint
 
 - Completed: eight Intake tables, typed model mappings, generated Rails RBIs, fresh migration/schema-load checks, first-round review fixes, and approval from both independent reviewers. Docker CI passes on the reviewed commit.
-- Remaining: PR creation, final PR-head verification, and merge by the orchestrator; the task index owns merge status.
-- Next action: the orchestrator opens the PR and verifies the final reviewed head before merge.
+- Remaining: final [PR #16](https://github.com/dccunha/CatalogConsolidation/pull/16) head verification and merge by the orchestrator; the task index owns merge status.
+- Next action: the orchestrator verifies the final reviewed PR head before merge.
 
 ## Problems
 
