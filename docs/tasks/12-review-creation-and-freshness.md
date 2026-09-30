@@ -24,9 +24,9 @@ Let a reviewer explicitly create a new product for an eligible complete case, wi
 
 ## Current checkpoint
 
-- Completed: typed explicit creation command, derived readiness state and form, candidate refresh before write, atomic Catalog and Intake persistence, service/request regression specs, generated route RBIs, and inspected screenshot. Both independent reviewers approved candidate `7a52f08`; exact-commit Docker CI passed.
-- Remaining: verified merge of [PR #22](https://github.com/dccunha/CatalogConsolidation/pull/22).
-- Next action: verify PR head and merge gates, then merge.
+- Completed: typed explicit creation command, derived readiness state and form, candidate refresh before write, atomic Catalog and Intake persistence, service/request regression specs, generated route RBIs, and inspected screenshot. Both independent reviewers approved candidate `7a52f08` and documentation deltas through `804a206`; exact-code-commit Docker CI passed. [PR #22](https://github.com/dccunha/CatalogConsolidation/pull/22) merged at `3f09a1ff175d086ef5e06d7d199d1e2d551f39a5`.
+- Remaining: none for T12; final integrated browser action QA remains in T14.
+- Next action: T13 consumes the creation and candidate-refresh handoff below.
 
 ## Problems
 
@@ -49,6 +49,7 @@ Let a reviewer explicitly create a new product for an eligible complete case, wi
 ### Review rounds
 
 - **Round 1, candidate `7a52f08` (2026-09-30):** Correctness reviewer approved with no blocking findings after tracing the explicit gate, current-evidence refresh, Catalog public write, transaction rollback, replay, and UI contracts. Test reviewer independently approved with no findings after inspecting service/request assertions and the screenshot and rerunning exact-commit Docker `bin/ci` successfully. The full matcher scan under READ COMMITTED cannot exclude an unrelated concurrent product creation after its query; this is the existing architecture's practical concurrency limit, not a new T12 rule. Final interactive browser journeys remain T14.
+- **PR and merge, 2026-09-30:** Both reviewers approved documentation-only commits `3419ff4` and `804a206`. [PR #22](https://github.com/dccunha/CatalogConsolidation/pull/22) had exact head `804a206`, base `1353a7c`, clean mergeability, and no reported hosted checks or required GitHub reviews. GitHub reported it merged at `3f09a1ff175d086ef5e06d7d199d1e2d551f39a5`; fetched `origin/main` matched that merge commit.
 
 ## Handoff
 
