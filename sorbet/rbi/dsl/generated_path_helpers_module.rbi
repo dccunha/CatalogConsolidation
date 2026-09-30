@@ -109,6 +109,12 @@ module GeneratedPathHelpersModule
   def rails_storage_redirect_path(*args); end
 
   sig { params(args: T.untyped).returns(String) }
+  def review_case_path(*args); end
+
+  sig { params(args: T.untyped).returns(String) }
+  def review_cases_path(*args); end
+
+  sig { params(args: T.untyped).returns(String) }
   def root_path(*args); end
 
   sig { params(args: T.untyped).returns(String) }

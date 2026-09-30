@@ -1,6 +1,6 @@
 # CatalogConsolidation
 
-A full-stack Rails development environment for the catalog consolidation project. Rails uses PostgreSQL for its application data. Catalog tables, an explicit reference loader, and the seller JSON upload and batch-result pages are available. Review actions are still in progress. The files in `docs/refs/`, including `catalog.db`, remain unchanged reference inputs.
+A full-stack Rails development environment for the catalog consolidation project. Rails uses PostgreSQL for its application data. Catalog tables, an explicit reference loader, seller JSON upload, batch results, and review evidence pages are available. Review actions are still in progress. The files in `docs/refs/`, including `catalog.db`, remain unchanged reference inputs.
 
 ## Implementation progress
 
@@ -25,7 +25,11 @@ Open <http://localhost:3000>. The Rails health endpoint is <http://localhost:300
 
 ## Upload seller products
 
-After loading the reference catalog below, open <http://localhost:3000/>. Choose a JSON file whose top level is an array of seller product objects, then select **Upload and process**. Processing is synchronous. The result page shows the batch ID, counts by outcome, and every source row with its reason and product or review-case ID. Invalid individual rows stay in the batch; malformed JSON and non-array files return to the form with an error and create no batch. Use **Batches** to reopen earlier results or upload the same file again. Review-case IDs are shown as text until review pages are implemented.
+After loading the reference catalog below, open <http://localhost:3000/>. Choose a JSON file whose top level is an array of seller product objects, then select **Upload and process**. Processing is synchronous. The result page shows the batch ID, counts by outcome, and every source row with its reason and product or review-case link. Invalid individual rows stay in the batch; malformed JSON and non-array files return to the form with an error and create no batch. Use **Batches** to reopen earlier results or upload the same file again.
+
+Use **Review queue** to filter cases by status, import batch, or seller. A batch filter includes cases referenced by that batch's rows, even when the case first opened in an earlier batch. A case page shows its source and normalized comparison, current candidate evidence, review history, and the immutable outcome recorded by each import. Superseded cases remain available under the Superseded or All statuses filter. Review action buttons are not yet available.
+
+The local reviewer identity for future review actions is `INTAKE_REVIEWER_NAME`, defaulting to `Local reviewer`. Set it in `.env` or the web service environment before starting Rails. The server-side interface is `Intake::Reviewer.name`; future commands should read this name when recording each action, while history pages display the saved reviewer on that action.
 
 ## Load the reference catalog
 

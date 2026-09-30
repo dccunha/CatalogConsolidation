@@ -14,32 +14,37 @@ Make pending/resolved cases, matching evidence, and history understandable in th
 
 ## Deliverables and acceptance checks
 
-- [ ] Add queue filters for pending/resolved state, batch, and seller, with clear empty states and links from batch row results.
-- [ ] Filtering by a later rerun batch includes cases referenced by that batch's rows, even if the case originated in an earlier batch.
-- [ ] Show source values, corrected values, comparison evidence, reasons, ranked candidates, scores/differences, and conflicting seller IDs. Preserve access to historical/superseded cases without presenting them as actionable.
-- [ ] Distinguish immutable import-time outcomes from a case's current decision. Show reviewer/time/reason/result history where available.
-- [ ] Configure a local reviewer name through documented application configuration, with a usable local default. Later commands must snapshot that name into decisions rather than reading it dynamically when displaying history.
-- [ ] Add no authentication or browser-entered reviewer selection. Do not display operative action controls before T11–T13 supply them.
-- [ ] Test filters, reused-case batch membership, original/corrected comparison, history, absent candidates, and safe source rendering. Check query behavior with the repository's existing tooling and capture screenshots.
+- [x] Add queue filters for pending/resolved state, batch, and seller, with clear empty states and links from batch row results.
+- [x] Filtering by a later rerun batch includes cases referenced by that batch's rows, even if the case originated in an earlier batch.
+- [x] Show source values, corrected values, comparison evidence, reasons, ranked candidates, scores/differences, and conflicting seller IDs. Preserve access to historical/superseded cases without presenting them as actionable.
+- [x] Distinguish immutable import-time outcomes from a case's current decision. Show reviewer/time/reason/result history where available.
+- [x] Configure a local reviewer name through documented application configuration, with a usable local default. Later commands must snapshot that name into decisions rather than reading it dynamically when displaying history.
+- [x] Add no authentication or browser-entered reviewer selection. Do not display operative action controls before T11–T13 supply them.
+- [x] Test filters, reused-case batch membership, original/corrected comparison, history, absent candidates, and safe source rendering. Check query behavior with the repository's existing tooling and capture screenshots.
 
 ## Current checkpoint
 
-- Completed: task brief only.
-- Remaining: queue/details pages, reviewer configuration, and verification.
-- Next action: inspect batch/case relationships and the existing web navigation.
+- Completed: queue/details pages, batch and global navigation, local reviewer configuration, request/configuration specs, generated route RBIs, visual screenshots, and passing full Docker CI on the implementation working tree.
+- Remaining: two independent reviews, PR, and verified merge. The task index owns status.
+- Next action: parent records the candidate revision and starts independent correctness and test reviews.
 
 ## Problems
 
-None recorded.
+- **T10-P01 — 2026-09-30, resolved:** The first full gate found `ReviewCasesController#index` over RuboCop's ABC limit, stale route-helper RBIs, and the T09 batch-result spec still expecting a plain case ID. Small filter methods, `bin/tapioca dsl`, and a link-aware request assertion resolved these. A later gate exposed a remaining small ABC overage, resolved by extracting filter setup. Final full CI passed.
+- **T10-P02 — 2026-09-30, resolved:** A focused spec process passed its examples but exited 2 because isolated-file SimpleCov counts the whole application. The complete suite passed both required coverage floors. No coverage threshold was changed.
 
 ## Decisions
 
-The user selected one configured local reviewer without authentication. Record the configuration key/default and actual query/navigation contracts here.
+- **T10-D01 — 2026-09-30:** `GET /review_cases` defaults to pending and accepts `status=pending|resolved|superseded|all`, `batch_id`, and exact `seller_name`. The batch predicate uses `intake_row_results.review_case_id`, so a later rerun batch finds an older case; an unknown batch yields an empty result without casting untrusted text to a PostgreSQL ID. The queue orders newest first and eager loads seller, opening batch, and decision. `GET /review_cases/:id` remains accessible for resolved and superseded cases. No action routes were added.
+- **T10-D02 — 2026-09-30:** The case page shows original and corrected values separately, latest-revision candidate snapshots with score, normalized values, differing fields, and conflicting listing IDs, plus all recorded corrections/rejections and a final decision where present. Import-time row outcomes are displayed in their own table with batch links. Case details eager load candidate rejections and row batches; repository Bullet checks run in request specs. JSON and seller-supplied text use normal Rails escaped ERB output.
+- **T10-D03 — 2026-09-30:** `config.x.intake.reviewer_name` reads `INTAKE_REVIEWER_NAME` at boot, defaulting to `Local reviewer`; Docker Compose passes the environment value to web. `Intake::Reviewer.name` returns the configured trimmed name or the same default if blank. `README.md` and `.env.example` document the setting. T11–T13 should read this interface when saving each reviewer action, while history always renders the saved name.
 
 ## Validation evidence
 
-Not run. Record filter/detail specs, browser checks, screenshots, and CI results.
+- **Focused specs, 2026-09-30:** `docker compose run --rm web bundle exec rspec spec/concepts/intake/controllers/review_cases_controller_spec.rb spec/concepts/intake/reviewer_unit_spec.rb` ran 8 examples, 0 failures. The standalone process exited 2 on whole-application coverage (67.56% lines/39.76% branches), as expected with only these specs loaded; full CI below passed. Request specs cover filter/status/batch/seller combinations, rerun membership, invalid batch IDs, source and candidate comparisons, conflict IDs, escaped text, corrections, rejections, final decision versus two immutable row outcomes, historical superseded access, and absent candidates. The updated T09 request spec checks the real case link.
+- **Full implementation gate, 2026-09-30:** `docker compose run --rm web bin/ci` passed on the current app/config/spec tree: Ruby/ERB/JS lint, Sorbet and concept sigils, gem/Rails RBI freshness, gem/importmap/Brakeman audits, database preparation/consistency, seeds, 164 RSpec examples (0 failures), and 1 Vitest test (0 failures). Ruby coverage: 848/851 lines (99.64%) and 157/171 branches (91.81%); JavaScript coverage: 100% statements/lines/functions (no application branches). `git diff --check` passed. `env INTAKE_REVIEWER_NAME='Demo Reviewer' docker compose run --rm web bin/rails runner 'puts Intake::Reviewer.name'` printed `Demo Reviewer`, confirming the Compose override reaches Rails.
+- **Browser visual inspection, 2026-09-30:** Headless Chromium against the running local Rails server captured and inspected [batch result links](screenshots/t10-batch-links.png), [rerun-batch queue filter](screenshots/t10-review-queue.png), and [case comparison/evidence/history](screenshots/t10-case-detail.png) at 1280 px width. The local preview data used `ImportProcessor.call` for a candidate-review row and its rerun, plus direct development-only correction/rejection model inserts to show existing history records. Screenshots are visual evidence; the request specs verify server behavior. Browser click and keyboard journeys remain for T14.
 
 ## Handoff
 
-Not implemented. Publish review routes, evidence/history rendering, filter semantics, and the server-side reviewer configuration interface for T11–T13. Identify the locations where supported action forms will be added.
+T11–T13 can add supported action forms to `app/concepts/intake/views/review_cases/show.html.erb` after implementing server commands and routes. The existing `GET /review_cases` filters and `GET /review_cases/:id` detail route provide navigation; `ReviewCasesController#show` loads the current case, latest evidence revision, corrections, rejections, final decision, and all referenced import rows. `Intake::Reviewer.name` is the server-side identity to snapshot into new action records at write time. Historical pages display each stored reviewer, never the current configured name. The case page deliberately has no action controls or browser reviewer selector yet. The T09 upload/results flow links to case pages, and batch-filter links find cases reused by later batches through row results. Final browser action journeys remain for T11–T14.

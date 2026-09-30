@@ -1,0 +1,56 @@
+<% content_for :title, "Review queue · Catalog Consolidation" %>
+
+<div class="page-heading">
+  <p class="eyebrow">Seller intake / Review</p>
+  <h1>Review queue</h1>
+  <p>Inspect pending work, comparison evidence, and past decisions.</p>
+</div>
+
+<%= form_with url: review_cases_path, method: :get, class: "filter-panel panel" do |form| %>
+  <div>
+    <%= form.label :status, "Case status" %>
+    <%= form.select :status, [["Pending", "pending"], ["Resolved", "resolved"], ["Superseded", "superseded"], ["All statuses", "all"]], selected: @status %>
+  </div>
+  <div>
+    <%= form.label :batch_id, "Import batch" %>
+    <%= form.select :batch_id, [["All batches", ""]] + @batches.map { |batch| ["Batch ##{batch.id} · #{batch.source_name}", batch.id] }, selected: @batch_id %>
+  </div>
+  <div>
+    <%= form.label :seller_name, "Seller" %>
+    <%= form.select :seller_name, [["All sellers", ""]] + @sellers.map { |name| [name, name] }, selected: @seller_name %>
+  </div>
+  <%= form.submit "Apply filters", class: "button" %>
+  <%= link_to "Clear filters", review_cases_path, class: "filter-clear" %>
+<% end %>
+
+<section class="results-section" aria-labelledby="cases-heading">
+  <h2 id="cases-heading">Cases</h2>
+  <% if @review_cases.empty? %>
+    <div class="panel empty-state">
+      <h3>No cases match these filters</h3>
+      <p>Try another status, batch, or seller. New pending cases appear after an import requires review.</p>
+      <%= link_to "View all cases", review_cases_path(status: "all") %>
+    </div>
+  <% else %>
+    <div class="table-wrap panel">
+      <table>
+        <caption>Review cases, newest first</caption>
+        <thead>
+          <tr><th scope="col">Case</th><th scope="col">Status</th><th scope="col">Seller key</th><th scope="col">Reason</th><th scope="col">Opened from</th><th scope="col">Current result</th></tr>
+        </thead>
+        <tbody>
+          <% @review_cases.each do |review_case| %>
+            <tr>
+              <th scope="row"><%= link_to "Case ##{review_case.id}", review_case_path(review_case) %></th>
+              <td><span class="outcome outcome--<%= review_case.status %>"><%= review_case.status.humanize %></span></td>
+              <td><strong><%= review_case.seller_item.seller_name %></strong><br><span class="muted">ID: <%= review_case.seller_item.seller_product_id %></span></td>
+              <td><%= review_case.reason %></td>
+              <td><%= link_to "Batch ##{review_case.batch_id}, row #{review_case.source_position}", batch_path(review_case.batch) %></td>
+              <td><%= review_case.review_decision ? "#{review_case.review_decision.result.humanize} · product ##{review_case.review_decision.product_id}" : "No final decision" %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% end %>
+</section>
