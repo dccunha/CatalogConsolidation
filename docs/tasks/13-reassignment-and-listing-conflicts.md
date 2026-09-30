@@ -26,9 +26,9 @@ Complete AC7/AC8 and the remaining AC11 journeys: explicitly reassign changed se
 
 ## Current checkpoint
 
-- Completed: typed reassignment, creation, keep, and replace commands; Catalog retirement operation for a linked incoming ID; case forms and routes; import/decision sequence and rollback specs; generated route RBIs; visual inspection of two screenshots. Both independent reviewers approved candidate `e9fa9fa`; exact-commit Docker CI passed and the T13 command/request/import milestone is met.
-- Remaining: verified merge of [PR #23](https://github.com/dccunha/CatalogConsolidation/pull/23); final interactive browser QA remains T14.
-- Next action: verify PR head and merge gates, then merge.
+- Completed: typed reassignment, creation, keep, and replace commands; Catalog retirement operation for a linked incoming ID; case forms and routes; import/decision sequence and rollback specs; generated route RBIs; visual inspection of two screenshots. Both independent reviewers approved candidate `e9fa9fa` and documentation deltas through `0fa4ec4`; exact-code-commit Docker CI passed and the T13 command/request/import milestone is met. [PR #23](https://github.com/dccunha/CatalogConsolidation/pull/23) merged at `d3c92465cc51402306ec495e5f9eb1d9b856f150`.
+- Remaining: none for T13; final integrated browser QA remains T14.
+- Next action: T14 consumes the completed review command and UI handoff below.
 
 ## Problems
 
@@ -51,6 +51,7 @@ Complete AC7/AC8 and the remaining AC11 journeys: explicitly reassign changed se
 ### Review rounds
 
 - **Round 1, candidate `e9fa9fa` (2026-09-30):** Correctness reviewer approved with no actionable finding after tracing both listing choices, changed-identity paths, sorted lock order, Catalog public writes, multi-record rollback, and retained outcomes. Test reviewer independently approved with no findings, reran exact-commit Docker `bin/ci`, inspected both screenshots, and verified real action-command/request/import sequences through reruns. The T13 milestone passed for approval, rejection, correction, creation, reassignment, and keep/replace decisions. Production-scale concurrency stress and final browser click/keyboard journeys remain outside T13 and belong to the documented architecture limit and T14, respectively.
+- **PR and merge, 2026-09-30:** Both reviewers approved documentation-only commits `9d62e39`, `9a372c9`, and `0fa4ec4`. [PR #23](https://github.com/dccunha/CatalogConsolidation/pull/23) had exact head `0fa4ec4`, base `1b61471`, clean mergeability, and no reported hosted checks or required GitHub reviews. GitHub reported it merged at `d3c92465cc51402306ec495e5f9eb1d9b856f150`; fetched `origin/main` matched that merge commit.
 
 ## Handoff
 
