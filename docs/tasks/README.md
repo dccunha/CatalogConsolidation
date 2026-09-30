@@ -10,8 +10,8 @@ Implement in index order, initially T00–T15, one task and one PR at a time. Th
 
 | ID | Task | Status | After merge | PR | Current blocker |
 | --- | --- | --- | --- | --- | --- |
-| T00 | [Establish task records and workflow](00-task-workflow.md) | in review | Foundation | [#6](https://github.com/dccunha/CatalogConsolidation/pull/6) | None |
-| T01 | [Integrate concepts and Catalog persistence](01-concepts-and-catalog-persistence.md) | backlog | T00 | Not opened | — |
+| T00 | [Establish task records and workflow](00-task-workflow.md) | done | Foundation | [#6](https://github.com/dccunha/CatalogConsolidation/pull/6) | None |
+| T01 | [Integrate concepts and Catalog persistence](01-concepts-and-catalog-persistence.md) | ready | T00 | Not opened | None |
 | T02 | [Load the reference catalog](02-reference-catalog-loading.md) | backlog | T01 | Not opened | — |
 | T03 | [Implement Catalog public writes](03-catalog-public-writes.md) | backlog | T02 | Not opened | — |
 | T04 | [Validate and normalize seller rows](04-row-validation-and-normalization.md) | backlog | T03 | Not opened | — |

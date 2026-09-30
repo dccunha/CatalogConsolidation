@@ -23,9 +23,9 @@ Make the agreed implementation sequence usable by fresh agent chats, with durabl
 
 ## Current checkpoint
 
-- Completed: index, 16 task briefs, reusable template, root navigation/instructions, documentation/CI validation, and PR creation.
-- Remaining: human review and merge; no application implementation has begun.
-- Next action: review PR #6, linked in the index. After its merge is verified, record the merge and mark T01 ready.
+- Completed: index, 16 task briefs, reusable template, root navigation/instructions, documentation/CI validation, PR #6 review, and merge.
+- Remaining: no T00 work; no application implementation has begun.
+- Next action: begin T01 in a fresh chat from the integrated main branch.
 
 ## Problems
 
@@ -43,9 +43,10 @@ None recorded. The assignment's separate Guideline Document is unavailable, as a
 - **2026-09-29 — Passed:** Python structural/link checks covering the 20 changed/new Markdown files, 16 task briefs, required sections, local targets/anchors, ordered task IDs, and all 12 acceptance mappings. Future application evidence remains explicitly pending.
 - **2026-09-29 — Passed:** `git diff --check`, plus a whitespace/conflict-marker check including the new task files. Only root instructions/README and task documentation changed; reference inputs and application files remain untouched.
 - **2026-09-29 — Passed:** `docker compose run --rm web bin/ci` completed successfully: setup, Ruby/ERB/JavaScript linting, security audits, database preparation/consistency, seed checks, one RSpec example, and one Vitest test. These are foundation checks, not evidence that future product acceptance criteria are implemented.
+- **2026-09-30 UTC — Merged:** [PR #6](https://github.com/dccunha/CatalogConsolidation/pull/6), merge commit `07ab9b358b68f76ab67989e07e3693ea472a2cc2`.
 
 ## Handoff
 
 The task index is the sole status record. Individual briefs carry the current checkpoint, problems, decisions, validation, and handoff; the template supports future bounded follow-ups. Root AGENTS and README link to this workflow. No application interfaces have been introduced.
 
-T00 is in review in PR #6, linked in the index, on branch `codex/task-workflow`; the implementation commit is `add7eb4`. No merge has been recorded. After its verified merge, update the index and start T01 in a fresh chat using the starter prompt in the index. T01 must establish concept integration and Catalog persistence before later tasks consume those contracts. All implementation briefs remain unstarted, and AC1–AC12 test evidence remains pending.
+T00 is complete after the verified merge of PR #6. T01 is ready and is the next application task: establish concept integration and Catalog persistence before later tasks consume those contracts. No implementation task has started. AC1–AC12 test evidence remains pending. Start T01 in a fresh chat using the starter prompt in the index.
