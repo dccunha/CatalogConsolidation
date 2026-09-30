@@ -24,9 +24,9 @@ Complete importer behavior for repeated, changed, pending, and resolved seller i
 
 ## Current checkpoint
 
-- Completed: existing-key import transitions, exact-key concurrency lock, original-source comparison, atomic supersession, fixture-based decision replay, sequence and PostgreSQL-wait-verified concurrency specs, source-backed supplied-file double run, and passing Docker CI on candidate `9c743c3` plus final test fix.
-- Remaining: test reviewer reassessment of T08-TEST-03; T11–T13 will provide real reviewer commands, and T14 will repeat the full journeys through them.
-- Next action: orchestrator commits the test fix and returns the candidate to reviewers.
+- Completed: existing-key import transitions, exact-key concurrency lock, original-source comparison, atomic supersession, fixture-based decision replay, sequence and PostgreSQL-wait-verified concurrency specs, source-backed supplied-file double run, both independent approvals at `c31a60963b720ff0bb7574087ee5777a33742ce9`, and exact-commit Docker CI.
+- Remaining: PR creation, final head verification, and merge. T11–T13 will provide real reviewer commands, and T14 will repeat the full journeys through them.
+- Next action: the orchestrator opens and verifies the T08 PR.
 
 ## Problems
 
@@ -53,7 +53,8 @@ Complete importer behavior for repeated, changed, pending, and resolved seller i
 ### Review rounds
 
 - **Round 1, candidate `f5ac4c6` (2026-09-30):** correctness reviewer requested T08-COR-01 (concurrent first-sight exact-key imports need serialization). Test reviewer requested T08-TEST-01 (changed-source evidence/source assertions) and T08-TEST-02 (representative source-backed supplied-file outcomes). All three findings were implemented in the review-fix commit `9c743c3`.
-- **Round 2, candidate `9c743c3` (2026-09-30):** correctness reviewer approved the advisory-lock implementation and T08-COR-01 fix; test reviewer approved resolution of T08-TEST-01/02 but requested T08-TEST-03 (the concurrency test needed a deterministic blocked-state barrier). The test-only fix now observes PostgreSQL's advisory-lock wait state and awaits test reviewer reassessment.
+- **Round 2, candidate `9c743c3` (2026-09-30):** correctness reviewer approved the advisory-lock implementation and T08-COR-01 fix; test reviewer approved resolution of T08-TEST-01/02 but requested T08-TEST-03 (the concurrency test needed a deterministic blocked-state barrier). Round 3 verified the test-only fix.
+- **Round 3, candidate `c31a60963b720ff0bb7574087ee5777a33742ce9` (2026-09-30):** correctness reviewer approved the full diff plus deterministic lock-wait delta with no blocker. Test reviewer approved T08-TEST-03 after verifying the PostgreSQL advisory-lock wait barrier, and ran `docker compose run --rm web bin/ci` on this exact clean commit: 148 RSpec examples, 0 failures, Ruby 99.61% line/91.92% branch coverage, 1 passing Vitest test, and all other gates passed. The reviewer confirmed the supplied-file two-run checks, pending/resolved fixture replay, and failure isolation. Nonblocking suggestion to join a killed thread during failed-test cleanup is deferred because it affects only timeout teardown and no passing assertion; it can be applied if that cleanup becomes flaky. Reviewer commands remain unimplemented until T11–T13.
 
 ## Handoff
 

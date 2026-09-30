@@ -37,12 +37,12 @@ Milestones: T08 verifies importer/rerun services; T10 makes upload, results, and
 The user can invoke the [orchestrator instructions and starter prompt](orchestrator.md#starter-prompt) to run the remaining tasks with fresh implementers, two independent reviewers per task, automatic merges after passing gates, and a pause for final QA. Merely reading or editing those instructions does not start the run. Individual task requests can still use the manual workflow below.
 
 - Run state: `running`.
-- Current task/stage: T08 / final independent reassessment of concurrency regression.
-- Working directory, branch, candidate revision, and PR: `/home/daniel/.codex/worktrees/137d/VTEX`, `codex/t08-reruns-and-source-identity` from integrated main `5c3631c`; first candidate `f5ac4c6`, review fixes in progress, no PR yet. T07 PR #17 merged at `189bd88` after reviewed head `886f7c9`.
-- Active agent assignments and test-runner owner: T08 implementer finished; both reviewers reassessing committed T08-TEST-03 fix, with test reviewer owning shared Docker checks.
-- Unresolved orchestration findings or decisions: T08-COR-01 and T08-TEST-01/02 resolved; T08-TEST-03 has a proposed fix awaiting reviewer verdicts. No user decision needed.
-- Last completed orchestration milestone: none.
-- Next action: obtain both independent re-reviews of the committed lock-wait test before PR.
+- Current task/stage: T08 / PR preparation after both independent approvals and milestone verification.
+- Working directory, branch, candidate revision, and PR: `/home/daniel/.codex/worktrees/137d/VTEX`, `codex/t08-reruns-and-source-identity` from integrated main `5c3631c`; code/tests approved at `c31a609`, no PR yet. T07 PR #17 merged at `189bd88` after reviewed head `886f7c9`.
+- Active agent assignments and test-runner owner: T08 implementer finished; both independent reviewers approved `c31a609`, and test reviewer completed shared Docker and milestone checks.
+- Unresolved orchestration findings or decisions: none. T08-COR-01 and T08-TEST-01/02/03 resolved and approved by round 3.
+- Last completed orchestration milestone: T08 verified on candidate `c31a609` with supplied-file, rerun, pending/resolved fixture, concurrency, and failure-isolation checks; merge pending.
+- Next action: open T08 PR, verify its final reviewed head and mergeability, then merge and record completion.
 
 During a run, update this checkpoint at stage transitions and before interruption. Keep task statuses in the table above and detailed findings/evidence in the owning briefs. See [records and recovery](orchestrator.md#records-and-recovery) for resume rules.
 
@@ -89,17 +89,17 @@ The owner is responsible for the criterion's core behavior. Supporting tasks add
 
 | PRD criterion | Core owner | Supporting tasks | Implemented test evidence |
 | --- | --- | --- | --- |
-| AC1: every input row recorded | T07 | T06, T09, T14 | Core T07 [importer specs](../../spec/concepts/intake/services/import_processor_spec.rb) verify one result per constructed array element and exact batch reconciliation; supplied-file journey remains for T08/T14 |
-| AC2: Galaxy S23 links to product 2 | T07 | T02, T03, T05, T14 | Core T07 [importer specs](../../spec/concepts/intake/services/import_processor_spec.rb) link the Galaxy row to reference product 2 without changing it; full supplied-file journey remains for T08/T14 |
-| AC3: iPad punctuation difference requires review | T05 | T04, T07, T10, T14 | Core T05 [matcher specs](../../spec/concepts/intake/services/product_matcher_spec.rb) recommend review with reference iPad evidence; T07/T10 journeys pending |
-| AC4: category conflict requires review | T05 | T07, T10, T14 | Core T05 [matcher specs](../../spec/concepts/intake/services/product_matcher_spec.rb) retain Canon category difference for review; T07/T10 journeys pending |
+| AC1: every input row recorded | T07 | T06, T09, T14 | Core T07 [importer specs](../../spec/concepts/intake/services/import_processor_spec.rb) verify one result per constructed array element; T08 [supplied-file spec](../../spec/concepts/intake/services/import_processor_spec.rb) verifies 269 ordered outcomes on each run; browser results remain for T09/T14 |
+| AC2: Galaxy S23 links to product 2 | T07 | T02, T03, T05, T14 | Core T07 [importer specs](../../spec/concepts/intake/services/import_processor_spec.rb) link the Galaxy row to reference product 2; T08 [supplied-file spec](../../spec/concepts/intake/services/import_processor_spec.rb) verifies source position 1 links product 2 and retains it on rerun |
+| AC3: iPad punctuation difference requires review | T05 | T04, T07, T10, T14 | Core T05 [matcher specs](../../spec/concepts/intake/services/product_matcher_spec.rb) recommend review with reference iPad evidence; T08 [supplied-file spec](../../spec/concepts/intake/services/import_processor_spec.rb) verifies source-backed pending outcome; browser evidence remains for T10/T14 |
+| AC4: category conflict requires review | T05 | T07, T10, T14 | Core T05 [matcher specs](../../spec/concepts/intake/services/product_matcher_spec.rb) retain Canon category difference; T08 [supplied-file spec](../../spec/concepts/intake/services/import_processor_spec.rb) verifies source-backed pending outcome; browser evidence remains for T10/T14 |
 | AC5: missing brand requires review | T07 | T04, T05, T10, T11, T14 | Core T07 [importer specs](../../spec/concepts/intake/services/import_processor_spec.rb) persist pending review with and without candidates for missing brand; browser journey remains for T10/T14 |
-| AC6: equivalent duplicates and reruns | T08 | T04, T14 | Supporting T04 [normalizer specs](../../spec/concepts/intake/services/comparison_normalizer_unit_spec.rb) verify equivalent comparison identity; T08 rerun journey pending |
-| AC7: materially changed identity | T08 | T06, T13, T14 | Supporting T06 [persistence specs](../../spec/concepts/intake/models/persistence_spec.rb) verify source/correction separation and case supersession constraints; T08 rerun journey pending |
+| AC6: equivalent duplicates and reruns | T08 | T04, T14 | Core T08 [importer and concurrency specs](../../spec/concepts/intake/services/import_processor_spec.rb) verify exact keys, accent/whitespace equivalence, pending reuse, and supplied-file reruns without duplicate records; browser journey remains for T14 |
+| AC7: materially changed identity | T08 | T06, T13, T14 | Core T08 [importer specs](../../spec/concepts/intake/services/import_processor_spec.rb) verify new pending versions, supersession, original-source comparisons, preserved associations, and historical reversion; reviewer decision journey remains for T13/T14 |
 | AC8: one seller, conflicting item IDs | T13 | T01, T03, T05, T07, T14 | Supporting T07 [importer specs](../../spec/concepts/intake/services/import_processor_spec.rb) retain same-seller conflict evidence without changing the association; T13 decision journey pending |
 | AC9: atomic create and SQL-like text | T07 | T03, T05, T14 | Core T07 [importer specs](../../spec/concepts/intake/services/import_processor_spec.rb) verify creation, rollback after Catalog/Intake failures, and SQL-like strings as data; full supplied-file journey remains for T08/T14 |
 | AC10: invalid/incomplete rows do not stop later rows | T07 | T04, T06, T09, T14 | Core T07 [importer specs](../../spec/concepts/intake/services/import_processor_spec.rb) preserve invalid middle elements and continue later rows; browser result view remains for T09/T14 |
-| AC11: review decisions survive reruns | T13 | T08, T11, T12, T14 | Pending implementation |
+| AC11: review decisions survive reruns | T13 | T08, T11, T12, T14 | Supporting T08 [importer specs](../../spec/concepts/intake/services/import_processor_spec.rb) verify replay of persisted decision fixtures, including declined/displaced keys; real reviewer-command journey remains for T11–T14 |
 | AC12: material variants never auto-link | T05 | T04, T07, T14 | Core T05 [matcher specs](../../spec/concepts/intake/services/product_matcher_spec.rb) keep capacity/color variants in review; T07 journey pending |
 
 T14 also checks the RFC sequences: pending-case reuse, corrected-input reruns, supersession, newly appearing candidates after rejection, and displaced/declined IDs. T15 links final evidence and documents limitations; it does not replace missing tests with a demo.
