@@ -24,9 +24,9 @@ Let a reviewer explicitly create a new product for an eligible complete case, wi
 
 ## Current checkpoint
 
-- Completed: typed explicit creation command, derived readiness state and form, candidate refresh before write, atomic Catalog and Intake persistence, service/request regression specs, generated route RBIs, inspected screenshot, and passing full Docker CI on the T12 working tree based on integrated main `1353a7c`.
-- Remaining: two independent reviews and final exact-revision gate/PR evaluation by the orchestrator.
-- Next action: parent commits this candidate and starts the correctness and test reviews.
+- Completed: typed explicit creation command, derived readiness state and form, candidate refresh before write, atomic Catalog and Intake persistence, service/request regression specs, generated route RBIs, and inspected screenshot. Both independent reviewers approved candidate `7a52f08`; exact-commit Docker CI passed.
+- Remaining: PR and verified merge.
+- Next action: open the T12 PR, verify merge gates, and merge.
 
 ## Problems
 
@@ -43,8 +43,12 @@ Let a reviewer explicitly create a new product for an eligible complete case, wi
 
 - **Focused specs, 2026-09-30, T12 working tree atop `1353a7c`:** `docker compose run --rm web bundle exec rspec spec/concepts/intake/services/review_creation_spec.rb spec/concepts/intake/controllers/review_cases_controller_spec.rb` ran 24 examples, 0 failures after the last regression addition. The process exited 2 solely because focused whole-app SimpleCov measured 876/1090 lines (80.36%) and 136/245 branches (55.51%); the full suite passed coverage. Service specs prove last rejection does not create, explicit creation and retained rerun, incomplete metadata corrected to readiness, newly credible candidate refresh with preserved rejection, same-key association refresh, repeated/stale submissions, rejected same-seller candidate conflict, existing-key reassignment boundary, and forced final-decision failure rolling back both Catalog records. Request specs prove pending/ready/resolved controls, corrected readiness, new-candidate visibility, and create-form removal after refresh.
 - **First full gate, 2026-09-30:** `docker compose run --rm web bin/ci` ran 195 RSpec examples, 0 failures; Ruby 1072/1078 lines (99.44%) and 221/245 branches (90.20%); Vitest, ERB/JS lint, security/database/seed checks passed. Overall gate failed on the three style, typing, and RBI issues in T12-P02. `docker compose run --rm web bin/tapioca dsl` generated both route-helper RBIs. Targeted Docker `bin/rubocop app/concepts/intake/services/review_actions.rb` and `bundle exec srb tc` then passed.
-- **Final implementation gate, 2026-09-30, T12 working tree atop `1353a7c`:** `docker compose run --rm web bin/ci` passed every stage after the same-key association regression: Ruby/ERB/JS lint; Sorbet, concept sigils, gem/Rails RBI freshness; gem/importmap/Brakeman audits; database preparation/consistency and seeds; 196 RSpec examples (0 failures); and 1 Vitest test (0 failures). Ruby coverage was 1084/1090 lines (99.44%) and 221/245 branches (90.20%); JavaScript statements/lines/functions were 100% (no application branches). `git diff --check` passed. No migration or gem RBI update was required.
+- **Final implementation gate, 2026-09-30, candidate `7a52f08`:** `docker compose run --rm web bin/ci` passed every stage after the same-key association regression, rerun by the independent test reviewer on the exact clean commit: Ruby/ERB/JS lint; Sorbet, concept sigils, gem/Rails RBI freshness; gem/importmap/Brakeman audits; database preparation/consistency and seeds; 196 RSpec examples (0 failures); and 1 Vitest test (0 failures). Ruby coverage was 1084/1090 lines (99.44%) and 221/245 branches (90.20%); JavaScript statements/lines/functions were 100% (no application branches). `git diff --check` passed. No migration or gem RBI update was required.
 - **Browser visual inspection, 2026-09-30:** Headless Chromium captured and I inspected [T12 ready for creation](screenshots/t12-ready-for-creation.png) at 1280 px. A local development import created one candidate, then a separate rejection made the still-pending case ready. The screenshot shows original seller values, retained rejected candidate evidence, ready state, and a distinct create form. Request specs cover the POST/redirect journeys; T14 owns final interactive browser QA.
+
+### Review rounds
+
+- **Round 1, candidate `7a52f08` (2026-09-30):** Correctness reviewer approved with no blocking findings after tracing the explicit gate, current-evidence refresh, Catalog public write, transaction rollback, replay, and UI contracts. Test reviewer independently approved with no findings after inspecting service/request assertions and the screenshot and rerunning exact-commit Docker `bin/ci` successfully. The full matcher scan under READ COMMITTED cannot exclude an unrelated concurrent product creation after its query; this is the existing architecture's practical concurrency limit, not a new T12 rule. Final interactive browser journeys remain T14.
 
 ## Handoff
 
