@@ -27,8 +27,8 @@ Complete AC7/AC8 and the remaining AC11 journeys: explicitly reassign changed se
 ## Current checkpoint
 
 - Completed: typed reassignment, creation, keep, and replace commands; Catalog retirement operation for a linked incoming ID; case forms and routes; import/decision sequence and rollback specs; generated route RBIs; visual inspection of two screenshots. Both independent reviewers approved candidate `e9fa9fa`; exact-commit Docker CI passed and the T13 command/request/import milestone is met.
-- Remaining: PR and verified merge; final interactive browser QA remains T14.
-- Next action: open the T13 PR, verify merge gates, and merge.
+- Remaining: verified merge of [PR #23](https://github.com/dccunha/CatalogConsolidation/pull/23); final interactive browser QA remains T14.
+- Next action: verify PR head and merge gates, then merge.
 
 ## Problems
 
