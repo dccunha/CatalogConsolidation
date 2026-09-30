@@ -37,12 +37,13 @@ Milestones: T08 verifies importer/rerun services; T10 makes upload, results, and
 The user can invoke the [orchestrator instructions and starter prompt](orchestrator.md#starter-prompt) to run the remaining tasks with fresh implementers, two independent reviewers per task, automatic merges after passing gates, and a pause for final QA. Merely reading or editing those instructions does not start the run. Individual task requests can still use the manual workflow below.
 
 - Run state: `running`.
-- Current task/stage: T09 / independent reviews.
-- Working directory, branch, candidate revision, and PR: `/home/daniel/.codex/worktrees/137d/VTEX`, `codex/t09-web-upload-and-results` from integrated main `c2b5f25`; first T09 candidate commit pending, no PR yet. T08 PR #18 merged at `dd55280` after reviewed head `a22665f`.
-- Active agent assignments and test-runner owner: T09 implementer finished; two fresh independent reviewers pending dispatch, with test reviewer owning shared Docker checks.
+- Current task/stage: T09 / independent reassessment of review fix and screenshot.
+- Working directory, branch, candidate revision, and PR: `/home/daniel/.codex/worktrees/137d/VTEX`, `codex/t09-web-upload-and-results` from integrated main `c2b5f25`; first candidate `4c89f0d`, review fix in progress, no PR yet. T08 PR #18 merged at `dd55280` after reviewed head `a22665f`.
+- Active agent assignments and test-runner owner: T09 implementer finished; both reviewers reassessing committed test/copy/screenshot fixes, with test reviewer owning shared Docker checks.
+- Unresolved orchestration findings or decisions: `T09-TEST-01` has a proposed fix awaiting reviewer verdicts; correctness reviewer approved initial candidate. No user decision needed.
 - Unresolved orchestration findings or decisions: none. T08 findings were resolved and approved before merge.
 - Last completed orchestration milestone: T08 verified and merged at `dd55280`: supplied-file reruns, pending/resolved fixture replay, exact-key concurrency, and failure isolation passed. Real reviewer-command journeys remain for T11–T14.
-- Next action: commit stable T09 candidate and obtain independent correctness/test reviews, including visual and request-journey checks.
+- Next action: obtain both independent re-reviews of the committed T09 fix revision before PR.
 
 During a run, update this checkpoint at stage transitions and before interruption. Keep task statuses in the table above and detailed findings/evidence in the owning briefs. See [records and recovery](orchestrator.md#records-and-recovery) for resume rules.
 

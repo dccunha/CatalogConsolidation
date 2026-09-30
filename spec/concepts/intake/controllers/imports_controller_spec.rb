@@ -74,8 +74,23 @@ RSpec.describe Intake::Controllers::ImportsController, type: :request do
 
       get batch_path(batch)
       expect(response).to have_http_status(:ok)
-      expect(response.body).to include("Input rows", "Linked", "Failed", "Pending review")
-      expect(response.body).to include("#{existing.id}", "Name is required", "Review case ID")
+      page = Nokogiri::HTML(response.body)
+      totals = page.css(".summary-grid > div").to_h do |item|
+        [ item.at_css("dt").text.strip, item.at_css("dd").text.strip.to_i ]
+      end
+      expect(totals).to eq({ "Input rows" => 3, "Linked" => 1, "Created" => 0,
+        "Already imported" => 0, "Pending review" => 1, "Failed" => 1 })
+
+      rows = page.css(".results-section tbody tr")
+      expect(rows.map { |item| item.at_css("th[scope='row']").text.strip }).to eq(%w[1 2 3])
+      cells = rows.map { |item| item.css("td").map { |cell| cell.text.strip } }
+      expect(cells[0]).to include(include(source_row["SellerName"], "ID: 001"), "Linked",
+        existing.id.to_s, "—", include("Linked to exact catalog product #{existing.id}"))
+      expect(cells[1]).to include(include(source_row["SellerName"], "ID: bad"), "Failed",
+        "—", "—", include("Name is required"))
+      review_case_id = batch.row_results.find_by!(source_position: 3).review_case_id
+      expect(cells[2]).to include(include(source_row["SellerName"], "ID: pending"), "Pending review",
+        "—", review_case_id.to_s, include("Pending review: incomplete metadata"))
       expect(response.body).to include("O&#39;Reilly &lt;script&gt;alert(1)&lt;/script&gt;")
       expect(response.body).not_to include("<script>alert(1)</script>")
       expect(response.body).to include("View source row")
@@ -107,6 +122,8 @@ RSpec.describe Intake::Controllers::ImportsController, type: :request do
 
       expect(response).to have_http_status(:ok)
       expect(response.body).to include("This valid JSON array contained no rows")
+      totals = Nokogiri::HTML(response.body).css(".summary-grid dd").map { |item| item.text.strip.to_i }
+      expect(totals).to eq([ 0, 0, 0, 0, 0, 0 ])
     end
   end
 end
