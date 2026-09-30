@@ -37,12 +37,12 @@ Milestones: T08 verifies importer/rerun services; T10 makes upload, results, and
 The user can invoke the [orchestrator instructions and starter prompt](orchestrator.md#starter-prompt) to run the remaining tasks with fresh implementers, two independent reviewers per task, automatic merges after passing gates, and a pause for final QA. Merely reading or editing those instructions does not start the run. Individual task requests can still use the manual workflow below.
 
 - Run state: `running`.
-- Current task/stage: T07 / independent reviews.
-- Working directory, branch, candidate revision, and PR: `/home/daniel/.codex/worktrees/137d/VTEX`, `codex/t07-import-processing` from integrated main `72c89af`; first T07 candidate commit pending, no PR yet. T06 PR #16 merged at `07df420` after reviewed head `02199cf`.
-- Active agent assignments and test-runner owner: T07 implementer finished; two fresh independent reviewers pending dispatch, with test reviewer owning shared Docker checks.
-- Unresolved orchestration findings or decisions: none. T06 first-round findings were resolved and approved before merge.
+- Current task/stage: T07 / independent reassessment of review fixes.
+- Working directory, branch, candidate revision, and PR: `/home/daniel/.codex/worktrees/137d/VTEX`, `codex/t07-import-processing` from integrated main `72c89af`; first candidate `db375f1`, review fixes in progress, no PR yet. T06 PR #16 merged at `07df420` after reviewed head `02199cf`.
+- Active agent assignments and test-runner owner: T07 implementer finished; both reviewers reassessing the committed test fixes, with test reviewer owning shared Docker checks.
+- Unresolved orchestration findings or decisions: `T07-TEST-01/02` have proposed fixes awaiting reviewer verdicts; correctness reviewer approved initial candidate. No user decision needed.
 - Last completed orchestration milestone: none.
-- Next action: commit stable T07 candidate and obtain independent correctness/test reviews before PR.
+- Next action: obtain both independent re-reviews of the committed T07 fix revision before PR.
 
 During a run, update this checkpoint at stage transitions and before interruption. Keep task statuses in the table above and detailed findings/evidence in the owning briefs. See [records and recovery](orchestrator.md#records-and-recovery) for resume rules.
 

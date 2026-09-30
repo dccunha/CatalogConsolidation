@@ -59,6 +59,26 @@ RSpec.describe Intake::Services::ImportProcessor, type: :model do
       expect_reconciled(result)
     end
 
+    it "reports exact outcome totals and reconstructs a mixed nonempty batch" do
+      FactoryBot.create(:catalog_product, name: row["Name"], brand: row["Brand"], category: row["Category"])
+      created = row.merge("Id" => "002", "Name" => "Unlisted desk lamp", "Brand" => "BrightCo", "Category" => "Home")
+      pending = row.merge("Id" => "003", "Name" => "Cable Organizer Kit", "Brand" => nil)
+
+      result = import(row, created, pending, 17)
+      fetched = described_class.fetch(batch_id: result.batch_id)
+
+      expect(result.totals).to eq("linked" => 1, "created" => 1, "already_imported" => 0,
+        "pending_review" => 1, "failed" => 1)
+      expect(result.rows.map(&:outcome)).to eq(%w[linked created pending_review failed])
+      expect(result.rows.map(&:position)).to eq([ 1, 2, 3, 4 ])
+      expect(fetched.totals).to eq(result.totals)
+      expect(fetched.rows.map(&:serialize)).to eq(result.rows.map(&:serialize))
+      expect(Intake::Models::RowResult.where(batch_id: result.batch_id).group(:outcome).count).to eq(
+        "linked" => 1, "created" => 1, "pending_review" => 1, "failed" => 1
+      )
+      expect_reconciled(result)
+    end
+
     it "holds incomplete metadata and persists ranked candidate evidence" do
       product = FactoryBot.create(:catalog_product, name: "Cable Organizer Kit", brand: "Acme", category: "Home")
       pending = row.merge("Name" => "Cable Organizer Kit", "Brand" => nil, "Category" => "Home")
@@ -75,6 +95,38 @@ RSpec.describe Intake::Services::ImportProcessor, type: :model do
       expect(candidate.comparison).to eq("name" => "cable organizer kit", "brand" => "acme", "category" => "home")
       expect(Intake::Models::SellerItem.find_exact(seller_name: "MegaStore", seller_product_id: "001").resolution).to eq("pending")
       expect(Catalog::Models::SellerProduct.count).to eq(0)
+      expect_reconciled(result)
+    end
+
+    it "persists source and normalized identity with multiple ranked candidate snapshots" do
+      exact = FactoryBot.create(:catalog_product, name: row["Name"],
+        brand: row["Brand"], category: row["Category"])
+      near = FactoryBot.create(:catalog_product, name: "Smartphone Galaxy S24",
+        brand: row["Brand"], category: row["Category"])
+      source = row.merge("Name" => " Smártphone  Galaxy S23 ", "Brand" => "SAMSUNG",
+        "Category" => " Electronics ")
+
+      result = import(source)
+      review_case = Intake::Models::ReviewCase.find(result.rows.first.review_case_id)
+      candidates = review_case.review_candidates.order(:rank).to_a
+
+      expect(result.rows.first.outcome).to eq("pending_review")
+      expect(review_case.reason).to include("additional candidates")
+      expect(review_case.source_input).to eq(source)
+      expect(review_case.source_comparison).to eq("name" => "smartphone galaxy s23",
+        "brand" => "samsung", "category" => "electronics")
+      expect(candidates.map { |candidate| [ candidate.rank, candidate.product_id, candidate.evidence_revision ] }).to eq(
+        [ [ 1, exact.id, 1 ], [ 2, near.id, 1 ] ]
+      )
+      expect(candidates.first.score.to_f).to eq(1.0)
+      expect(candidates.last.score.to_f).to be_between(0.8, 1.0).exclusive
+      expect(candidates.map(&:differing_fields)).to eq([ [], [ "name" ] ])
+      expect(candidates.map { |candidate| candidate.original["name"] }).to eq(
+        [ "Smartphone Galaxy S23", "Smartphone Galaxy S24" ]
+      )
+      expect(candidates.map { |candidate| candidate.comparison["name"] }).to eq(
+        [ "smartphone galaxy s23", "smartphone galaxy s24" ]
+      )
       expect_reconciled(result)
     end
 

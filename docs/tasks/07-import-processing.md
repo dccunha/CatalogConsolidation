@@ -24,14 +24,15 @@ Process a valid JSON array into persistent, explainable row outcomes and a recon
 
 ## Current checkpoint
 
-- Completed: internal `Intake::Services::ImportProcessor`, 13 focused examples, and a passing full Docker CI gate on the T07 implementation working tree based on `72c89afb05e8dc79039d88c16c7245ba2389f3eb`.
-- Remaining: independent correctness and test reviews, any review fixes, PR, and merge. T08 owns repeated-key and rerun semantics before web upload is exposed.
-- Next action: independent review of the candidate.
+- Completed: internal `Intake::Services::ImportProcessor` and first-round test-review fixes on candidate `db375f1768a6626b65c9ad3ef12b10f139da3ee0` plus the review-fix working tree. The focused file now has 15 passing examples, and full Docker CI passed with 137 RSpec examples.
+- Remaining: reviewer reassessment of the fixes, any further findings, PR, and merge. T08 owns repeated-key and rerun semantics before web upload is exposed.
+- Next action: reviewers reassess the T07 review-fix revision.
 
 ## Problems
 
 - The first focused run had three test assertion/fault-injection issues; the corrected focused examples passed. Focused RSpec exits 2 because its repository-wide SimpleCov denominator misses unrelated files, while full CI passes both coverage floors.
 - The first full CI run found two RuboCop method-size offenses and one Sorbet nilability error in candidate persistence. Signed helper extraction resolved them; the final full CI passed.
+- First-round test review identified T07-TEST-01 (the reconciliation helper only checked the sum, without exact totals on a mixed batch) and T07-TEST-02 (pending evidence tests did not check multiple ordered candidate snapshots, scores, differing fields, and case source/comparison). Two integration examples now assert these contracts; reviewer reassessment remains.
 
 ## Decisions
 
@@ -44,6 +45,11 @@ Process a valid JSON array into persistent, explainable row outcomes and a recon
 - **2026-09-30 — Focused behavior on base `72c89afb05e8dc79039d88c16c7245ba2389f3eb` plus the T07 working tree:** `docker compose run --rm web bundle exec rspec spec/concepts/intake/services/import_processor_spec.rb` ran 13 examples, 0 failures. The process exited 2 only because isolated-file SimpleCov measured 87.03% lines and 71.85% branches over the whole application; full CI below passed both floors. The examples cover file errors, empty arrays, reference product 2, new-product creation and live later-row linking, incomplete metadata with and without candidates, persisted conflict/candidate evidence, invalid middle elements and source positions, forced Catalog/Intake rollback with later-row continuation, SQL-like strings as data, report reconstruction, and detection of missing positions despite a matching count.
 - **2026-09-30 — Full gate on the same base plus final T07 working tree:** `docker compose run --rm web bin/ci` passed Ruby/ERB/JS lint, Sorbet, concept sigils, gem and Rails RBI freshness, gem/importmap/Brakeman audits, database preparation/consistency, seeds, 135 RSpec examples (0 failures), and 1 Vitest test (0 failures). Ruby coverage was 721/725 lines (99.44%) and 125/135 branches (92.59%); JavaScript statements, lines, and functions were 100% (no branches). The new concept service is `# typed: true` with signatures for its public interface and nontrivial helpers; no RBI updates were needed. `git diff --check` passed.
 - **Acceptance evidence boundary:** T07 directly verifies AC2's exact product-2 link, AC5's incomplete metadata, AC9's atomic no-candidate creation and SQL-like text, and AC10's invalid-row continuation. It verifies the one-result-per-element and reconciliation core of AC1 on constructed arrays. The supplied 269-row journey and all repeated-key outcomes remain for T08/T14.
+- **2026-09-30 — First-round review fixes on candidate `db375f1768a6626b65c9ad3ef12b10f139da3ee0` plus the review-fix working tree:** `docker compose run --rm web bundle exec rspec spec/concepts/intake/services/import_processor_spec.rb` ran 15 examples, 0 failures; the isolated process exited 2 only because whole-application SimpleCov measured 87.03% lines and 73.33% branches. `docker compose run --rm web bin/ci` passed every gate: Ruby/ERB/JS lint; Sorbet and concept sigils; gem/Rails RBI freshness; gem/importmap/Brakeman audits; database preparation, consistency, and seeds; 137 RSpec examples, 0 failures; and 1 Vitest test, 0 failures. Ruby coverage was 721/725 lines (99.44%) and 125/135 branches (92.59%); JavaScript statements, lines, and functions were 100% (no branches). The new mixed batch example asserts exact linked/created/pending/failed totals against persisted grouped results and a fetched report. The multi-candidate example asserts ranked IDs, revision, exact and near-match scores, differing fields, original product names, normalized product names, exact case source input, and normalized source comparison. No application code or RBIs changed in this fix.
+
+### Review rounds
+
+- **Round 1, candidate `db375f1` (2026-09-30):** test review requested T07-TEST-01 and T07-TEST-02 as specified above. The review-fix working tree adds two focused integration examples and passes full Docker CI. Both findings await reviewer reassessment; this brief does not claim review approval.
 
 ## Handoff
 
