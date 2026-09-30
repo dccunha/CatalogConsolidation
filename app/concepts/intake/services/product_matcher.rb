@@ -162,10 +162,19 @@ module Intake
         reasons << :seller_item_taken if seller_item
         reasons << :multiple_exact_matches if exact.length > 1
         reasons << :seller_product_taken if exact.any?(&:seller_product_conflict)
-        reasons << :candidate_review if exact.empty? && candidates.any?
+        reasons.concat(candidate_reasons(exact, candidates))
         reasons
       end
       private_class_method :review_reasons
+
+      sig { params(exact: T::Array[Candidate], candidates: T::Array[Candidate]).returns(T::Array[Symbol]) }
+      def self.candidate_reasons(exact, candidates)
+        reasons = T.let([], T::Array[Symbol])
+        reasons << :additional_candidates if exact.one? && candidates.length > 1
+        reasons << :candidate_review if exact.empty? && candidates.any?
+        reasons
+      end
+      private_class_method :candidate_reasons
 
       sig { params(association: T.nilable(Catalog::Models::SellerProduct)).returns(T.nilable(Association)) }
       def self.snapshot_association(association)

@@ -37,12 +37,12 @@ Milestones: T08 verifies importer/rerun services; T10 makes upload, results, and
 The user can invoke the [orchestrator instructions and starter prompt](orchestrator.md#starter-prompt) to run the remaining tasks with fresh implementers, two independent reviewers per task, automatic merges after passing gates, and a pause for final QA. Merely reading or editing those instructions does not start the run. Individual task requests can still use the manual workflow below.
 
 - Run state: `running`.
-- Current task/stage: T05 / independent reviews.
-- Working directory, branch, candidate revision, and PR: `/home/daniel/.codex/worktrees/137d/VTEX`, `codex/t05-matching-evidence`, base `5dcdab9`, candidate is this branch's first T05 commit, no PR yet. T04 PR #14 merged at `ad00870`; post-merge record `5dcdab9` was pushed to main.
-- Active agent assignments and test-runner owner: T05 implementer finished; correctness and test reviewers pending dispatch, with test reviewer owning shared checks.
-- Unresolved orchestration findings or decisions: none. T04 `T04-COR-01/02` and `T04-TEST-01/02` resolved; both reviewers approved final PR head `b6340b8`.
+- Current task/stage: T05 / reviewer reassessment.
+- Working directory, branch, candidate revision, and PR: `/home/daniel/.codex/worktrees/137d/VTEX`, `codex/t05-matching-evidence`, base `5dcdab9`, initial candidate `4393129`, no PR yet. T04 PR #14 merged at `ad00870`; post-merge record `5dcdab9` was pushed to main.
+- Active agent assignments and test-runner owner: T05 implementer finished review fixes; both reviewers reassess the revised candidate, with test reviewer owning shared checks.
+- Unresolved orchestration findings or decisions: `T05-COR-01/T05-TEST-01/02/03` fixed in code/specs, pending both reviewers' reassessment; no user decision.
 - Last completed orchestration milestone: none.
-- Next action: obtain independent correctness and test reviews of the committed T05 candidate and resolve findings before PR.
+- Next action: obtain both reviewer verdicts on the revised candidate, then prepare the task PR and verify merge gates.
 
 During a run, update this checkpoint at stage transitions and before interruption. Keep task statuses in the table above and detailed findings/evidence in the owning briefs. See [records and recovery](orchestrator.md#records-and-recovery) for resume rules.
 

@@ -46,17 +46,48 @@ RSpec.describe Intake::Services::ProductMatcher, type: :model do
       expect(result.candidates.map(&:product_id)).to eq(products.map(&:id))
     end
 
-    it "shows iPad punctuation as a near candidate without linking or creating" do
-      product = FactoryBot.create(:catalog_product, name: 'Tablet iPad Pro 12.9"',
-        brand: "Apple", category: "Electronics")
+    it "requires review when one exact product has another identical-name candidate with conflicting metadata" do
+      exact = FactoryBot.create(:catalog_product, name: row["Name"], brand: row["Brand"], category: row["Category"])
+      conflict = FactoryBot.create(:catalog_product, name: "SMARTPHONE GALAXY S23", brand: "Other", category: "Other")
 
-      result = match("Name" => "Tablet iPad Pro 12.9''", "Brand" => "Apple")
+      result = match
 
-      expect([ result.recommendation, result.reasons, result.candidates.map(&:product_id) ]).to eq(
-        [ :review, [ :candidate_review ], [ product.id ] ]
+      expect([ result.recommendation, result.product_id, result.reasons ]).to eq(
+        [ :review, nil, [ :additional_candidates ] ]
       )
-      expect(result.candidates.first.differing_fields).to eq([ :name ])
-      expect(result.candidates.first.score).to be >= 0.80
+      expect(result.candidates.map(&:product_id)).to eq([ exact.id, conflict.id ])
+      expect(result.candidates.map(&:differing_fields)).to eq([ [], [ :brand, :category ] ])
+    end
+
+    it "requires review when one exact product has another credible near-name candidate" do
+      exact = FactoryBot.create(:catalog_product, name: row["Name"], brand: row["Brand"], category: row["Category"])
+      near = FactoryBot.create(:catalog_product, name: "Smartphone Galaxy S24", brand: row["Brand"],
+        category: row["Category"])
+
+      result = match
+
+      expect([ result.recommendation, result.product_id, result.reasons ]).to eq(
+        [ :review, nil, [ :additional_candidates ] ]
+      )
+      expect(result.candidates.map(&:product_id)).to eq([ exact.id, near.id ])
+      expect(result.candidates.last.differing_fields).to eq([ :name ])
+    end
+
+    it "shows reference iPad punctuation and category evidence without linking or creating" do
+      Catalog::Services::ReferenceCatalogLoader.call
+
+      result = match("Name" => "Tablet iPad Pro 12.9''", "Brand" => "Apple", "Category" => "Tablets")
+      candidate = result.candidates.find { |item| item.product_id == 14 }
+
+      expect([ result.recommendation, result.reasons ]).to eq([ :review, [ :candidate_review ] ])
+      expect([ candidate.original.name, candidate.original.brand, candidate.original.category ]).to eq(
+        [ 'Tablet iPad Pro 12.9"', "Apple", "Tablets" ]
+      )
+      expect([ candidate.comparison.name, candidate.comparison.brand, candidate.comparison.category ]).to eq(
+        [ 'tablet ipad pro 12.9"', "apple", "tablets" ]
+      )
+      expect(candidate.differing_fields).to eq([ :name ])
+      expect(candidate.score).to be >= 0.80
     end
 
     it "shows the Canon category conflict on an identical name" do
@@ -102,14 +133,20 @@ RSpec.describe Intake::Services::ProductMatcher, type: :model do
       )
     end
 
-    it "finds the RFC router example at about 0.826 using Unicode characters" do
-      product = FactoryBot.create(:catalog_product, name: "Router WiFi 6 TP-Link",
-        brand: "TP-Link", category: "Electronics")
+    it "finds the reference router at about 0.826 with Networking category evidence" do
+      Catalog::Services::ReferenceCatalogLoader.call
 
-      result = match("Name" => "Roteador WiFi 6 TP-Link", "Brand" => "TP-Link")
+      result = match("Name" => "Roteador WiFi 6 TP-Link", "Brand" => "TP-Link", "Category" => "Networking")
+      candidate = result.candidates.find { |item| item.product_id == 21 }
 
-      expect(result.candidates.map(&:product_id)).to eq([ product.id ])
-      expect(result.candidates.first.score).to be_within(0.001).of(0.826)
+      expect([ candidate.original.name, candidate.original.brand, candidate.original.category ]).to eq(
+        [ "Router WiFi 6 TP-Link", "TP-Link", "Networking" ]
+      )
+      expect([ candidate.comparison.name, candidate.comparison.brand, candidate.comparison.category ]).to eq(
+        [ "router wifi 6 tp-link", "tp-link", "networking" ]
+      )
+      expect(candidate.score).to be_within(0.001).of(0.826)
+      expect(candidate.differing_fields).to eq([ :name ])
       expect(result.recommendation).to eq(:review)
     end
 
@@ -200,6 +237,18 @@ RSpec.describe Intake::Services::ProductMatcher, type: :model do
 
       expect([ result.recommendation, result.product_id, result.seller_item_association,
         result.candidates.first.seller_product_conflict ]).to eq([ :link, product.id, nil, nil ])
+    end
+
+    it "leaves Catalog records and their attributes unchanged after gathering evidence" do
+      product = FactoryBot.create(:catalog_product, name: row["Name"], brand: row["Brand"], category: row["Category"])
+      FactoryBot.create(:catalog_seller_product, product: product, seller_name: "MegaStore", seller_product_id: "other")
+      before = [ Catalog::Models::Product.order(:id).map(&:attributes),
+        Catalog::Models::SellerProduct.order(:id).map(&:attributes) ]
+
+      match
+
+      expect([ Catalog::Models::Product.order(:id).map(&:attributes),
+        Catalog::Models::SellerProduct.order(:id).map(&:attributes) ]).to eq(before)
     end
 
     it "requeries current Catalog records on each call" do
