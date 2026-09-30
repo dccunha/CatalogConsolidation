@@ -26,8 +26,8 @@ Provide a reproducible Docker command that loads the unchanged SQLite reference 
 ## Current checkpoint
 
 - Completed: read-only source inspection, Catalog loader and Rake command, Docker dependency, behavior specs, setup documentation, passing full Docker CI, and both independent reviews of revised code candidate `7ccb0fbb3c8055036a395422ba5d9d914d3df86d`.
-- Remaining: merge verification and post-merge status update.
-- Next action: parent verifies [PR #12](https://github.com/dccunha/CatalogConsolidation/pull/12) at the final reviewed head and merges after all gates pass.
+- Remaining: none. The task index owns status and the next merge gate.
+- Next action: T03 implements Catalog public writes using this task's handoff.
 
 ## Problems
 
@@ -53,6 +53,7 @@ Provide a reproducible Docker command that loads the unchanged SQLite reference 
 
 - **Round 1, candidate `5e6b0ff` (2026-09-30):** correctness review approved the implementation with no code finding. Test review requested `T02-TEST-01` (prove sequence advancement from a known low sequence value) and `T02-TEST-02` (compare unrelated product values captured before loading). The implementer changed only [reference loader specs](../../spec/concepts/catalog/services/reference_catalog_loader_spec.rb): both ID assertions now reset the sequence to 1 before loading and expect exact next IDs 976 and 2001; the unrelated row's name, brand, and category are captured and compared after reload. Focused examples and full CI passed on that delta.
 - **Round 2, candidate `7ccb0fbb3c8055036a395422ba5d9d914d3df86d` (2026-09-30):** correctness reviewer approved after inspecting the spec and record delta; no application code changed. Test reviewer approved and confirmed `T02-TEST-01`/`T02-TEST-02` resolved. The committed spec diff's SHA-256 matches the pre-commit CI-tested patch `a355e26f48ce625e318ecf8381f9523ac8c11b5c141bc8199fbc9a8ce2caa399`. Reviewers ran read-only diff/whitespace/hash checks and did not rerun Docker on the commit; the implementer's full CI evidence above is retained for the equivalent code/test tree. The remaining delta is task documentation only.
+- **Final head and merge (2026-09-30):** both reviewers approved documentation-only deltas through final PR head `c84375a61aff4dfd0b1ce9a52a6a1dac8d1fe1ac`. GitHub reported [PR #12](https://github.com/dccunha/CatalogConsolidation/pull/12) `MERGEABLE`/`CLEAN` at that head and base `590fc8a`, with no reported status checks or remote reviews. GitHub confirmed it merged at `e9acc56947003397faa9930801890aa6f8e6f42c` on 2026-09-30T04:31:30Z; main pointed to that merge commit.
 
 ## Handoff
 
