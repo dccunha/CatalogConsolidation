@@ -28,8 +28,8 @@ Make the accepted concept layout work in Rails and persist Catalog products and 
 ## Current checkpoint
 
 - Completed: Catalog model and controller foundations, PostgreSQL migration and schema, model and request specs, generated model RBIs, fresh migration and schema-load verification, round-one review fixes, and Docker CI on the review-fix working tree.
-- Remaining: PR and merge verification. The task index owns status and the merge gate.
-- Next action: parent opens the reviewed PR, verifies GitHub mergeability, and merges after final head checks.
+- Remaining: merge verification. The task index owns status and the merge gate.
+- Next action: parent verifies [PR #11](https://github.com/dccunha/CatalogConsolidation/pull/11) at the final reviewed head and merges after all gates pass.
 
 ## Problems
 

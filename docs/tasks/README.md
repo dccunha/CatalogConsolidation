@@ -14,7 +14,7 @@ Implement in index order, initially T00–T15 plus the T00A and T00Q quality pre
 | T00A | [Enforce Better Specs conventions](00a-better-specs-conventions.md) | done | T00 | [#9](https://github.com/dccunha/CatalogConsolidation/pull/9) | None |
 | T00Q | [Enforce implementation quality gates](00q-quality-gates.md) | done | T00A | [#8](https://github.com/dccunha/CatalogConsolidation/pull/8) · merge `8b9f07a` | None |
 | T00R | [Remove hosted CI requirement](00r-remove-hosted-ci.md) | done | T00Q | [#10](https://github.com/dccunha/CatalogConsolidation/pull/10) · merge `87089b9` | None |
-| T01 | [Integrate concepts and Catalog persistence](01-concepts-and-catalog-persistence.md) | in review | T00R | Not opened | None |
+| T01 | [Integrate concepts and Catalog persistence](01-concepts-and-catalog-persistence.md) | in review | T00R | [#11](https://github.com/dccunha/CatalogConsolidation/pull/11) | None |
 | T02 | [Load the reference catalog](02-reference-catalog-loading.md) | backlog | T01 | Not opened | — |
 | T03 | [Implement Catalog public writes](03-catalog-public-writes.md) | backlog | T02 | Not opened | — |
 | T04 | [Validate and normalize seller rows](04-row-validation-and-normalization.md) | backlog | T03 | Not opened | — |
@@ -37,12 +37,12 @@ Milestones: T08 verifies importer/rerun services; T10 makes upload, results, and
 The user can invoke the [orchestrator instructions and starter prompt](orchestrator.md#starter-prompt) to run the remaining tasks with fresh implementers, two independent reviewers per task, automatic merges after passing gates, and a pause for final QA. Merely reading or editing those instructions does not start the run. Individual task requests can still use the manual workflow below.
 
 - Run state: `running`.
-- Current task/stage: T01 / PR preparation after both reviewer approvals.
-- Working directory, branch, candidate revision, and PR: `/home/daniel/.codex/worktrees/137d/VTEX`, `codex/t01-catalog-persistence`, base `152d879`, reviewed code candidate `0dcd3a8c209000acbbc3dc739a22208fa7e7848f`, no PR yet. GitHub main was verified at `152d879` and T00R PR #10 merged at `87089b9`.
+- Current task/stage: T01 / pre-merge verification after both reviewer approvals.
+- Working directory, branch, candidate revision, and PR: `/home/daniel/.codex/worktrees/137d/VTEX`, `codex/t01-catalog-persistence`, base `152d879`, reviewed code candidate `0dcd3a8c209000acbbc3dc739a22208fa7e7848f`, documentation-reviewed head `1b6714fecb53a1fe24e13ee1bcbf99804f3629db`, [PR #11](https://github.com/dccunha/CatalogConsolidation/pull/11). GitHub main was verified at `152d879` and T00R PR #10 merged at `87089b9`.
 - Active agent assignments and test-runner owner: T01 implementer and both reviewers finished; no active writer or test runner.
 - Unresolved orchestration findings or decisions: round-one `T01-TEST-01` and `T01-TEST-02` resolved; both reviewers approved `0dcd3a8`; no user decision.
 - Last completed orchestration milestone: none.
-- Next action: open T01 PR, verify final head and GitHub mergeability, then merge if all gates remain satisfied.
+- Next action: verify PR #11's final reviewed head and merge gates, merge it, then record the verified merge and unblock T02.
 
 During a run, update this checkpoint at stage transitions and before interruption. Keep task statuses in the table above and detailed findings/evidence in the owning briefs. See [records and recovery](orchestrator.md#records-and-recovery) for resume rules.
 
