@@ -37,12 +37,12 @@ Milestones: T08 verifies importer/rerun services; T10 makes upload, results, and
 The user can invoke the [orchestrator instructions and starter prompt](orchestrator.md#starter-prompt) to run the remaining tasks with fresh implementers, two independent reviewers per task, automatic merges after passing gates, and a pause for final QA. Merely reading or editing those instructions does not start the run. Individual task requests can still use the manual workflow below.
 
 - Run state: `running`.
-- Current task/stage: T06 / independent reviews.
+- Current task/stage: T06 / independent reassessment of review fixes.
 - Working directory, branch, candidate revision, and PR: `/home/daniel/.codex/worktrees/137d/VTEX`, `codex/t06-intake-persistence`, base `de07dd7`, candidate is this branch's first T06 commit, no PR yet. T05 PR #15 merged at `443f5e2`; post-merge record `de07dd7` was pushed to main.
-- Active agent assignments and test-runner owner: T06 implementer finished; correctness and test reviewers pending dispatch, with test reviewer owning shared checks.
-- Unresolved orchestration findings or decisions: none. T05 `T05-COR-01/T05-TEST-01/02/03` resolved; both reviewers approved final PR head `2c60b03`.
+- Active agent assignments and test-runner owner: T06 implementer finished; correctness and test reviewers reassessing committed fixes, with test reviewer owning shared checks.
+- Unresolved orchestration findings or decisions: `T06-COR-01`, `T06-TEST-01`, and `T06-TEST-02` have proposed fixes awaiting both reviewers' verdicts. No user decision is needed.
 - Last completed orchestration milestone: none.
-- Next action: obtain independent correctness and test reviews of the committed T06 candidate and resolve findings before PR.
+- Next action: obtain both independent re-reviews of the committed fix revision before PR.
 
 During a run, update this checkpoint at stage transitions and before interruption. Keep task statuses in the table above and detailed findings/evidence in the owning briefs. See [records and recovery](orchestrator.md#records-and-recovery) for resume rules.
 

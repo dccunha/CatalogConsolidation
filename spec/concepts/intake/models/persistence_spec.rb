@@ -50,6 +50,20 @@ RSpec.describe "Intake persistence", type: :model do
           input_json: "{}", outcome: "failed", reason: "invalid", created_at: Time.current } ])
       end.to raise_error(ActiveRecord::RecordNotUnique)
     end
+
+    it "rejects position zero through both model validation and the database" do
+      invalid = Intake::Models::RowResult.new(batch: batch, source_position: 0,
+        input_json: "null", outcome: "failed", reason: "invalid")
+
+      expect(invalid).not_to be_valid
+      expect(invalid.errors[:source_position]).to be_present
+      expect do
+        Intake::Models::RowResult.transaction(requires_new: true) do
+          Intake::Models::RowResult.insert_all!([ { batch_id: batch.id, source_position: 0,
+            input_json: "null", outcome: "failed", reason: "invalid", created_at: Time.current } ])
+        end
+      end.to raise_error(ActiveRecord::StatementInvalid)
+    end
   end
 
   describe "exact seller identity and review versions" do
@@ -121,10 +135,16 @@ RSpec.describe "Intake persistence", type: :model do
       rejection = Intake::Models::ReviewRejection.create!(review_candidate: candidate,
         reviewer: "Alex", reason: "different variant", rejected_at: Time.current)
       review_case.update!(evidence_revision: 2)
+      next_product = FactoryBot.create(:catalog_product)
+      next_candidate = Intake::Models::ReviewCandidate.create!(review_case: review_case, product_id: next_product.id,
+        evidence_revision: 2, rank: 1, score: 0.9, original: { "name" => next_product.name },
+        comparison: comparison, differing_fields: [ "name" ])
 
       expect(rejection.reload.review_candidate).to eq(candidate)
       expect(candidate.reload.evidence_revision).to eq(1)
-      expect(review_case.review_candidates.where(evidence_revision: 2)).to be_empty
+      expect(review_case.review_candidates.where(evidence_revision: 2).order(:rank)).to eq([ next_candidate ])
+      expect(review_case.review_candidates.joins(:review_rejection).pluck(:product_id)).to eq([ product.id ])
+      expect(next_candidate.review_rejection).to be_nil
       expect { rejection.update!(reason: "changed") }.to raise_error(ActiveRecord::ReadOnlyRecord)
       expect { candidate.update!(score: 1) }.to raise_error(ActiveRecord::ReadOnlyRecord)
     end
@@ -145,12 +165,21 @@ RSpec.describe "Intake persistence", type: :model do
     it "retains the displaced seller key on a resolving decision" do
       displaced = Intake::Models::SellerItem.create!(seller_name: "MegaStore", seller_product_id: "old",
         active_source_input: source_input.merge("Id" => "old"), active_source_comparison: comparison,
-        resolution: "displaced")
-      decision = Intake::Models::ReviewDecision.create!(review_case: review_case, reviewer: "Alex",
-        result: "linked", product_id: product.id, displaced_seller_item_id: displaced.id, decided_at: Time.current)
+        resolution: "linked", product_id: product.id)
+      decision = Intake::Models::ReviewCase.transaction do
+        displaced.update!(resolution: "displaced", product_id: nil)
+        seller_item.update!(resolution: "linked", product_id: product.id)
+        review_case.update!(status: "resolved")
+        Intake::Models::ReviewDecision.create!(review_case: review_case, reviewer: "Alex",
+          result: "linked", product_id: product.id, displaced_seller_item_id: displaced.id, decided_at: Time.current)
+      end
 
       expect(Intake::Models::SellerItem.find(decision.reload.displaced_seller_item_id).seller_product_id).to eq("old")
       expect(displaced.reload.active_source_comparison).to eq(comparison)
+      expect(displaced.resolution).to eq("displaced")
+      expect(displaced.product_id).to be_nil
+      expect(seller_item.reload.product_id).to eq(product.id)
+      expect(review_case.reload.status).to eq("resolved")
     end
 
     it "does not permit editing or destroying a persisted decision through the model" do
@@ -160,6 +189,65 @@ RSpec.describe "Intake persistence", type: :model do
       expect { decision.update!(reviewer: "Other") }.to raise_error(ActiveRecord::ReadOnlyRecord)
       expect { decision.destroy! }.to raise_error(ActiveRecord::ReadOnlyRecord)
       expect(decision.reload.reviewer).to eq("Alex")
+    end
+
+    it "blocks instance deletion of every historical record" do
+      row = Intake::Models::RowResult.create!(batch: batch, source_position: 1, input_json: "null",
+        outcome: "failed", reason: "invalid")
+      review_case.update!(evidence_revision: 1)
+      candidate = Intake::Models::ReviewCandidate.create!(review_case: review_case, product_id: product.id,
+        evidence_revision: 1, rank: 1, score: 0.82, original: { "name" => product.name },
+        comparison: comparison, differing_fields: [ "name" ])
+      rejection = Intake::Models::ReviewRejection.create!(review_candidate: candidate,
+        reviewer: "Alex", reason: "different variant", rejected_at: Time.current)
+      correction = Intake::Models::ReviewCorrection.create!(review_case: review_case, reviewer: "Alex",
+        corrected_input: source_input, corrected_comparison: comparison, corrected_at: Time.current)
+      decision = Intake::Models::ReviewDecision.create!(review_case: review_case, reviewer: "Alex",
+        result: "linked", product_id: product.id, decided_at: Time.current)
+
+      [ row, candidate, rejection, correction, decision ].each do |record|
+        expect { record.delete }.to raise_error(ActiveRecord::ReadOnlyRecord)
+        expect(record.reload).to be_persisted
+      end
+    end
+
+    it "rejects a second final decision for one case at the database level" do
+      Intake::Models::ReviewDecision.create!(review_case: review_case, reviewer: "Alex",
+        result: "linked", product_id: product.id, decided_at: Time.current)
+
+      expect do
+        Intake::Models::ReviewDecision.transaction(requires_new: true) do
+          Intake::Models::ReviewDecision.insert_all!([ { review_case_id: review_case.id, reviewer: "Other",
+            result: "linked", product_id: product.id, decided_at: Time.current } ])
+        end
+      end.to raise_error(ActiveRecord::RecordNotUnique)
+    end
+
+    it "protects historical product references with a database foreign key" do
+      Intake::Models::ReviewDecision.create!(review_case: review_case, reviewer: "Alex",
+        result: "linked", product_id: product.id, decided_at: Time.current)
+
+      expect do
+        Catalog::Models::Product.transaction(requires_new: true) do
+          Catalog::Models::Product.where(id: product.id).delete_all
+        end
+      end.to raise_error(ActiveRecord::InvalidForeignKey)
+      expect(product.reload).to be_persisted
+    end
+
+    it "protects a displaced seller identity referenced by a historical decision" do
+      displaced = Intake::Models::SellerItem.create!(seller_name: "MegaStore", seller_product_id: "old",
+        active_source_input: source_input.merge("Id" => "old"), active_source_comparison: comparison,
+        resolution: "displaced")
+      Intake::Models::ReviewDecision.create!(review_case: review_case, reviewer: "Alex",
+        result: "linked", product_id: product.id, displaced_seller_item_id: displaced.id, decided_at: Time.current)
+
+      expect do
+        Intake::Models::SellerItem.transaction(requires_new: true) do
+          Intake::Models::SellerItem.where(id: displaced.id).delete_all
+        end
+      end.to raise_error(ActiveRecord::InvalidForeignKey)
+      expect(displaced.reload).to be_persisted
     end
   end
 end

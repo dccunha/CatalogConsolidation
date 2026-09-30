@@ -2,7 +2,7 @@
 
 module Intake
   module Models
-    class ReviewCandidate < ApplicationRecord
+    class ReviewCandidate < AppendOnlyRecord
       self.table_name = "intake_review_candidates"
 
       belongs_to :review_case, class_name: "Intake::Models::ReviewCase", inverse_of: :review_candidates
@@ -16,10 +16,6 @@ module Intake
       validates :product_id, presence: true
       validates :rank, uniqueness: { scope: [ :review_case_id, :evidence_revision ] }
       validates :product_id, uniqueness: { scope: [ :review_case_id, :evidence_revision ] }
-
-      def readonly?
-        persisted?
-      end
     end
   end
 end

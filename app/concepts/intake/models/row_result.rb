@@ -2,7 +2,7 @@
 
 module Intake
   module Models
-    class RowResult < ApplicationRecord
+    class RowResult < AppendOnlyRecord
       self.table_name = "intake_row_results"
 
       belongs_to :batch, class_name: "Intake::Models::Batch", inverse_of: :row_results
@@ -14,10 +14,6 @@ module Intake
       validates :outcome, inclusion: { in: %w[linked created already_imported pending_review failed] }
       validates :reason, presence: true
       validates :input_json, presence: true
-
-      def readonly?
-        persisted?
-      end
     end
   end
 end
