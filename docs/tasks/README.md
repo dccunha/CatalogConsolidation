@@ -27,7 +27,7 @@ Implement in index order, initially T00–T15 plus the T00A and T00Q quality pre
 | T11 | [Approve, reject, and correct](11-review-approval-rejection-correction.md) | done | T10 | [#21](https://github.com/dccunha/CatalogConsolidation/pull/21) · merge `2313ee1` | None |
 | T12 | [Create explicitly and recheck evidence](12-review-creation-and-freshness.md) | done | T11 | [#22](https://github.com/dccunha/CatalogConsolidation/pull/22) · merge `3f09a1f` | None |
 | T13 | [Resolve reassignment and listing conflicts](13-reassignment-and-listing-conflicts.md) | done | T12 | [#23](https://github.com/dccunha/CatalogConsolidation/pull/23) · merge `d3c9246` | None |
-| T14 | [Verify acceptance journeys](14-acceptance-journeys.md) | ready | T13 | Not opened | None |
+| T14 | [Verify acceptance journeys](14-acceptance-journeys.md) | in progress | T13 | Not opened | None |
 | T15 | [Prepare delivery and demo](15-delivery-and-demo.md) | backlog | T14 | Not opened | — |
 
 Milestones: T08 verifies importer/rerun services; T10 makes upload, results, and review evidence available in the browser; T13 completes the required user actions; T14 verifies integrated acceptance journeys; T15 completes delivery verification.
@@ -37,12 +37,12 @@ Milestones: T08 verifies importer/rerun services; T10 makes upload, results, and
 The user can invoke the [orchestrator instructions and starter prompt](orchestrator.md#starter-prompt) to run the remaining tasks with fresh implementers, two independent reviewers per task, automatic merges after passing gates, and a pause for final QA. Merely reading or editing those instructions does not start the run. Individual task requests can still use the manual workflow below.
 
 - Run state: `running`.
-- Current task/stage: T13 merged; T14 ready for integrated acceptance verification.
-- Working directory, branch, candidate revision, and PR: `/home/daniel/.codex/worktrees/137d/VTEX`, `codex/t13-merge-record` at verified `origin/main` merge `d3c9246`; T13 [PR #23](https://github.com/dccunha/CatalogConsolidation/pull/23) merged after reviewed head `0fa4ec4`. T14 branch not yet created.
-- Active agent assignments and test-runner owner: T13 agents completed; no T14 agent or test runner yet.
+- Current task/stage: T14 / integrated acceptance implementation and verification.
+- Working directory, branch, candidate revision, and PR: `/home/daniel/.codex/worktrees/137d/VTEX`, `codex/t14-acceptance-journeys` from integrated main `3d6b839`; no T14 candidate or PR yet. T13 [PR #23](https://github.com/dccunha/CatalogConsolidation/pull/23) merged at `d3c9246`.
+- Active agent assignments and test-runner owner: fresh T14 implementer to be assigned as sole application writer and Docker runner; T13 agents completed.
 - Unresolved orchestration findings or decisions: none. Both T13 reviewers approved without findings.
 - Last completed orchestration milestone: T13 real reviewer command/request/import journeys and reruns verified on `e9fa9fa`; T14 will cover integrated browser click and keyboard action journeys.
-- Next action: commit/push T13 merge record, create T14 branch from integrated main, read its brief and handoffs, then dispatch fresh implementer.
+- Next action: dispatch fresh T14 implementer for AC1–AC12 and RFC integration journeys, real browser checks, reference preservation, and full Docker CI.
 
 During a run, update this checkpoint at stage transitions and before interruption. Keep task statuses in the table above and detailed findings/evidence in the owning briefs. See [records and recovery](orchestrator.md#records-and-recovery) for resume rules.
 
