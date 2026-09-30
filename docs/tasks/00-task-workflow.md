@@ -23,9 +23,9 @@ Make the agreed implementation sequence usable by fresh agent chats, with durabl
 
 ## Current checkpoint
 
-- Completed: index, 16 task briefs, reusable template, root navigation/instructions, and documentation/CI validation.
-- Remaining: PR creation, human review, and merge; no application implementation has begun.
-- Next action: review the documentation changes and open the T00 PR. After its merge is verified, record the merge and mark T01 ready.
+- Completed: index, 16 task briefs, reusable template, root navigation/instructions, documentation/CI validation, and PR creation.
+- Remaining: human review and merge; no application implementation has begun.
+- Next action: review PR #6, linked in the index. After its merge is verified, record the merge and mark T01 ready.
 
 ## Problems
 
@@ -48,4 +48,4 @@ None recorded. The assignment's separate Guideline Document is unavailable, as a
 
 The task index is the sole status record. Individual briefs carry the current checkpoint, problems, decisions, validation, and handoff; the template supports future bounded follow-ups. Root AGENTS and README link to this workflow. No application interfaces have been introduced.
 
-T00 is ready for review locally, with no PR or merge reference yet. After its verified merge, update the index and start T01 in a fresh chat using the starter prompt in the index. T01 must establish concept integration and Catalog persistence before later tasks consume those contracts. All implementation briefs remain unstarted, and AC1–AC12 test evidence remains pending.
+T00 is in review in PR #6, linked in the index, on branch `codex/task-workflow`; the implementation commit is `add7eb4`. No merge has been recorded. After its verified merge, update the index and start T01 in a fresh chat using the starter prompt in the index. T01 must establish concept integration and Catalog persistence before later tasks consume those contracts. All implementation briefs remain unstarted, and AC1–AC12 test evidence remains pending.
