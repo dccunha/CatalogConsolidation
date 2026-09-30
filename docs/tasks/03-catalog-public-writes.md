@@ -25,8 +25,8 @@ Provide the synchronous `Catalog::Public` operations Intake will use to link, cr
 ## Current checkpoint
 
 - Completed: all three review rounds and fixes; both reviewers approved code candidate `f195ed8123d0decfa5c758ad18104d72041254cb`. The test reviewer reran full Docker CI on that exact commit: 57 RSpec examples passed with 99.01% line and 95.83% branch coverage.
-- Remaining: merge verification. The task index owns status and AC evidence.
-- Next action: parent verifies [PR #13](https://github.com/dccunha/CatalogConsolidation/pull/13) at the final reviewed head and merges after all gates pass.
+- Remaining: none. The task index owns status and AC evidence.
+- Next action: T04 validates seller rows using this task's public-write handoff.
 
 ## Problems
 
@@ -59,6 +59,7 @@ Provide the synchronous `Catalog::Public` operations Intake will use to link, cr
 - **Round 1, candidate `3a53fab` (2026-09-30):** correctness review requested `T03-COR-01` (create a product while moving an existing seller association) and `T03-COR-02` (explicit atomic displacement when an existing association is the chosen survivor). Test review requested `T03-TEST-01` (bounded record-count assertions for the three original success paths) and `T03-TEST-02` (check conflict kind and existing association ID in create rollback). Candidate `d8299b8` addressed all four findings and was reassessed in round 2.
 - **Round 2, candidate `d8299b8` (2026-09-30):** correctness reviewer approved both new operations. Test reviewer resolved `T03-TEST-01` and `T03-TEST-02`, ran passing exact-HEAD CI, and requested `T03-TEST-03`: prove a standalone `create_for_association` rolls back its product when the later association move fails. The PostgreSQL check-constraint spec addresses it.
 - **Round 3, candidate `f195ed8123d0decfa5c758ad18104d72041254cb` (2026-09-30):** correctness reviewer approved the test-only delta and confirmed the production-code approval stands. Test reviewer approved `T03-TEST-03`, reran `docker compose run --rm web bin/ci` on this exact commit (57 RSpec examples, 0 failures; 202/204 lines and 23/24 branches; all other gates passed), and separately confirmed the temporary test constraint was absent afterward. Both ran read-only `git diff --check`; neither found an open issue. A concurrent uniqueness race was not recreated in PostgreSQL; its error path is covered separately and the T01 database uniqueness constraints remain the integrity guard.
+- **Final head and merge (2026-09-30):** both reviewers approved documentation-only deltas through final PR head `e4d3c349a05fe967cd8deb35ec3b548fd79204e3`. GitHub reported [PR #13](https://github.com/dccunha/CatalogConsolidation/pull/13) `MERGEABLE`/`CLEAN` at that head and base `12e43ad`, with no reported status checks or remote reviews. GitHub confirmed it merged at `8d1fe106c97bab70ae310bdb7c7bb1810cc7eccf` on 2026-09-30T04:57:16Z; main pointed to that merge commit.
 
 ## Handoff
 
