@@ -10,5 +10,27 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 0) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_30_000000) do
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "pg_catalog.plpgsql"
+
+  create_table "products", force: :cascade do |t|
+    t.text "name", null: false
+    t.text "brand"
+    t.text "category"
+    t.check_constraint "name ~ '[^[:space:]]'::text", name: "products_name_not_blank"
+  end
+
+  create_table "seller_products", force: :cascade do |t|
+    t.text "seller_name", null: false
+    t.text "seller_product_id", null: false
+    t.bigint "product_id", null: false
+    t.index ["product_id"], name: "index_seller_products_on_product_id"
+    t.index ["seller_name", "product_id"], name: "index_seller_products_on_seller_and_product", unique: true
+    t.index ["seller_name", "seller_product_id"], name: "index_seller_products_on_seller_identity", unique: true
+    t.check_constraint "seller_name ~ '[^[:space:]]'::text", name: "seller_products_seller_name_not_blank"
+    t.check_constraint "seller_product_id ~ '[^[:space:]]'::text", name: "seller_products_seller_product_id_not_blank"
+  end
+
+  add_foreign_key "seller_products", "products"
 end
