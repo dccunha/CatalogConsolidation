@@ -25,9 +25,9 @@ Enable ordinary candidate approval, individual rejection, and correction of comp
 
 ## Current checkpoint
 
-- Completed: typed reviewer commands, action routes and forms, stale evidence refresh, append-only rejection/correction history, atomic approval, behavior and request specs, generated route RBIs, an inspected action-page screenshot, and first-round review fixes for decimal score precision, malformed correction fields, and next-candidate controls. Both independent reviewers approved corrected commit `5dee7df`; exact-commit Docker CI passed.
-- Remaining: verified merge of [PR #21](https://github.com/dccunha/CatalogConsolidation/pull/21).
-- Next action: verify PR head and merge gates, then merge.
+- Completed: typed reviewer commands, action routes and forms, stale evidence refresh, append-only rejection/correction history, atomic approval, behavior and request specs, generated route RBIs, an inspected action-page screenshot, and first-round review fixes for decimal score precision, malformed correction fields, and next-candidate controls. Both independent reviewers approved corrected commit `5dee7df` and documentation deltas through `eec7ecc`; exact-code-commit Docker CI passed. [PR #21](https://github.com/dccunha/CatalogConsolidation/pull/21) merged at `2313ee178160fdb5f579791b96fd82eb90c43e12`.
+- Remaining: none for T11; final integrated browser action QA remains in T14.
+- Next action: T12 consumes the review action and evidence handoff below.
 
 ## Problems
 
@@ -59,6 +59,7 @@ Enable ordinary candidate approval, individual rejection, and correction of comp
 
 - **Round 1, candidate `73222a8` (2026-09-30):** Correctness review requested T11-COR-01 (P1) for decimal score precision and T11-COR-02 (P2) for malformed correction field types. Test review requested T11-TEST-01 (P2) for the next-candidate request journey. Corrected commit `5dee7df` addresses all three with the code and specs described above.
 - **Round 2, corrected candidate `5dee7df` (2026-09-30):** Correctness reviewer approved with T11-COR-01/02 resolved by stored-precision score comparisons and scalar request guards; no new code findings. Test reviewer independently approved with T11-TEST-01 resolved by the two-candidate POST/redirect assertions, reran exact-commit Docker `bin/ci` successfully, and inspected the existing screenshot. No blocker remains; browser click and keyboard QA remains T14.
+- **PR and merge, 2026-09-30:** Both reviewers approved documentation-only commits `2a4d8d6` and `eec7ecc`. [PR #21](https://github.com/dccunha/CatalogConsolidation/pull/21) had exact head `eec7ecc`, base `9d10f91`, clean mergeability, and no reported hosted checks or required GitHub reviews. GitHub reported it merged at `2313ee178160fdb5f579791b96fd82eb90c43e12`; fetched `origin/main` matched that merge commit.
 
 ## Handoff
 
