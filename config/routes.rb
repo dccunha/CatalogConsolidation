@@ -17,6 +17,7 @@ Rails.application.routes.draw do
       post :approve
       post :reject
       post :correct
+      post :create_product
     end
   end
 end

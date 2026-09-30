@@ -22,6 +22,9 @@ module GeneratedPathHelpersModule
   def correct_review_case_path(*args); end
 
   sig { params(args: T.untyped).returns(String) }
+  def create_product_review_case_path(*args); end
+
+  sig { params(args: T.untyped).returns(String) }
   def import_path(*args); end
 
   sig { params(args: T.untyped).returns(String) }

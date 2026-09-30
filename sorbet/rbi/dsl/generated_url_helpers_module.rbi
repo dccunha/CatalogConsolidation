@@ -22,6 +22,9 @@ module GeneratedUrlHelpersModule
   def correct_review_case_url(*args); end
 
   sig { params(args: T.untyped).returns(String) }
+  def create_product_review_case_url(*args); end
+
+  sig { params(args: T.untyped).returns(String) }
   def import_url(*args); end
 
   sig { params(args: T.untyped).returns(String) }
