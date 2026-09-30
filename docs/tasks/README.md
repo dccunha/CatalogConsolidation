@@ -20,8 +20,8 @@ Implement in index order, initially T00–T15 plus the T00A and T00Q quality pre
 | T04 | [Validate and normalize seller rows](04-row-validation-and-normalization.md) | done | T03 | [#14](https://github.com/dccunha/CatalogConsolidation/pull/14) · merge `ad00870` | None |
 | T05 | [Implement matching and evidence](05-matching-and-candidate-evidence.md) | done | T04 | [#15](https://github.com/dccunha/CatalogConsolidation/pull/15) · merge `443f5e2` | None |
 | T06 | [Persist Intake history and state](06-intake-persistence.md) | done | T05 | [#16](https://github.com/dccunha/CatalogConsolidation/pull/16) · merge `07df420` | None |
-| T07 | [Process imports with failure isolation](07-import-processing.md) | in review | T06 | [#17](https://github.com/dccunha/CatalogConsolidation/pull/17) | None |
-| T08 | [Preserve decisions across reruns](08-reruns-and-source-identity.md) | backlog | T07 | Not opened | — |
+| T07 | [Process imports with failure isolation](07-import-processing.md) | done | T06 | [#17](https://github.com/dccunha/CatalogConsolidation/pull/17) · merge `189bd88` | None |
+| T08 | [Preserve decisions across reruns](08-reruns-and-source-identity.md) | ready | T07 | Not opened | None |
 | T09 | [Add web upload and batch results](09-web-upload-and-results.md) | backlog | T08 | Not opened | — |
 | T10 | [Add review queue and case details](10-review-queue-and-details.md) | backlog | T09 | Not opened | — |
 | T11 | [Approve, reject, and correct](11-review-approval-rejection-correction.md) | backlog | T10 | Not opened | — |
@@ -37,12 +37,12 @@ Milestones: T08 verifies importer/rerun services; T10 makes upload, results, and
 The user can invoke the [orchestrator instructions and starter prompt](orchestrator.md#starter-prompt) to run the remaining tasks with fresh implementers, two independent reviewers per task, automatic merges after passing gates, and a pause for final QA. Merely reading or editing those instructions does not start the run. Individual task requests can still use the manual workflow below.
 
 - Run state: `running`.
-- Current task/stage: T07 / PR #17 final verification.
-- Working directory, branch, candidate revision, and PR: `/home/daniel/.codex/worktrees/137d/VTEX`, `codex/t07-import-processing` from integrated main `72c89af`; code approved at `f0d4569` with documentation-only follow-ups, [PR #17](https://github.com/dccunha/CatalogConsolidation/pull/17) open. T06 PR #16 merged at `07df420` after reviewed head `02199cf`.
-- Active agent assignments and test-runner owner: T07 implementer finished; both independent reviewers approved `f0d4569`, and test reviewer completed the shared Docker gate.
-- Unresolved orchestration findings or decisions: none. `T07-TEST-01/02` resolved and approved in round 2.
+- Current task/stage: T08 / ready after verified T07 merge.
+- Working directory, branch, candidate revision, and PR: `/home/daniel/.codex/worktrees/137d/VTEX`, `codex/t07-merge-record` from T07 merge `189bd88`; T08 branch/PR not started. T07 PR #17 merged at `189bd88` after reviewed head `886f7c9`.
+- Active agent assignments and test-runner owner: T07 agents finished; no T08 worker or shared test runner assigned yet.
+- Unresolved orchestration findings or decisions: none. T07 first-round findings were resolved and approved before merge.
 - Last completed orchestration milestone: none.
-- Next action: verify PR #17 final reviewed head and mergeability, then merge and record completion.
+- Next action: publish T07 merge record, branch T08 from integrated main, and dispatch a fresh T08 implementer.
 
 During a run, update this checkpoint at stage transitions and before interruption. Keep task statuses in the table above and detailed findings/evidence in the owning briefs. See [records and recovery](orchestrator.md#records-and-recovery) for resume rules.
 

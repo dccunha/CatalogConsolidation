@@ -24,9 +24,9 @@ Process a valid JSON array into persistent, explainable row outcomes and a recon
 
 ## Current checkpoint
 
-- Completed: internal `Intake::Services::ImportProcessor`, first-round test-review fixes, independent approvals at `f0d4569490de29eb60d5dc766ea6c7e3ce7dde6b`, and exact-commit Docker CI with 137 passing RSpec examples.
-- Remaining: final [PR #17](https://github.com/dccunha/CatalogConsolidation/pull/17) head verification and merge. T08 owns repeated-key and rerun semantics before web upload is exposed.
-- Next action: the orchestrator verifies the final reviewed PR head before merge.
+- Completed: internal `Intake::Services::ImportProcessor`, first-round test-review fixes, independent approvals, exact-commit Docker CI with 137 passing RSpec examples, and [PR #17](https://github.com/dccunha/CatalogConsolidation/pull/17) merged at `189bd887f39e37b96acf44a66509227e5df86b4c`.
+- Remaining: none for T07; T08 owns repeated-key and rerun semantics before web upload is exposed.
+- Next action: T08 consumes the importer handoff below.
 
 ## Problems
 
@@ -51,6 +51,7 @@ Process a valid JSON array into persistent, explainable row outcomes and a recon
 
 - **Round 1, candidate `db375f1768a6626b65c9ad3ef12b10f139da3ee0` (2026-09-30):** correctness reviewer approved with no blocking findings after inspecting requirements, service diff, transactions, Catalog ownership, and persistence contracts. Test reviewer requested T07-TEST-01 and T07-TEST-02 as specified above; exact-commit `docker compose run --rm web bin/ci` passed 135 RSpec examples, Ruby 99.44% lines/92.59% branches, and all other gates. Both findings were fixed and reassessed in round 2.
 - **Round 2, candidate `f0d4569490de29eb60d5dc766ea6c7e3ce7dde6b` (2026-09-30):** correctness reviewer approved the full diff plus test/documentation delta with no blocking findings. Test reviewer approved resolution of T07-TEST-01/02 after inspecting the two real-model integration examples and running `docker compose run --rm web bin/ci` on this exact clean commit: 137 RSpec examples, 0 failures, Ruby 99.44% line/92.59% branch coverage, and all other gates passed. `git diff --check` passed. Supplied-file/rerun journeys remain assigned to T08/T14.
+- **2026-09-30 — Merge verification:** both reviewers approved documentation-only follow-ups through PR head `886f7c99245582220f54ce75ff2dc51695ca3459`. GitHub reported PR #17 `MERGEABLE`/`CLEAN` with that exact head, no required hosted checks, and then `MERGED` at `189bd887f39e37b96acf44a66509227e5df86b4c`; the main branch pointed to that merge commit. T08 is unblocked.
 
 ## Handoff
 
