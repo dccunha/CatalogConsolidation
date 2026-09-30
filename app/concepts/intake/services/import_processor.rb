@@ -2,7 +2,7 @@
 
 module Intake
   module Services
-    # Internal first-pass importer. T08 adds existing-key and rerun transitions.
+    # Internal importer; web upload and reviewer commands are later tasks.
     class ImportProcessor
       extend T::Sig
 
@@ -117,6 +117,15 @@ module Intake
           input_json: String, position: Integer).void
       end
       def self.process_valid(batch:, valid:, element:, input_json:, position:)
+        lock_seller_key(valid)
+        existing = Models::SellerItem.lock.find_by(seller_name: valid.source.seller_name,
+          seller_product_id: valid.source.seller_product_id)
+        if existing
+          process_existing(batch: batch, valid: valid, element: element, input_json: input_json,
+            position: position, seller_item: existing)
+          return
+        end
+
         match = ProductMatcher.call(valid: valid)
         case match.recommendation
         when :link
@@ -131,6 +140,98 @@ module Intake
         end
       end
       private_class_method :process_valid
+
+      sig { params(valid: RowValidator::Valid).void }
+      def self.lock_seller_key(valid)
+        # The digest yields an integer only; no seller text is interpolated into SQL.
+        key = Digest::SHA256.hexdigest(JSON.generate(
+          [ valid.source.seller_name, valid.source.seller_product_id ])).first(15).to_i(16)
+        Models::SellerItem.connection.execute("SELECT pg_advisory_xact_lock(#{key})")
+      end
+      private_class_method :lock_seller_key
+
+      sig do
+        params(batch: Models::Batch, valid: RowValidator::Valid, element: Object, input_json: String,
+          position: Integer, seller_item: Models::SellerItem).void
+      end
+      def self.process_existing(batch:, valid:, element:, input_json:, position:, seller_item:)
+        if seller_item.active_source_comparison == comparison_hash(valid)
+          repeat_row(batch: batch, valid: valid, input_json: input_json,
+            position: position, seller_item: seller_item)
+        else
+          changed_row(batch: batch, valid: valid, element: element, input_json: input_json,
+            position: position, seller_item: seller_item)
+        end
+      end
+      private_class_method :process_existing
+
+      sig do
+        params(batch: Models::Batch, valid: RowValidator::Valid, input_json: String,
+          position: Integer, seller_item: Models::SellerItem).void
+      end
+      def self.repeat_row(batch:, valid:, input_json:, position:, seller_item:)
+        review_case = seller_item.active_case
+        if seller_item.resolution == "pending"
+          raise "Pending seller item #{seller_item.id} has no pending case" unless review_case&.actionable?
+
+          save_row(batch: batch, valid: valid, input_json: input_json, position: position,
+            outcome: "pending_review", reason: "Pending review in case #{review_case.id}: #{review_case.reason}",
+            review_case_id: review_case.id)
+          return
+        end
+
+        decision = retained_decision(seller_item, review_case)
+        save_row(batch: batch, valid: valid, input_json: input_json, position: position,
+          outcome: "already_imported", reason: retained_reason(seller_item, decision),
+          product_id: seller_item.product_id, review_case_id: decision&.review_case_id)
+      end
+      private_class_method :repeat_row
+
+      sig do
+        params(seller_item: Models::SellerItem, review_case: T.nilable(Models::ReviewCase))
+          .returns(T.nilable(Models::ReviewDecision))
+      end
+      def self.retained_decision(seller_item, review_case)
+        if seller_item.resolution == "displaced"
+          return Models::ReviewDecision.where(displaced_seller_item_id: seller_item.id).order(:id).last
+        end
+
+        review_case.review_decision if review_case && review_case.status == "resolved"
+      end
+      private_class_method :retained_decision
+
+      sig { params(seller_item: Models::SellerItem, decision: T.nilable(Models::ReviewDecision)).returns(String) }
+      def self.retained_reason(seller_item, decision)
+        return "Already imported: #{seller_item.resolution} to catalog product #{seller_item.product_id}" unless decision
+
+        detail = decision.reason.present? ? ": #{decision.reason}" : ""
+        "Already imported: retained #{decision.result} decision #{decision.id}#{detail}; " \
+          "#{seller_item.resolution}#{seller_item.product_id ? " to catalog product #{seller_item.product_id}" : ' without association'}"
+      end
+      private_class_method :retained_reason
+
+      sig do
+        params(batch: Models::Batch, valid: RowValidator::Valid, element: Object, input_json: String,
+          position: Integer, seller_item: Models::SellerItem).void
+      end
+      def self.changed_row(batch:, valid:, element:, input_json:, position:, seller_item:)
+        active_case = seller_item.active_case
+        active_case&.update!(status: "superseded")
+        seller_item.update!(active_source_input: element, active_source_comparison: comparison_hash(valid),
+          resolution: "pending")
+        match = ProductMatcher.call(valid: valid)
+        reason = "changed source identity"
+        reasons = match.reasons.map { |item| item.to_s.tr("_", " ") }
+        reason = "#{reason}; #{reasons.join('; ')}" if reasons.any?
+        review_case = Models::ReviewCase.create!(seller_item: seller_item, batch: batch,
+          source_position: position, status: "pending", reason: reason,
+          source_input: element, source_comparison: comparison_hash(valid),
+          evidence_revision: 1, conflicting_association: conflict_hash(match))
+        save_candidates(review_case: review_case, candidates: match.candidates)
+        save_row(batch: batch, valid: valid, input_json: input_json, position: position,
+          outcome: "pending_review", reason: "Pending review: #{reason}", review_case_id: review_case.id)
+      end
+      private_class_method :changed_row
 
       sig do
         params(batch: Models::Batch, valid: RowValidator::Valid, match: ProductMatcher::Result,
@@ -201,7 +302,7 @@ module Intake
 
       sig { params(match: ProductMatcher::Result).returns(T.nilable(T::Hash[String, Object])) }
       def self.conflict_hash(match)
-        association = match.candidates.filter_map(&:seller_product_conflict).first
+        association = match.seller_item_association || match.candidates.filter_map(&:seller_product_conflict).first
         return unless association
 
         association_hash(association)
