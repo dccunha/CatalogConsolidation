@@ -2,7 +2,7 @@
 
 This is the authoritative status index for the catalog consolidation implementation. The [PRD](../prds/catalog-consolidation-importer.md) defines the product, [RFC 0001](../rfcs/0001-import-review-lifecycle.md) defines its lifecycle, and [ADR 0001](../adrs/0001-organize-by-concepts.md) defines code ownership. Task briefs turn those requirements into bounded changes; they do not replace them.
 
-The Rails/PostgreSQL application, Catalog and Intake domain code, browser review workflow, and integrated acceptance journeys are implemented through T14. T00A established Better Specs conventions and T00Q established typing and coverage gates. T15 delivered the verified runbook and demo, and T16 addressed SQL control syntax found during final QA. T17 is ready to implement the SQLite catalog download after its task brief merges. The task status and linked evidence below distinguish merged work from work still under review.
+The Rails/PostgreSQL application, Catalog and Intake domain code, browser review workflow, and integrated acceptance journeys are implemented through T14. T00A established Better Specs conventions and T00Q established typing and coverage gates. T15 delivered the verified runbook and demo, and T16 addressed SQL control syntax found during final QA. T17 is the next implementation task for the SQLite catalog download. The task status and linked evidence below distinguish merged work from work still under review.
 
 ## Task index
 
@@ -40,11 +40,11 @@ The user can invoke the [orchestrator instructions and starter prompt](orchestra
 
 - Run state: `not_started` for T17; T16's final QA evidence remains in its brief.
 - Current task/stage: T16 merged and the T17 merge gate is satisfied. T17 has a task brief and planning PR but no export implementation or runner assignment.
-- Working directory, branch, candidate revision, and PR: T17 task planning uses `/home/daniel/.codex/worktrees/d4c7/VTEX` on `codex/t17-sqlite-catalog-export-task`; [draft PR #26](https://github.com/dccunha/CatalogConsolidation/pull/26) records the brief and index. The implementation must begin from updated main after this planning PR merges.
+- Working directory, branch, candidate revision, and PR: T17 task planning uses `/home/daniel/.codex/worktrees/d4c7/VTEX` on `codex/t17-sqlite-catalog-export-task`; [planning PR #26](https://github.com/dccunha/CatalogConsolidation/pull/26) records the brief and index. The implementation must begin from updated main after the planning PR merges.
 - Active agent assignments and test-runner owner: none for T17. T16's implementer and reviewers finished; no shared Docker runner is assigned here.
 - Unresolved orchestration findings or decisions: no T17 product decision remains. The older historical QA batch #1/product #976 was absent from the available default volume before T16's fresh QA population; T17 must not reset or overwrite that volume or the reference inputs.
 - Last completed orchestration milestone: T16 clean 269-row import, Docker CI, two independent reviews, and [PR #27](https://github.com/dccunha/CatalogConsolidation/pull/27) merge at `960d0ee`. The user-authorized local QA database contains the reference catalog and a fresh [batch #1](http://localhost:3000/batches/1), including 20 pending reviews and row 181 **Failed**.
-- Next action: merge the T17 planning PR after review, then start T17 implementation through the task workflow. Final user QA follows the export task; locating older historical QA data remains a separate recovery question if needed.
+- Next action: start T17 implementation from integrated main through the task workflow after planning PR #26 merges. Final user QA follows the export task; locating older historical QA data remains a separate recovery question if needed.
 
 During a run, update this checkpoint at stage transitions and before interruption. Keep task statuses in the table above and detailed findings/evidence in the owning briefs. See [records and recovery](orchestrator.md#records-and-recovery) for resume rules.
 

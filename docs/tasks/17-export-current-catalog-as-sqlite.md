@@ -26,8 +26,8 @@ The user chose a full-catalog snapshot, not a batch-specific export. Any active 
 
 ## Current checkpoint
 
-- Completed: T16 merged as [PR #27](https://github.com/dccunha/CatalogConsolidation/pull/27) at `960d0ee`, and this brief and index were reconciled against its handoff on 2026-09-30. User decisions on scope, contents, pending reviews, and failed rows are recorded below. [Draft planning PR #26](https://github.com/dccunha/CatalogConsolidation/pull/26) contains task records only; no export implementation or test has run.
-- Remaining: merge the task-planning PR, then implementation, focused checks, independent reviews, full Docker CI, an implementation PR, merge, and final QA handoff.
+- Completed: T16 merged as [PR #27](https://github.com/dccunha/CatalogConsolidation/pull/27) at `960d0ee`, and this brief and index were reconciled against its handoff on 2026-09-30. User decisions on scope, contents, pending reviews, and failed rows are recorded below. [Planning PR #26](https://github.com/dccunha/CatalogConsolidation/pull/26) contains task records only; no export implementation or test has run.
+- Remaining: implementation, focused checks, independent reviews, full Docker CI, an implementation PR, merge, and final QA handoff.
 - Next action: after planning PR #26 merges, let the orchestrator start T17 implementation from updated main.
 
 ## Problems
