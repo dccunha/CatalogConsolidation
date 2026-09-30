@@ -6,12 +6,22 @@ module Intake
     class ComparisonNormalizer
       extend T::Sig
 
-      class Identity < T::Struct
+      class Identity
         extend T::Sig
 
-        const :name, String
-        const :brand, T.nilable(String)
-        const :category, T.nilable(String)
+        sig { returns(String) }
+        attr_reader :name
+
+        sig { returns(T.nilable(String)) }
+        attr_reader :brand, :category
+
+        sig { params(name: String, brand: T.nilable(String), category: T.nilable(String)).void }
+        def initialize(name:, brand:, category:)
+          @name = name.dup.freeze
+          @brand = brand&.dup&.freeze
+          @category = category&.dup&.freeze
+          freeze
+        end
 
         sig { params(other: Object).returns(T::Boolean) }
         def ==(other)

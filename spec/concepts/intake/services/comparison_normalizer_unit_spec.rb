@@ -38,5 +38,45 @@ RSpec.describe Intake::Services::ComparisonNormalizer, type: :model do
 
       expect(seller).to eq(catalog)
     end
+
+    it "keeps a brand-only difference in the identity" do
+      first = described_class.call(name: "Camera R6", brand: "Canon", category: "Photo")
+      second = described_class.call(name: "Camera R6", brand: "Nikon", category: "Photo")
+
+      expect(first).not_to eq(second)
+    end
+
+    it "keeps a category-only difference in the identity" do
+      first = described_class.call(name: "Camera R6", brand: "Canon", category: "Photo")
+      second = described_class.call(name: "Camera R6", brand: "Canon", category: "Electronics")
+
+      expect(first).not_to eq(second)
+    end
+
+    it "finds separately normalized equivalent identities as hash keys" do
+      first = described_class.call(name: " Câmera R6 ", brand: "CANON", category: "Photo")
+      second = described_class.call(name: "Camera R6", brand: "Canon", category: "PHOTO")
+
+      expect({ first => :matched }[second]).to eq(:matched)
+    end
+
+    it "keeps its hash key stable after the caller changes input strings" do
+      name = "Câmera R6"
+      brand = "CANON"
+      category = "Photo"
+      identity = described_class.call(name: name, brand: brand, category: category)
+      values = { identity => :matched }
+      name.replace("changed")
+      brand.replace("changed")
+      category.replace("changed")
+
+      expect(values[described_class.call(name: "Camera R6", brand: "Canon", category: "Photo")]).to eq(:matched)
+    end
+
+    it "does not expose mutable normalized values" do
+      identity = described_class.call(name: "Camera R6", brand: "Canon", category: "Photo")
+
+      expect([ identity.name.frozen?, identity.brand.frozen?, identity.category.frozen? ]).to eq([ true, true, true ])
+    end
   end
 end

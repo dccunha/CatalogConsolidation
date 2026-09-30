@@ -18,6 +18,23 @@ RSpec.describe Intake::Services::RowValidator, type: :model do
         )
     end
 
+    it "snapshots all source strings before the caller changes them" do
+      input = row.transform_values(&:dup)
+      result = described_class.call(input)
+      input.each_value { |value| value.replace("changed") }
+
+      expect([ result.source.seller_product_id, result.source.seller_name, result.source.name,
+        result.source.brand, result.source.category ]).to eq(
+          [ "001-not-a-uuid", "MegaStore", "Smartphone Galaxy S23", "Samsung", "Electronics" ]
+        )
+    end
+
+    it "does not expose mutable source strings" do
+      result = described_class.call(row)
+
+      expect { result.source.seller_name.replace("changed") }.to raise_error(FrozenError)
+    end
+
     it "keeps case-distinct sellers as distinct exact keys" do
       first = described_class.call(row)
       second = described_class.call(row.merge("SellerName" => "megastore"))
@@ -79,6 +96,29 @@ RSpec.describe Intake::Services::RowValidator, type: :model do
       expect([ result.input, result.errors.map { |error| [ error.field, error.code ] } ]).to eq(
         [ [ "not a product" ], [ [ nil, :not_an_object ] ] ]
       )
+    end
+
+    it "snapshots nested invalid JSON before the caller changes it" do
+      input = row.merge("Brand" => { "details" => [ "wrong type" ] })
+      result = described_class.call(input)
+      input["Brand"]["details"][0].replace("changed")
+      input["Brand"]["details"] << "later"
+
+      expect(result.input["Brand"]).to eq("details" => [ "wrong type" ])
+    end
+
+    it "does not expose mutable nested invalid input" do
+      result = described_class.call(row.merge("Brand" => { "details" => [ "wrong type" ] }))
+
+      expect { result.input["Brand"]["details"] << "later" }.to raise_error(FrozenError)
+    end
+
+    it "snapshots nested non-object array elements" do
+      input = [ { "details" => [ "bad row" ] } ]
+      result = described_class.call(input)
+      input[0]["details"][0].replace("changed")
+
+      expect(result.input).to eq([ { "details" => [ "bad row" ] } ])
     end
 
     it "allows a later row to validate after an invalid element" do
