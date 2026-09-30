@@ -47,6 +47,7 @@ group :development, :test do
   gem "bullet"
   gem "database_consistency", require: false
   gem "erb_lint", require: false
+  gem "factory_bot_rails"
   gem "mutant", require: false
   gem "mutant-rspec", require: false
   gem "rspec-rails", "~> 8.0", require: false
