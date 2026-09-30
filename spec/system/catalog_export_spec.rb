@@ -32,9 +32,9 @@ RSpec.describe "Catalog export journey", type: :system do
     visit root_path
     click_link "Export catalog"
     counts = page.all(".summary-grid > div").to_h do |item|
-      [ item.find("dt").text, item.find("dd").text.to_i ]
+      [ item.find("dt").text.strip, item.find("dd").text.strip ]
     end
-    expect(counts).to eq("Products" => 975, "Seller products" => 0, "Pending reviews" => 1)
+    expect(counts).to eq("Products" => "975", "Seller products" => "0", "Pending reviews" => "1")
     expect(page).to have_content("Resolve all active pending reviews")
     expect(page).to have_link("Open review queue")
     expect(page).not_to have_link("Download catalog-updated.db")
@@ -42,9 +42,9 @@ RSpec.describe "Catalog export journey", type: :system do
     Intake::Models::ReviewCase.sole.update!(status: "resolved")
     visit catalog_export_path
     counts = page.all(".summary-grid > div").to_h do |item|
-      [ item.find("dt").text, item.find("dd").text.to_i ]
+      [ item.find("dt").text.strip, item.find("dd").text.strip ]
     end
-    expect(counts).to eq("Products" => 975, "Seller products" => 0, "Pending reviews" => 0)
+    expect(counts).to eq("Products" => "975", "Seller products" => "0", "Pending reviews" => "0")
     expect(page).to have_link("Download catalog-updated.db", href: catalog_export_download_path)
     if ENV["T17_CAPTURE_SCREENSHOTS"] == "1"
       File.binwrite(Rails.root.join("docs/tasks/screenshots/t17-export-ready.png"),
