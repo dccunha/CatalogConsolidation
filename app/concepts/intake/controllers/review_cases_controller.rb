@@ -18,6 +18,7 @@ module Intake
         load_case_evidence
         load_history
         @creation_state = Services::ReviewActions.creation_state(review_case: @review_case)
+        @reassignment_creation_state = Services::ReviewActions.reassignment_creation_state(review_case: @review_case)
       end
 
       def approve
@@ -52,6 +53,30 @@ module Intake
       def create_product
         review_result = Services::ReviewActions.create(review_case_id: params[:id].to_i,
           evidence_revision: params[:evidence_revision].to_i)
+        finish_action(review_result)
+      end
+
+      def reassign_candidate
+        review_result = Services::ReviewActions.reassign_candidate(review_case_id: params[:id].to_i,
+          candidate_id: params[:candidate_id].to_i, evidence_revision: params[:evidence_revision].to_i)
+        finish_action(review_result)
+      end
+
+      def create_for_reassignment
+        review_result = Services::ReviewActions.create_for_reassignment(review_case_id: params[:id].to_i,
+          evidence_revision: params[:evidence_revision].to_i)
+        finish_action(review_result)
+      end
+
+      def keep_existing
+        review_result = Services::ReviewActions.keep_existing(review_case_id: params[:id].to_i,
+          candidate_id: params[:candidate_id].to_i, evidence_revision: params[:evidence_revision].to_i)
+        finish_action(review_result)
+      end
+
+      def replace_existing
+        review_result = Services::ReviewActions.replace_existing(review_case_id: params[:id].to_i,
+          candidate_id: params[:candidate_id].to_i, evidence_revision: params[:evidence_revision].to_i)
         finish_action(review_result)
       end
 

@@ -18,6 +18,10 @@ Rails.application.routes.draw do
       post :reject
       post :correct
       post :create_product
+      post :reassign_candidate
+      post :create_for_reassignment
+      post :keep_existing
+      post :replace_existing
     end
   end
 end

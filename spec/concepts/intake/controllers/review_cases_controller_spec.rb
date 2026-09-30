@@ -275,7 +275,7 @@ RSpec.describe Intake::Controllers::ReviewCasesController, type: :request do
       expect(review_case.reload.status).to eq("pending")
     end
 
-    it "does not offer approval for a same-seller listing conflict" do
+    it "offers explicit keep and replace choices for a same-seller listing conflict" do
       Catalog::Models::SellerProduct.create!(seller_name: row.fetch("SellerName"),
         seller_product_id: "OTHER", product_id: product.id)
       batch = import(row)
@@ -284,7 +284,8 @@ RSpec.describe Intake::Controllers::ReviewCasesController, type: :request do
       get review_case_path(review_case)
 
       expect(page.css("form[action$='/approve']")).to be_empty
-      expect(page.at_css(".candidate-actions").text).to include("needs same-seller conflict resolution")
+      expect(page.at_css(".candidate-actions").text).to include("IDs OTHER and 0007")
+      expect(page.css("form[action$='/keep_existing'], form[action$='/replace_existing']").size).to eq(2)
       expect(page.css("form[action$='/reject'], form[action$='/correct']")).not_to be_empty
     end
   end
@@ -354,6 +355,87 @@ RSpec.describe Intake::Controllers::ReviewCasesController, type: :request do
       expect(page.at_css("[aria-labelledby='creation-heading']").text).to include("remaining credible candidate")
       expect(review_case.reload.status).to eq("pending")
       expect(Catalog::Models::SellerProduct.count).to eq(0)
+    end
+  end
+
+  describe "reassignment and listing conflict forms" do
+    it "shows the old association and reassigns a changed identity only after the POST" do
+      linked = import(row.merge("Category" => "Photography"))
+      review_case = import(row).row_results.sole.review_case
+      candidate = review_case.review_candidates.sole
+
+      get review_case_path(review_case)
+      expect(page.at_css(".case-summary").text).to include("product ##{product.id}")
+      expect(page.css("form[action$='/reassign_candidate'] input[name='candidate_id']").map { |field| field["value"] }).to eq([ candidate.id.to_s ])
+      expect(review_case.seller_item.product_id).to eq(linked.row_results.sole.product_id)
+
+      post reassign_candidate_review_case_path(review_case), params: { candidate_id: candidate.id, evidence_revision: 1 }
+      follow_redirect!
+
+      expect(page.at_css("[role='status']").text).to include("reassigned")
+      expect(page.at_css(".case-summary").text).to include("Final decision")
+      expect(page.css("form[action$='/reassign_candidate']")).to be_empty
+      expect(review_case.reload.status).to eq("resolved")
+    end
+
+    it "offers explicit creation for a changed identity after candidate review" do
+      import(row.merge("Category" => "Photography"))
+      changed = row.merge("Name" => "Entirely new camera model")
+      review_case = import(changed).row_results.sole.review_case
+
+      get review_case_path(review_case)
+      expect(page.css("form[action$='/create_for_reassignment']")).not_to be_empty
+
+      post create_for_reassignment_review_case_path(review_case), params: { evidence_revision: 1 }
+      follow_redirect!
+
+      expect(page.at_css("[role='status']").text).to include("created and seller ID reassigned")
+      expect(review_case.reload.review_decision.result).to eq("created")
+      expect(Catalog::Models::SellerProduct.find_by!(seller_name: row.fetch("SellerName"),
+        seller_product_id: row.fetch("Id")).product.name).to eq(changed.fetch("Name"))
+    end
+
+    it "shows both IDs and records a keep-existing choice from its form" do
+      Catalog::Models::SellerProduct.create!(seller_name: row.fetch("SellerName"),
+        seller_product_id: "OTHER", product_id: product.id)
+      review_case = import(row).row_results.sole.review_case
+      candidate = review_case.review_candidates.sole
+
+      get review_case_path(review_case)
+      expect(page.at_css(".candidate-actions").text).to include("OTHER", row.fetch("Id"))
+      expect(page.css("form[action$='/keep_existing'], form[action$='/replace_existing']").size).to eq(2)
+
+      post keep_existing_review_case_path(review_case), params: { candidate_id: candidate.id,
+        evidence_revision: 1 }
+      follow_redirect!
+
+      expect(page.at_css("[role='status']").text).to include("incoming ID declined")
+      expect(page.at_css(".case-summary").text).to include("Kept existing", "Declined seller item")
+      expect(page.css("form[action$='/keep_existing'], form[action$='/replace_existing']")).to be_empty
+      expect(review_case.reload.seller_item.resolution).to eq("declined")
+    end
+
+    it "records a replacement choice from its form and blocks repeated submissions" do
+      Catalog::Models::SellerProduct.create!(seller_name: row.fetch("SellerName"),
+        seller_product_id: "OTHER", product_id: product.id)
+      review_case = import(row).row_results.sole.review_case
+      candidate = review_case.review_candidates.sole
+
+      post replace_existing_review_case_path(review_case), params: { candidate_id: candidate.id,
+        evidence_revision: 1 }
+      follow_redirect!
+
+      expect(page.at_css("[role='status']").text).to include("replaced OTHER")
+      expect(page.at_css(".case-summary").text).to include("Replaced seller ID OTHER")
+      expect(Catalog::Models::SellerProduct.find_by!(seller_name: row.fetch("SellerName"),
+        seller_product_id: row.fetch("Id")).product_id).to eq(product.id)
+      expect(Catalog::Models::SellerProduct.exists?(seller_name: row.fetch("SellerName"),
+        seller_product_id: "OTHER")).to be(false)
+
+      post replace_existing_review_case_path(review_case), params: { candidate_id: candidate.id,
+        evidence_revision: 1 }
+      follow_redirect!
+      expect(page.at_css("[role='alert']").text).to include("no longer pending")
     end
   end
 end
