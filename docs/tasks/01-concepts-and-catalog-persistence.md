@@ -29,7 +29,7 @@ Make the accepted concept layout work in Rails and persist Catalog products and 
 
 - Completed: task brief only.
 - Remaining: implementation and verification.
-- Next action: inspect Rails loading and persistence conventions after T00Q merges; T00A's merge gate is satisfied.
+- Next action: inspect Rails loading and persistence conventions; both T00A's and T00Q's merge gates are satisfied.
 
 ## Problems
 

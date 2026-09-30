@@ -12,8 +12,8 @@ Implement in index order, initially T00–T15 plus the T00A and T00Q quality pre
 | --- | --- | --- | --- | --- | --- |
 | T00 | [Establish task records and workflow](00-task-workflow.md) | done | Foundation | [#6](https://github.com/dccunha/CatalogConsolidation/pull/6) | None |
 | T00A | [Enforce Better Specs conventions](00a-better-specs-conventions.md) | done | T00 | [#9](https://github.com/dccunha/CatalogConsolidation/pull/9) | None |
-| T00Q | [Enforce implementation quality gates](00q-quality-gates.md) | in review | T00A | [#8](https://github.com/dccunha/CatalogConsolidation/pull/8) | None |
-| T01 | [Integrate concepts and Catalog persistence](01-concepts-and-catalog-persistence.md) | backlog | T00Q | Not opened | — |
+| T00Q | [Enforce implementation quality gates](00q-quality-gates.md) | done | T00A | [#8](https://github.com/dccunha/CatalogConsolidation/pull/8) · merge `8b9f07a` | None |
+| T01 | [Integrate concepts and Catalog persistence](01-concepts-and-catalog-persistence.md) | ready | T00Q | Not opened | None |
 | T02 | [Load the reference catalog](02-reference-catalog-loading.md) | backlog | T01 | Not opened | — |
 | T03 | [Implement Catalog public writes](03-catalog-public-writes.md) | backlog | T02 | Not opened | — |
 | T04 | [Validate and normalize seller rows](04-row-validation-and-normalization.md) | backlog | T03 | Not opened | — |
@@ -36,12 +36,12 @@ Milestones: T08 verifies importer/rerun services; T10 makes upload, results, and
 The user can invoke the [orchestrator instructions and starter prompt](orchestrator.md#starter-prompt) to run the remaining tasks with fresh implementers, two independent reviewers per task, automatic merges after passing gates, and a pause for final QA. Merely reading or editing those instructions does not start the run. Individual task requests can still use the manual workflow below.
 
 - Run state: `not_started`.
-- Current task/stage: T00Q / awaiting human PR review. The orchestrator is idle.
-- Working directory, branch, candidate revision, and PR: `/home/daniel/.codex/worktrees/010d/VTEX`, `codex/quality-gates`, merge commit `725594e` with hosted CI passing, [#8](https://github.com/dccunha/CatalogConsolidation/pull/8).
+- Current task/stage: none / idle; T01 is next and ready after T00Q merged.
+- Working directory, branch, candidate revision, and PR: assigned and verified at launch.
 - Active agent assignments and test-runner owner: none.
 - Unresolved orchestration findings or decisions: none.
 - Last completed orchestration milestone: none.
-- Next action: complete human review and merge T00Q; then T01 becomes ready.
+- Next action: start T01 through the manual workflow or invoke the orchestrator when ready.
 
 During a run, update this checkpoint at stage transitions and before interruption. Keep task statuses in the table above and detailed findings/evidence in the owning briefs. See [records and recovery](orchestrator.md#records-and-recovery) for resume rules.
 
