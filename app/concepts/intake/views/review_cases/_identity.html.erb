@@ -1,0 +1,9 @@
+<table class="identity-table">
+  <caption><%= title %></caption>
+  <thead><tr><th scope="col">Field</th><th scope="col"><%= value_label %></th><th scope="col">Normalized comparison</th></tr></thead>
+  <tbody>
+    <% [["Name", "Name", "name"], ["Brand", "Brand", "brand"], ["Category", "Category", "category"]].each do |label, input_key, comparison_key| %>
+      <tr><th scope="row"><%= label %></th><td><%= input[input_key].presence || "—" %></td><td><%= comparison[comparison_key].presence || "—" %></td></tr>
+    <% end %>
+  </tbody>
+</table>

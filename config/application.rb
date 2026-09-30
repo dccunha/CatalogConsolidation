@@ -19,6 +19,8 @@ module CatalogConsolidation
     # Concept roles are namespaces beneath this single Zeitwerk root.
     config.paths.add "app/concepts", eager_load: true
 
+    config.x.intake.reviewer_name = ENV.fetch("INTAKE_REVIEWER_NAME", "Local reviewer")
+
     # Configuration for the application, engines, and railties goes here.
     #
     # These settings can be overridden in specific environments using the files

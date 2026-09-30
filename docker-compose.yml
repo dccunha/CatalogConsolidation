@@ -27,6 +27,7 @@ services:
       DB_HOST: db
       DB_USER: catalog
       DB_PASSWORD: ${DB_PASSWORD:-catalog_dev_password}
+      INTAKE_REVIEWER_NAME: ${INTAKE_REVIEWER_NAME:-Local reviewer}
     ports:
       - "127.0.0.1:${WEB_PORT:-3000}:3000"
     volumes:

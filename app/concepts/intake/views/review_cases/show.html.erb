@@ -1,0 +1,121 @@
+<% content_for :title, "Review case ##{@review_case.id} · Catalog Consolidation" %>
+
+<div class="page-heading">
+  <p class="eyebrow">Seller intake / Review case</p>
+  <h1>Case #<%= @review_case.id %></h1>
+  <p><span class="outcome outcome--<%= @review_case.status %>"><%= @review_case.status.humanize %></span> · <strong><%= @review_case.seller_item.seller_name %></strong> / ID <%= @review_case.seller_item.seller_product_id %></p>
+  <p>Opened from <%= link_to "batch ##{@review_case.batch_id}, row #{@review_case.source_position}", batch_path(@review_case.batch) %>.</p>
+</div>
+
+<section class="panel case-summary" aria-labelledby="case-summary-heading">
+  <h2 id="case-summary-heading">Current case state</h2>
+  <p><strong>Review reason:</strong> <%= @review_case.reason %></p>
+  <% if @review_case.status == "superseded" %>
+    <p>This is a historical case. A newer source identity superseded it; this record remains available for audit.</p>
+  <% elsif @review_case.status == "resolved" %>
+    <p>This case has a final decision. The import results below remain as recorded when each batch ran.</p>
+  <% else %>
+    <p>This case is pending review. No final decision has been recorded.</p>
+  <% end %>
+  <%= render "conflict", conflict: @review_case.conflicting_association %>
+  <% if @review_case.review_decision %>
+    <% decision = @review_case.review_decision %>
+    <p><strong>Final decision:</strong> <%= decision.result.humanize %> · product #<%= decision.product_id %> · by <%= decision.reviewer %> at <%= time_tag decision.decided_at, decision.decided_at.strftime("%Y-%m-%d %H:%M %Z") %>.</p>
+    <% if decision.reason.present? %><p><strong>Decision reason:</strong> <%= decision.reason %></p><% end %>
+    <% if decision.displaced_seller_item_id %><p>Displaced seller item #<%= decision.displaced_seller_item_id %>.</p><% end %>
+    <% if decision.declined_seller_item_id %><p>Declined seller item #<%= decision.declined_seller_item_id %>.</p><% end %>
+  <% end %>
+</section>
+
+<section class="case-section" aria-labelledby="identity-heading">
+  <h2 id="identity-heading">Source and comparison</h2>
+  <div class="panel table-wrap">
+    <%= render "identity", title: "Original seller row", value_label: "Original value", input: @review_case.source_input, comparison: @review_case.source_comparison %>
+  </div>
+  <% if @corrections.any? %>
+    <% @corrections.each do |correction| %>
+      <div class="panel table-wrap stacked-panel">
+        <p class="history-meta">Correction by <%= correction.reviewer %> at <%= time_tag correction.corrected_at, correction.corrected_at.strftime("%Y-%m-%d %H:%M %Z") %></p>
+        <%= render "identity", title: "Corrected values", value_label: "Corrected value", input: correction.corrected_input, comparison: correction.corrected_comparison %>
+      </div>
+    <% end %>
+  <% else %>
+    <p class="muted">No corrections have been recorded. The original source remains the comparison input.</p>
+  <% end %>
+  <details class="source-detail"><summary>View original source JSON</summary><pre class="source-text"><%= JSON.pretty_generate(@review_case.source_input) %></pre></details>
+</section>
+
+<section class="case-section" aria-labelledby="candidates-heading">
+  <h2 id="candidates-heading">Candidate evidence</h2>
+  <p class="muted">Evidence revision <%= @review_case.evidence_revision %>. Scores and differences explain possible matches; they do not authorize a link.</p>
+  <% if @candidates.empty? %>
+    <div class="panel empty-state">
+      <h3>No candidates in this evidence revision</h3>
+      <% if @review_case.status == "pending" %>
+        <p>This case remains pending review.</p>
+      <% elsif @review_case.status == "superseded" %>
+        <p>This historical evidence is retained for audit. The case was superseded.</p>
+      <% else %>
+        <p>This case has a final decision. No candidates were recorded in this evidence revision.</p>
+      <% end %>
+    </div>
+  <% else %>
+    <% @candidates.each do |candidate| %>
+      <article class="panel candidate-card">
+        <h3>Rank <%= candidate.rank %> · Product #<%= candidate.product_id %></h3>
+        <p><strong>Match score:</strong> <%= number_to_percentage(candidate.score * 100, precision: 1) %> · <strong>Different fields:</strong> <%= candidate.differing_fields.any? ? candidate.differing_fields.join(", ") : "None" %></p>
+        <% if candidate.review_rejection %><p class="rejection-note">Rejected by <%= candidate.review_rejection.reviewer %> at <%= time_tag candidate.review_rejection.rejected_at, candidate.review_rejection.rejected_at.strftime("%Y-%m-%d %H:%M %Z") %>: <%= candidate.review_rejection.reason %></p><% end %>
+        <div class="table-wrap">
+          <table class="identity-table">
+            <caption>Candidate product values</caption>
+            <thead><tr><th scope="col">Field</th><th scope="col">Catalog value</th><th scope="col">Normalized comparison</th></tr></thead>
+            <tbody>
+              <% %w[name brand category].each do |field| %>
+                <tr><th scope="row"><%= field.humanize %></th><td><%= candidate.original[field].presence || "—" %></td><td><%= candidate.comparison[field].presence || "—" %></td></tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+        <%= render "conflict", conflict: candidate.conflicting_association %>
+      </article>
+    <% end %>
+  <% end %>
+</section>
+
+<section class="case-section" aria-labelledby="history-heading">
+  <h2 id="history-heading">Review history</h2>
+  <% if @history_events.empty? %>
+    <p class="panel empty-state">No reviewer actions have been recorded.</p>
+  <% else %>
+    <ol class="panel history-list">
+      <% @history_events.each do |event| %>
+        <% case event %>
+        <% when Intake::Models::ReviewCorrection %>
+          <li>Correction by <%= event.reviewer %> at <%= time_tag event.corrected_at, event.corrected_at.strftime("%Y-%m-%d %H:%M %Z") %>.</li>
+        <% when Intake::Models::ReviewRejection %>
+          <li>Product #<%= event.review_candidate.product_id %> rejected by <%= event.reviewer %> at <%= time_tag event.rejected_at, event.rejected_at.strftime("%Y-%m-%d %H:%M %Z") %>: <%= event.reason %></li>
+        <% when Intake::Models::ReviewDecision %>
+          <li>Final decision: <%= event.result.humanize %>, product #<%= event.product_id %>, by <%= event.reviewer %> at <%= time_tag event.decided_at, event.decided_at.strftime("%Y-%m-%d %H:%M %Z") %><% if event.reason.present? %>: <%= event.reason %><% end %>.</li>
+        <% end %>
+      <% end %>
+    </ol>
+  <% end %>
+</section>
+
+<section class="case-section" aria-labelledby="imports-heading">
+  <h2 id="imports-heading">Recorded import outcomes</h2>
+  <p class="muted">These are the immutable results from each import. A later decision changes the case state shown above, not the prior row outcome.</p>
+  <div class="table-wrap panel">
+    <table>
+      <caption>Rows referencing case #<%= @review_case.id %></caption>
+      <thead><tr><th scope="col">Batch and row</th><th scope="col">Import-time outcome</th><th scope="col">Import-time reason</th></tr></thead>
+      <tbody>
+        <% @rows.each do |row| %>
+          <tr><th scope="row"><%= link_to "Batch ##{row.batch_id}, row #{row.source_position}", batch_path(row.batch) %></th><td><%= row.outcome.humanize %></td><td><%= row.reason %></td></tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<p class="secondary-link"><%= link_to "Back to review queue", review_cases_path %> · <%= link_to "All batches", batches_path %></p>

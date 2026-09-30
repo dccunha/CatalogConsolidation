@@ -1,0 +1,3 @@
+<% if conflict.present? %>
+  <p class="conflict-note">Conflicting listing: seller <strong><%= conflict["seller_name"] %></strong>, seller ID <strong><%= conflict["seller_product_id"] %></strong>, product #<%= conflict["product_id"] %> (association #<%= conflict["id"] %>).</p>
+<% end %>

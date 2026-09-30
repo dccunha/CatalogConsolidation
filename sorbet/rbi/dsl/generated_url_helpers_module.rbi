@@ -109,6 +109,12 @@ module GeneratedUrlHelpersModule
   def rails_storage_redirect_url(*args); end
 
   sig { params(args: T.untyped).returns(String) }
+  def review_case_url(*args); end
+
+  sig { params(args: T.untyped).returns(String) }
+  def review_cases_url(*args); end
+
+  sig { params(args: T.untyped).returns(String) }
   def root_url(*args); end
 
   sig { params(args: T.untyped).returns(String) }

@@ -90,11 +90,11 @@ RSpec.describe Intake::Controllers::ImportsController, type: :request do
         "—", "—", include("Name is required"))
       review_case_id = batch.row_results.find_by!(source_position: 3).review_case_id
       expect(cells[2]).to include(include(source_row["SellerName"], "ID: pending"), "Pending review",
-        "—", review_case_id.to_s, include("Pending review: incomplete metadata"))
+        "—", "Case ##{review_case_id}", include("Pending review: incomplete metadata"))
+      expect(rows[2].at_css("td:nth-child(5) a")["href"]).to eq(review_case_path(review_case_id))
       expect(response.body).to include("O&#39;Reilly &lt;script&gt;alert(1)&lt;/script&gt;")
       expect(response.body).not_to include("<script>alert(1)</script>")
       expect(response.body).to include("View source row")
-      expect(response.body).not_to include("href=\"/review")
     end
 
     it "keeps the first batch audit when the same file is uploaded again" do
