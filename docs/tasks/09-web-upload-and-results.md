@@ -26,8 +26,8 @@ Let a local user upload the seller JSON and inspect batch summaries and row outc
 ## Current checkpoint
 
 - Completed: Intake upload, batch history, and result routes/views; synchronous importer integration; request journeys; local run instructions; upload/result screenshots; generated route-helper RBIs. First-round T09-TEST-01 and submit-time copy fixes were approved by both independent reviewers at `a015ebb028a3ca23831d30d114efc975cfc1e18b`; exact-commit Docker CI passed.
-- Remaining: PR creation, final head verification, and merge.
-- Next action: the orchestrator opens and verifies the T09 PR.
+- Remaining: final [PR #19](https://github.com/dccunha/CatalogConsolidation/pull/19) head verification and merge.
+- Next action: the orchestrator verifies the final reviewed PR head before merge.
 
 ## Problems
 
