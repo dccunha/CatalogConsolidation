@@ -29,7 +29,7 @@ Implement in index order, initially T00–T15 plus the T00A and T00Q quality pre
 | T13 | [Resolve reassignment and listing conflicts](13-reassignment-and-listing-conflicts.md) | done | T12 | [#23](https://github.com/dccunha/CatalogConsolidation/pull/23) · merge `d3c9246` | None |
 | T14 | [Verify acceptance journeys](14-acceptance-journeys.md) | done | T13 | [#24](https://github.com/dccunha/CatalogConsolidation/pull/24) · merge `685d26e` | None |
 | T15 | [Prepare delivery and demo](15-delivery-and-demo.md) | done | T14 | [#25](https://github.com/dccunha/CatalogConsolidation/pull/25) · merge `ac839ef` | None |
-| T16 | [Block SQL control syntax from Catalog writes](16-block-sql-control-syntax.md) | in review | T15 | [#27](https://github.com/dccunha/CatalogConsolidation/pull/27) | Final PR merge gate |
+| T16 | [Block SQL control syntax from Catalog writes](16-block-sql-control-syntax.md) | done | T15 | [#27](https://github.com/dccunha/CatalogConsolidation/pull/27) · merge `960d0ee` | None |
 
 Milestones: T08 verifies importer/rerun services; T10 makes upload, results, and review evidence available in the browser; T13 completes the required user actions; T14 verifies integrated acceptance journeys; T15 completes delivery verification.
 
@@ -37,13 +37,13 @@ Milestones: T08 verifies importer/rerun services; T10 makes upload, results, and
 
 The user can invoke the [orchestrator instructions and starter prompt](orchestrator.md#starter-prompt) to run the remaining tasks with fresh implementers, two independent reviewers per task, automatic merges after passing gates, and a pause for final QA. Merely reading or editing those instructions does not start the run. Individual task requests can still use the manual workflow below.
 
-- Run state: `running`.
-- Current task/stage: T16 corrected runtime candidate passed full isolated Docker CI and both independent re-reviews; [PR #27](https://github.com/dccunha/CatalogConsolidation/pull/27) is open for final merge gate.
-- Working directory, branch, candidate revision, and PR: `/home/daniel/.codex/worktrees/t16-catalog-text-guard/VTEX`, `codex/t16-catalog-text-guard` from verified main `a081718`; reviewed runtime candidate `e03b14d`; [PR #27](https://github.com/dccunha/CatalogConsolidation/pull/27).
-- Active agent assignments and test-runner owner: implementer and both reviewers finished; no shared Docker runner active. Isolated `t16_guard` web and PostgreSQL services run on localhost:3116. Existing main-branch QA database and T15 demo remain untouched.
-- Unresolved orchestration findings or decisions: T16-TEST-01/02/03 resolved and independently approved; no user decision is pending. User chose an input-only Catalog guard and retention of historical QA data.
-- Last completed orchestration milestone: T15 merged as [PR #25](https://github.com/dccunha/CatalogConsolidation/pull/25) at `ac839ef`; final QA identified the new T16 behavior change.
-- Next action: review the documentation-only PR record delta, verify PR head/remote checks/mergeability, then merge #27 if all gates pass and record the verified merge.
+- Run state: `awaiting_final_qa`.
+- Current task/stage: all numbered tasks, including T16, merged; final user QA is pending.
+- Working directory, branch, candidate revision, and PR: isolated T16 worktree `/home/daniel/.codex/worktrees/t16-catalog-text-guard/VTEX` on `codex/t16-merge-record` from verified merge `960d0ee`; final reviewed PR head `fa521f2`; [PR #27](https://github.com/dccunha/CatalogConsolidation/pull/27) merged at `960d0ee`. Local `/home/daniel/Projects/VTEX` main was fast-forwarded to the merge.
+- Active agent assignments and test-runner owner: implementer and both reviewers finished; no shared Docker runner active. Isolated `t16_guard` web and PostgreSQL services run on localhost:3116 for the clean-import evidence; local main app runs on localhost:3000.
+- Unresolved orchestration findings or decisions: T16-TEST-01/02/03 resolved and independently approved. No implementation decision remains. The default `vtex` volume available at post-merge QA check contained zero batches and no product #976, so the older historical QA records could not be verified there; this workflow performed no database deletion.
+- Last completed orchestration milestone: T16 clean 269-row import and unchanged rerun reconciled with row 181 **Failed**, full Docker CI passed, both independent reviewers approved, and [PR #27](https://github.com/dccunha/CatalogConsolidation/pull/27) merged at `960d0ee`.
+- Next action: user performs final QA on the merged app. Record `complete` only after explicit user acceptance. If the historical batch #1/product #976 should be available in this host's default database, identify the original QA database or backup before attempting restoration.
 
 During a run, update this checkpoint at stage transitions and before interruption. Keep task statuses in the table above and detailed findings/evidence in the owning briefs. See [records and recovery](orchestrator.md#records-and-recovery) for resume rules.
 
