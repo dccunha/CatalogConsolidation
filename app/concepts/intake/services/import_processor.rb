@@ -117,6 +117,7 @@ module Intake
           input_json: String, position: Integer).void
       end
       def self.process_valid(batch:, valid:, element:, input_json:, position:)
+        lock_seller_key(valid)
         existing = Models::SellerItem.lock.find_by(seller_name: valid.source.seller_name,
           seller_product_id: valid.source.seller_product_id)
         if existing
@@ -139,6 +140,15 @@ module Intake
         end
       end
       private_class_method :process_valid
+
+      sig { params(valid: RowValidator::Valid).void }
+      def self.lock_seller_key(valid)
+        # The digest yields an integer only; no seller text is interpolated into SQL.
+        key = Digest::SHA256.hexdigest(JSON.generate(
+          [ valid.source.seller_name, valid.source.seller_product_id ])).first(15).to_i(16)
+        Models::SellerItem.connection.execute("SELECT pg_advisory_xact_lock(#{key})")
+      end
+      private_class_method :lock_seller_key
 
       sig do
         params(batch: Models::Batch, valid: RowValidator::Valid, element: Object, input_json: String,
@@ -292,7 +302,7 @@ module Intake
 
       sig { params(match: ProductMatcher::Result).returns(T.nilable(T::Hash[String, Object])) }
       def self.conflict_hash(match)
-        association = match.candidates.filter_map(&:seller_product_conflict).first
+        association = match.seller_item_association || match.candidates.filter_map(&:seller_product_conflict).first
         return unless association
 
         association_hash(association)

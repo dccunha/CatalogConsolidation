@@ -362,18 +362,30 @@ RSpec.describe Intake::Services::ImportProcessor, type: :model do
     it "preserves the current association while changing a resolved source" do
       first = import(row)
       product_id = first.rows.first.product_id
-      changed = row.merge("Name" => "Galaxy S23 Ultra")
+      changed = row.merge("Brand" => "Acme")
 
       second = import(changed, changed)
       seller_item = Intake::Models::SellerItem.sole
       review_case = Intake::Models::ReviewCase.sole
+      association = Catalog::Models::SellerProduct.sole
+      candidate = review_case.review_candidates.sole
 
       expect(second.rows.map(&:outcome)).to eq(%w[pending_review pending_review])
       expect(second.rows.map(&:review_case_id).uniq).to eq([ review_case.id ])
+      expect(review_case.source_input).to eq(changed)
+      expect(review_case.source_comparison).to eq(
+        "name" => "smartphone galaxy s23", "brand" => "acme", "category" => "electronics")
+      expect(review_case.reason).to include("changed source identity", "seller item taken", "candidate review")
+      expect(review_case.conflicting_association).to include("id" => association.id,
+        "product_id" => product_id, "seller_product_id" => "001")
+      expect([ review_case.evidence_revision, candidate.evidence_revision, candidate.rank ]).to eq([ 1, 1, 1 ])
+      expect([ candidate.product_id, candidate.score.to_f, candidate.differing_fields ]).to eq(
+        [ product_id, 1.0, [ "brand" ] ])
+      expect(candidate.original).to include("name" => row["Name"], "brand" => row["Brand"])
+      expect(candidate.comparison).to include("brand" => "samsung")
       expect(seller_item.reload.product_id).to eq(product_id)
       expect(seller_item.resolution).to eq("pending")
-      expect(Catalog::Models::SellerProduct.find_by!(seller_name: "MegaStore", seller_product_id: "001").product_id)
-        .to eq(product_id)
+      expect(association.reload.product_id).to eq(product_id)
       expect(first.rows.first.outcome).to eq("created")
       reverted = import(row)
       expect(reverted.rows.first.outcome).to eq("pending_review")
@@ -449,6 +461,16 @@ RSpec.describe Intake::Services::ImportProcessor, type: :model do
       expect(second.input_count).to eq(269)
       expect(first.rows.map(&:position)).to eq((1..269).to_a)
       expect(second.rows.map(&:position)).to eq((1..269).to_a)
+      expect([ first.rows[0].outcome, first.rows[0].product_id ]).to eq([ "linked", 2 ])
+      expect(first.rows[53].outcome).to eq("pending_review")
+      expect([ first.rows[55].outcome, first.rows[55].product_id ]).to eq([ "linked", 18 ])
+      expect([ first.rows[76].outcome, first.rows[76].product_id ]).to eq([ "already_imported", 18 ])
+      expect(first.rows[87].outcome).to eq("pending_review")
+      expect([ second.rows[0].outcome, second.rows[0].product_id ]).to eq([ "already_imported", 2 ])
+      expect([ second.rows[55].outcome, second.rows[55].product_id ]).to eq([ "already_imported", 18 ])
+      expect([ second.rows[76].outcome, second.rows[76].product_id ]).to eq([ "already_imported", 18 ])
+      expect(second.rows[53].review_case_id).to eq(first.rows[53].review_case_id)
+      expect(second.rows[87].review_case_id).to eq(first.rows[87].review_case_id)
       expect(second.totals.fetch("created")).to eq(0)
       expect(second.totals.fetch("linked")).to eq(0)
       expect(Intake::Models::SellerItem.count).to eq(item_count)
