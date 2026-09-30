@@ -261,6 +261,30 @@ RSpec.describe Catalog::Public::Writes, type: :model do
       expect(association.reload.product_id).to eq(old_product_id)
     end
 
+    it "rolls back a new product when the association move fails at the database" do
+      old_product_id = association.product_id
+      seller_key = association.attributes.slice("seller_name", "seller_product_id")
+      product_count = Catalog::Models::Product.count
+      connection = Catalog::Models::SellerProduct.connection
+      constraint_name = "t03_reject_association_move"
+      connection.add_check_constraint(:seller_products, "product_id = #{old_product_id}", name: constraint_name)
+
+      begin
+        expect do
+          described_class.create_for_association(association_id: association.id,
+            expected_product_id: old_product_id, expected_seller_product_id: association.seller_product_id,
+            name: "Created before failed move", brand: "B", category: "C")
+        end.to raise_error(ActiveRecord::StatementInvalid, /t03_reject_association_move/)
+
+        expect(Catalog::Models::Product.count).to eq(product_count)
+        expect(association.reload.attributes.slice("seller_name", "seller_product_id", "product_id")).to eq(
+          seller_key.merge("product_id" => old_product_id)
+        )
+      ensure
+        connection.remove_check_constraint(:seller_products, name: constraint_name)
+      end
+    end
+
     it "rolls the new product and association move back with the enclosing transaction" do
       old_product_id = association.product_id
 
