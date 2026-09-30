@@ -22,6 +22,10 @@ FROM base AS bootstrap
 RUN gem install rails -v 8.1.4 --no-document
 
 FROM base AS development
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    chromium \
+    chromium-driver \
+  && rm -rf /var/lib/apt/lists/*
 COPY --from=js_runtime /usr/local/bin/node /usr/local/bin/node
 COPY --from=js_runtime /usr/local/lib/node_modules/npm /usr/local/lib/node_modules/npm
 RUN ln -s ../lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm
