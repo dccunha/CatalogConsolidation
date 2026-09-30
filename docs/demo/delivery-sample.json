@@ -1,0 +1,23 @@
+[
+  {
+    "Id": "demo-galaxy",
+    "SellerName": "DeliveryDemo",
+    "Name": "Smartphone Galaxy S23",
+    "Brand": "Samsung",
+    "Category": "Electronics"
+  },
+  {
+    "Id": "demo-lamp",
+    "SellerName": "DeliveryDemo",
+    "Name": "AsterGlow Folding Desk Lamp",
+    "Brand": "AsterGlow",
+    "Category": "Home"
+  },
+  {
+    "Id": "demo-ipad",
+    "SellerName": "DeliveryDemo",
+    "Name": "Tablet iPad Pro 12.9''",
+    "Brand": "Apple",
+    "Category": "Tablets"
+  }
+]

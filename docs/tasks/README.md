@@ -28,7 +28,7 @@ Implement in index order, initially T00–T15 plus the T00A and T00Q quality pre
 | T12 | [Create explicitly and recheck evidence](12-review-creation-and-freshness.md) | done | T11 | [#22](https://github.com/dccunha/CatalogConsolidation/pull/22) · merge `3f09a1f` | None |
 | T13 | [Resolve reassignment and listing conflicts](13-reassignment-and-listing-conflicts.md) | done | T12 | [#23](https://github.com/dccunha/CatalogConsolidation/pull/23) · merge `d3c9246` | None |
 | T14 | [Verify acceptance journeys](14-acceptance-journeys.md) | done | T13 | [#24](https://github.com/dccunha/CatalogConsolidation/pull/24) · merge `685d26e` | None |
-| T15 | [Prepare delivery and demo](15-delivery-and-demo.md) | in progress | T14 | Not opened | Runbook, demo, clean rehearsal, final checks |
+| T15 | [Prepare delivery and demo](15-delivery-and-demo.md) | in review | T14 | Not opened | Stable delivery candidate; independent reviews pending |
 
 Milestones: T08 verifies importer/rerun services; T10 makes upload, results, and review evidence available in the browser; T13 completes the required user actions; T14 verifies integrated acceptance journeys; T15 completes delivery verification.
 
@@ -37,12 +37,12 @@ Milestones: T08 verifies importer/rerun services; T10 makes upload, results, and
 The user can invoke the [orchestrator instructions and starter prompt](orchestrator.md#starter-prompt) to run the remaining tasks with fresh implementers, two independent reviewers per task, automatic merges after passing gates, and a pause for final QA. Merely reading or editing those instructions does not start the run. Individual task requests can still use the manual workflow below.
 
 - Run state: `running`.
-- Current task/stage: T15 / implementation and clean delivery rehearsal.
-- Working directory, branch, candidate revision, and PR: `/home/daniel/.codex/worktrees/137d/VTEX`, `codex/t15-delivery-demo` from integrated main `6b348d1`; no T15 PR yet. T14 [PR #24](https://github.com/dccunha/CatalogConsolidation/pull/24) merged at `685d26e`.
-- Active agent assignments and test-runner owner: fresh T15 implementer to own documentation/screenshot writing and Docker runner; two independent reviewers will follow stable candidate.
+- Current task/stage: T15 / stable delivery candidate ready for independent reviews.
+- Working directory, branch, candidate revision, and PR: `/home/daniel/.codex/worktrees/137d/VTEX`, `codex/t15-delivery-demo` from integrated main `6b348d1`; candidate commit pending, no T15 PR yet. T14 [PR #24](https://github.com/dccunha/CatalogConsolidation/pull/24) merged at `685d26e`.
+- Active agent assignments and test-runner owner: T15 implementer stopped writing; fresh correctness and test reviewers to inspect stable commit, test reviewer sole Docker runner.
 - Unresolved orchestration findings or decisions: none. T14-COR-01/TEST-02 and T14-COR-02/TEST-01 resolved and approved.
 - Last completed orchestration milestone: T14 integrated AC1–AC12/RFC and real Chromium browser journeys passed on `fefeb52`; unchanged reference inputs and committed screenshot hashes verified.
-- Next action: commit this T15 start checkpoint and dispatch a fresh implementer for the runbook, demo, isolated rehearsal, screenshots, and final Docker CI.
+- Next action: commit T15 candidate, dispatch two independent reviewers on exact revision, and resolve findings before PR.
 
 During a run, update this checkpoint at stage transitions and before interruption. Keep task statuses in the table above and detailed findings/evidence in the owning briefs. See [records and recovery](orchestrator.md#records-and-recovery) for resume rules.
 
