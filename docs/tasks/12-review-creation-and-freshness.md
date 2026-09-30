@@ -25,8 +25,8 @@ Let a reviewer explicitly create a new product for an eligible complete case, wi
 ## Current checkpoint
 
 - Completed: typed explicit creation command, derived readiness state and form, candidate refresh before write, atomic Catalog and Intake persistence, service/request regression specs, generated route RBIs, and inspected screenshot. Both independent reviewers approved candidate `7a52f08`; exact-commit Docker CI passed.
-- Remaining: PR and verified merge.
-- Next action: open the T12 PR, verify merge gates, and merge.
+- Remaining: verified merge of [PR #22](https://github.com/dccunha/CatalogConsolidation/pull/22).
+- Next action: verify PR head and merge gates, then merge.
 
 ## Problems
 
