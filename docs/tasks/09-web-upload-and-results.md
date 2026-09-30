@@ -25,9 +25,9 @@ Let a local user upload the seller JSON and inspect batch summaries and row outc
 
 ## Current checkpoint
 
-- Completed: Intake upload, batch history, and result routes/views; synchronous importer integration; request journeys; local run instructions; upload/result screenshots; generated route-helper RBIs. First-round T09-TEST-01 and submit-time copy fixes were approved by both independent reviewers at `a015ebb028a3ca23831d30d114efc975cfc1e18b`; exact-commit Docker CI passed.
-- Remaining: final [PR #19](https://github.com/dccunha/CatalogConsolidation/pull/19) head verification and merge.
-- Next action: the orchestrator verifies the final reviewed PR head before merge.
+- Completed: Intake upload, batch history, and result routes/views; synchronous importer integration; request journeys; local run instructions; upload/result screenshots; generated route-helper RBIs; both independent approvals; exact-commit Docker CI; and [PR #19](https://github.com/dccunha/CatalogConsolidation/pull/19) merged at `3f464aa8242778301b3aaef5b6f547395f6de960`.
+- Remaining: none for T09; final integrated browser QA remains in T14.
+- Next action: T10 consumes the browser handoff below.
 
 ## Problems
 
@@ -53,6 +53,7 @@ Let a local user upload the seller JSON and inspect batch summaries and row outc
 
 - **Round 1, candidate `4c89f0d608ae498b57ef29046b24827a0bb3078a` (2026-09-30):** correctness reviewer approved the code and visual behavior, and suggested replacing upload copy that incorrectly said the import runs while the page loads. Test reviewer raised **T09-TEST-01 (P2)**: the mixed-results request spec asserted only page-wide substrings and could miss misplaced row data or unreconciled visible totals. Exact-commit Docker CI passed 156 RSpec examples, Ruby 99.63% lines/92.02% branches, and all other gates. The review-fix commit adds parsed summary and table assertions, corrects copy, and recaptures the screenshot.
 - **Round 2, candidate `a015ebb028a3ca23831d30d114efc975cfc1e18b` (2026-09-30):** correctness reviewer approved the full diff and refreshed 1280 px screenshot with no blocking issue. Test reviewer approved T09-TEST-01 after inspecting exact rendered totals, ordered row references, and empty-array totals, and reran `docker compose run --rm web bin/ci` on this exact clean commit: 156 RSpec examples, 0 failures, Ruby 99.63% line/92.02% branch coverage, one passing Vitest test, and all other gates passed. `git diff --check` passed. Real-browser keyboard/file-chooser interaction was not independently executed; native labelled controls, multipart request journeys, and screenshots are the current verification evidence.
+- **2026-09-30 — Merge verification:** both reviewers approved documentation-only follow-ups through PR head `817f85b7768f5fecbe5f66e66f89d2751564688f`. GitHub reported PR #19 `MERGEABLE`/`CLEAN` at that exact head with no required hosted checks, then `MERGED` at `3f464aa8242778301b3aaef5b6f547395f6de960`; main pointed to that merge commit. T10 is unblocked.
 
 ## Handoff
 
