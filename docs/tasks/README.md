@@ -38,7 +38,7 @@ The user can invoke the [orchestrator instructions and starter prompt](orchestra
 
 - Run state: `running`.
 - Current task/stage: T06 / PR preparation after both independent approvals.
-- Working directory, branch, candidate revision, and PR: `/home/daniel/.codex/worktrees/137d/VTEX`, `codex/t06-intake-persistence`, base `de07dd7`, candidate is this branch's first T06 commit, no PR yet. T05 PR #15 merged at `443f5e2`; post-merge record `de07dd7` was pushed to main.
+- Working directory, branch, candidate revision, and PR: `/home/daniel/.codex/worktrees/137d/VTEX`, `codex/t06-intake-persistence`, base `de07dd7`, code approved at `623c2f4` with documentation-only follow-up commits, no PR yet. T05 PR #15 merged at `443f5e2`; post-merge record `de07dd7` was pushed to main.
 - Active agent assignments and test-runner owner: T06 implementer finished; both independent reviewers approved `623c2f4`, and test reviewer completed the shared Docker gate.
 - Unresolved orchestration findings or decisions: none. `T06-COR-01`, `T06-TEST-01`, and `T06-TEST-02` resolved and approved in round 2.
 - Last completed orchestration milestone: none.
