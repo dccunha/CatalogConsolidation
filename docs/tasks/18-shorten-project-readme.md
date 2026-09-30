@@ -19,13 +19,13 @@ Make the root README a roughly 250–350-word quick start while preserving its o
 - [x] Keep the `Requirements and setup` anchor used by T17 and provide the `Load the reference catalog` anchor referenced by T02.
 - [x] Verify the archived copy, Markdown links and headings, and the required Docker CI gate; record actual results below.
 - [x] Open [PR #29](https://github.com/dccunha/CatalogConsolidation/pull/29) for human review under the manual task workflow.
-- [ ] Record human review and mark this task done only after verifying the PR merge.
+- [x] Record the user's merge direction as human sign-off and mark this task done after verifying PR #29 merged.
 
 ## Current checkpoint
 
-- Completed: confirmed T17 merge commit `b0034e8` is an ancestor of this checkout; committed the guide and quick start as `7729245` on `codex/t18-short-readme`; checked links, headings, and local Markdown rendering; passed the full Docker CI gate in an isolated Compose project; and opened [PR #29](https://github.com/dccunha/CatalogConsolidation/pull/29) for human review from head `179191b` against `main`.
-- Remaining: human review and verified PR merge before marking T18 done.
-- Next action: await human review of PR #29; address findings if any.
+- Completed: confirmed T17 merge commit `b0034e8` is an ancestor of this checkout; committed the guide and quick start as `7729245` on `codex/t18-short-readme`; checked links, headings, and local Markdown rendering; passed the full Docker CI gate in an isolated Compose project; and opened [PR #29](https://github.com/dccunha/CatalogConsolidation/pull/29). The user explicitly requested its merge. GitHub verified the PR merged at `f1340d5` from final head `187c915`, and fetched `origin/main` contains that head.
+- Remaining: no T18 work. The separate user final QA state remains unchanged.
+- Next action: retain the final QA handoff in the task index; take up any reported defect as a new bounded task.
 
 ## Problems
 
@@ -42,9 +42,9 @@ Make the root README a roughly 250–350-word quick start while preserving its o
 - **2026-09-30, documentation candidate commit `7729245` based on `6ca77c7`:** `README-full.md` and `git show 6ca77c7:README.md` both have SHA-256 `027cee7de9c2a05584908ec1142d99915d656bccc5eaf2176b121cf4340a121c`; the copy is byte-identical. The new README is 296 words.
 - A local check resolved all 31 Markdown links and anchors in `README.md`, `README-full.md`, and this brief. It covered the T17 `#requirements-and-setup` and T02 `#load-the-reference-catalog` targets. Ruby's local RDoc Markdown renderer produced headings, code blocks, and links as expected; its HTML output was inspected. `git diff --check` passed.
 - `docker compose -f docker-compose.yml -f /tmp/t18-readme-compose.yml -p t18_readme run --build --rm web bin/ci` passed with exit 0. The temporary override gave the web image the unique tag `catalog-consolidation:t18-readme`; all application checks remained those in `bin/ci`. RSpec: 248 examples, 0 failures; Ruby line coverage 98.94%, branch coverage 87.32%. Vitest: 1 file and 1 test passed, with 100% statements, branches, functions, and lines. Ruby/ERB/JavaScript lint, Sorbet and RBI freshness, audits, database checks, and seeds passed. The test run preceded only this evidence/checkpoint update; application and README content did not change afterward.
-- No application behavior or concept Ruby file changed, so no new behavior spec or Sorbet annotation was added. Human PR review and merge remain outstanding.
-- GitHub reported PR #29 `OPEN` and `MERGEABLE`, base `main`, head `179191b216f6bb481f82df400473a951880c3d27`. No human review or merge has been recorded.
+- No application behavior or concept Ruby file changed, so no new behavior spec or Sorbet annotation was added.
+- Before merge, GitHub reported PR #29 `MERGEABLE`, base `main`, final head `187c915dfecae085b45bdb765d1cfbcc9e4d585e`, and no hosted checks or submitted GitHub review objects. The user's explicit request to merge provided human sign-off for this manual task. `gh pr merge 29 --merge --match-head-commit 187c915dfecae085b45bdb765d1cfbcc9e4d585e` succeeded without bypass flags. A fresh GitHub query reported `MERGED` at `f1340d592d741f25f284e22d6b43ed43b87f8248` on 2026-09-30; fetched `origin/main` has that merge commit with PR head `187c915` as its second parent.
 
 ## Handoff
 
-The root README provides setup and workflow entry points; `README-full.md` retains the original detail and existing relative links. No application interface, database, PRD/RFC, or reference input changed. The isolated full Docker CI run passed. [PR #29](https://github.com/dccunha/CatalogConsolidation/pull/29) awaits human review and verified merge; the index must remain `in review` until then.
+The root README provides setup and workflow entry points; `README-full.md` retains the original detail and existing relative links. No application interface, database, PRD/RFC, or reference input changed. The isolated full Docker CI run passed. [PR #29](https://github.com/dccunha/CatalogConsolidation/pull/29) merged at `f1340d5`; T18 is complete. The separate final QA handoff remains pending.

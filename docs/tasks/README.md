@@ -31,7 +31,7 @@ Implement in index order, initially T00–T15 plus the T00A and T00Q quality pre
 | T15 | [Prepare delivery and demo](15-delivery-and-demo.md) | done | T14 | [#25](https://github.com/dccunha/CatalogConsolidation/pull/25) · merge `ac839ef` | None |
 | T16 | [Block SQL control syntax from Catalog writes](16-block-sql-control-syntax.md) | done | T15 | [#27](https://github.com/dccunha/CatalogConsolidation/pull/27) · merge `960d0ee` | None |
 | T17 | [Export the current catalog as SQLite](17-export-current-catalog-as-sqlite.md) | done | T16 | [#28](https://github.com/dccunha/CatalogConsolidation/pull/28) · merge `b0034e8`; [plan #26](https://github.com/dccunha/CatalogConsolidation/pull/26) | None |
-| T18 | [Shorten the project README](18-shorten-project-readme.md) | in review | T17 | [#29](https://github.com/dccunha/CatalogConsolidation/pull/29) | None |
+| T18 | [Shorten the project README](18-shorten-project-readme.md) | done | T17 | [#29](https://github.com/dccunha/CatalogConsolidation/pull/29) · merge `f1340d5` | None |
 
 Milestones: T08 verifies importer/rerun services; T10 makes upload, results, and review evidence available in the browser; T13 completes the required user actions; T14 verifies integrated acceptance journeys; T15 completes delivery verification.
 
