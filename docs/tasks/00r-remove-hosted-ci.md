@@ -18,13 +18,13 @@ Require the full Docker `bin/ci` suite locally before review and merge without r
 - [x] Update current quality gate and orchestration instructions to require recorded local `bin/ci` evidence and GitHub mergeability checks.
 - [x] Sequence this follow-up before T01 and link the policy change from T00Q without deleting historical validation evidence.
 - [x] Run `docker compose run --rm web bin/ci` on the candidate working tree and record the result.
-- [x] Confirm no current instructions require hosted CI and that the PR can merge without a stale required status check.
+- [x] Confirm no current instructions require hosted CI and that the PR merged without a stale required status check.
 
 ## Current checkpoint
 
-- Completed: PR #8 merge verified; workflow removed, policy documentation updated, full local suite passed, and PR #10 opened with a clean merge state and no reported checks.
-- Remaining: human review and verified merge of PR #10.
-- Next action: await human review; after merge, record its commit and make T01 ready.
+- Completed: PR #8 merge verified; workflow removed, policy documentation updated, full local suite passed, and PR #10 merged at `87089b9`.
+- Remaining: none.
+- Next action: T01 is ready.
 
 ## Problems
 
@@ -40,7 +40,8 @@ T00R-P01 (2026-09-30): GitHub's required-status-check and repository-ruleset end
 - 2026-09-30, candidate working tree based on `c8e860f`: `docker compose run --rm web bin/ci` passed in 33.57 seconds. RuboCop, ERB Lint, ESLint, Sorbet, concept sigils, gem/Rails RBI freshness, three security checks, database preparation/consistency, and seeds passed; RSpec had 1 example and 0 failures with 10/10 Ruby lines covered; Vitest had 1 test and 100% JavaScript lines/statements/functions (1/1), with no branches. No application code changed in this task.
 - 2026-09-30: `rg` found no current instruction requiring hosted CI. Remaining GitHub Actions/hosted mentions are historical T00Q evidence or descriptions of T00R's removal; `.github/workflows/ci.yml` is deleted. `git diff --check` passed.
 - 2026-09-30: [PR #10](https://github.com/dccunha/CatalogConsolidation/pull/10) opened from `codex/remove-hosted-ci` at `df94360`. `gh pr view 10` reported `MERGEABLE`, `CLEAN`, and no status checks; `gh pr checks 10` reported no checks on the branch. GitHub ruleset and required-status-check endpoints returned HTTP 403, so direct settings inspection was unavailable. Human review is pending.
+- 2026-09-30: GitHub confirmed PR #10 merged at `87089b96e2e65c4cc55fb3c71cc991d4af959f93` on 2026-09-30T03:48:06Z. Before merge, the final head `c5604e3` was `MERGEABLE` with `CLEAN` merge state and an empty status-check rollup.
 
 ## Handoff
 
-[PR #10](https://github.com/dccunha/CatalogConsolidation/pull/10) removes the GitHub Actions workflow. Future task PRs require a recorded local `docker compose run --rm web bin/ci` result; reviewers still inspect coverage and typing evidence, and the orchestrator checks GitHub mergeability without bypassing protection. The full local suite passed on the candidate working tree based on `c8e860f`. GitHub reported PR #10 mergeable with no checks on head `df94360`; direct ruleset inspection was unavailable. Human review and merge remain. T01 follows only after the reviewed PR merges.
+[PR #10](https://github.com/dccunha/CatalogConsolidation/pull/10) merged at `87089b9` and removed the GitHub Actions workflow. Future task PRs require a recorded local `docker compose run --rm web bin/ci` result; reviewers still inspect coverage and typing evidence, and the orchestrator checks GitHub mergeability without bypassing protection. The full local suite passed on the candidate working tree based on `c8e860f`. GitHub reported the final PR head `c5604e3` mergeable with no checks; direct ruleset inspection was unavailable. T01 is ready.

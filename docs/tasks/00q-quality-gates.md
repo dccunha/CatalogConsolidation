@@ -24,7 +24,7 @@ Make static typing and coverage expectations executable in Docker CI, and bind e
 
 - Completed: the quality gates and hosted CI passed; merged T00A's Better Specs and FactoryBot changes in commit `725594e`, regenerated FactoryBot RBIs, and merged PR #8 as `8b9f07a`.
 - Remaining: none.
-- Next action: complete [T00R](00r-remove-hosted-ci.md) before T01; apply the remaining local quality gates and Better Specs conventions during T01.
+- Next action: T00R is merged; apply the remaining local quality gates and Better Specs conventions during T01.
 
 ## Problems
 
