@@ -25,8 +25,8 @@ Turn one input element into validated source data and comparison values without 
 ## Current checkpoint
 
 - Completed: Intake row validator, reusable comparison normalizer, 28 focused examples, resolved round-one findings, and both independent approvals of code candidate `44e492d1aaf218d2e006061f961f3c84f976cbbf`. The test reviewer reran full Docker CI on that exact commit.
-- Remaining: merge verification; the task index owns status.
-- Next action: parent verifies [PR #14](https://github.com/dccunha/CatalogConsolidation/pull/14) at the final reviewed head and merges after all gates pass.
+- Remaining: none. The task index owns status.
+- Next action: T05 applies this comparison contract to Catalog candidates.
 
 ## Problems
 
@@ -53,6 +53,7 @@ Turn one input element into validated source data and comparison values without 
 
 - **Round 1, candidate `1c6686a` (2026-09-30):** correctness reviewer requested `T04-COR-01` (snapshot valid source and nested invalid audit input) and `T04-COR-02` (immutable hash-stable comparison identity). Test reviewer requested `T04-TEST-01` (brand-only/category-only inequality) and `T04-TEST-02` (equivalent identity hash lookup); it ran passing Docker CI with 75 examples. The implementer addressed all four findings with source/value snapshots and 10 focused regression examples.
 - **Round 2, candidate `44e492d1aaf218d2e006061f961f3c84f976cbbf` (2026-09-30):** correctness reviewer approved, confirming both mutation findings resolved and no new issue. Test reviewer approved, confirming both assertion findings resolved, and reran passing full Docker CI on this exact commit (85 examples). Direct construction of `Identity` was checked in code but had no separate mutation spec; the public `.call` mutation and hash behavior is tested.
+- **Final head and merge (2026-09-30):** both reviewers approved documentation-only deltas through final PR head `b6340b8b3c3d4f87b7f9a2825a303b9430b611ff`. GitHub reported [PR #14](https://github.com/dccunha/CatalogConsolidation/pull/14) `MERGEABLE`/`CLEAN` at that head and base `dae05cc`, with no reported status checks or remote reviews. GitHub confirmed it merged at `ad0087076ba8377f89e4658a4b5e31010d5cf6f5` on 2026-09-30T05:18:07Z; main pointed to that merge commit.
 
 ## Handoff
 
