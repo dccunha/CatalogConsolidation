@@ -25,8 +25,8 @@ Return an explainable matching recommendation and ranked evidence without writin
 ## Current checkpoint
 
 - Completed: round-one findings resolved in code candidate `aff3e41a26dbbfb7a0d22812646c5906d31d6f7b`; both independent reviewers approved. The matcher has 21 focused examples, and full Docker CI passed on the equivalent pre-commit code/test tree.
-- Remaining: parent-owned PR and merge workflow. The task index owns status.
-- Next action: parent opens the reviewed PR and verifies its final head and merge gates.
+- Remaining: merge verification. The task index owns status.
+- Next action: parent verifies [PR #15](https://github.com/dccunha/CatalogConsolidation/pull/15) at the final reviewed head and merges after all gates pass.
 
 ## Problems
 
