@@ -22,14 +22,14 @@ Make static typing and coverage expectations executable in Docker CI, and bind e
 ## Current checkpoint
 
 - Completed: the existing CI baseline and updated full CI passed; Sorbet and Tapioca were installed, gem/Rails RBIs generated, coverage floors and CI steps added; targeted negative checks rejected a missing sigil, a type error, and uncovered JavaScript/Ruby.
-- Remaining: verify the hosted CI permission fix, human PR review, and verified merge before T01 becomes ready.
-- Next action: push the CI fix and check the new Actions run.
+- Remaining: human PR review and verified merge before T01 becomes ready.
+- Next action: wait for human review of PR #8.
 
 ## Problems
 
 T00Q-P01 (2026-09-30): Automatic approval review rejected the initial `git push -u origin codex/quality-gates`, stating the initial request did not establish the GitHub destination's trust or authorize publication. Resolved after the user explicitly requested a PR: pushed commits `ea04c62` and `b87f941` to `codex/quality-gates` and opened [PR #8](https://github.com/dccunha/CatalogConsolidation/pull/8). No further action required.
 
-T00Q-P02 (2026-09-30): Hosted CI runs as a non-root Docker app user against a bind-mounted GitHub checkout. The first run could not write Rails logs; making `log`, `tmp`, and `storage` writable fixed those errors, but the second run then could not create `node_modules` or `coverage` under the root-owned checkout. Updated the workflow to grant write access to the ephemeral checkout root and runtime directories before Compose. Waiting for the next hosted run to verify the fix.
+T00Q-P02 (2026-09-30): Hosted CI runs as a non-root Docker app user against a bind-mounted GitHub checkout. The first run could not write Rails logs; making `log`, `tmp`, and `storage` writable fixed those errors, but the second run then could not create `node_modules` or `coverage` under the root-owned checkout. Resolved by granting write access to the ephemeral checkout root and runtime directories before Compose. GitHub Actions run `36663895978` passed on PR head `d6c4175`.
 
 ## Decisions
 
@@ -42,7 +42,8 @@ T00Q-P02 (2026-09-30): Hosted CI runs as a non-root Docker app user against a bi
 - 2026-09-30: `docker compose build web` passed with the locked Sorbet/Tapioca gems; `docker compose run --rm web bundle exec tapioca init`, `docker compose run --rm web bin/tapioca dsl`, `docker compose run --rm web bundle exec srb tc`, `docker compose run --rm web bin/tapioca gems --verify`, and `docker compose run --rm web bin/tapioca dsl --verify` passed during setup.
 - 2026-09-30: Temporary probes were removed after checking failures. `bin/check-concept-types` rejected a concept Ruby file without a sigil; `srb tc` rejected a `String` asserted as `Integer`; Vitest rejected an uncovered JavaScript application file; SimpleCov rejected an uncovered Ruby application file.
 - 2026-09-30: Final `docker compose run --rm web bin/ci` passed in 25.33 seconds on commit `ea04c62`, including RuboCop, ERB Lint, ESLint, Sorbet, gem/Rails RBI freshness, three security checks, 1 RSpec example, 1 Vitest test, database consistency, and seeds. Ruby line coverage was 10/10 (100%); JavaScript behavior-file lines were 1/1 (100%). No domain code exists yet, so these figures do not demonstrate domain behavior coverage.
+- 2026-09-30: Hosted GitHub Actions CI run `36663895978` passed on commit `d6c4175` in 2m38s. The Docker workspace permission setup, full `bin/ci`, and all hosted workflow steps passed. GitHub reported only runtime/future-runner deprecation notices for `actions/checkout@v4` and `ubuntu-latest`; neither failed the run.
 
 ## Handoff
 
-Ready for human review in [PR #8](https://github.com/dccunha/CatalogConsolidation/pull/8), currently at commit `b87f941` (quality implementation at `ea04c62`). `config/ci.rb` runs Sorbet, sigil, and RBI freshness gates; `spec/spec_helper.rb` and `vitest.config.mjs` enforce the coverage floors; `.github/workflows/ci.yml` runs the same suite on pull requests; `sorbet/` contains generated interfaces. `bin/ci` passed on the application configuration at `ea04c62`. T01 must begin only after this PR is reviewed and merged, then apply the shared gates to its concept models and tests. The current baseline has no domain implementation; reviewers must inspect future behavior tests and type signatures rather than extrapolating from its 100% coverage report.
+Ready for human review in [PR #8](https://github.com/dccunha/CatalogConsolidation/pull/8), currently at commit `d6c4175`; hosted CI run `36663895978` passed. `config/ci.rb` runs Sorbet, sigil, and RBI freshness gates; `spec/spec_helper.rb` and `vitest.config.mjs` enforce the coverage floors; `.github/workflows/ci.yml` runs the same suite on pull requests; `sorbet/` contains generated interfaces. T01 must begin only after this PR is reviewed and merged, then apply the shared gates to its concept models and tests. The current baseline has no domain implementation; reviewers must inspect future behavior tests and type signatures rather than extrapolating from its 100% coverage report.
