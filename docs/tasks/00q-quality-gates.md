@@ -17,14 +17,14 @@ Make static typing and coverage expectations executable in Docker CI, and bind e
 
 - [x] Add Sorbet and Rails/gem RBI generation, run `srb tc` in `bin/ci`, and require new concept Ruby files to opt into meaningful type checking.
 - [x] Enforce a Ruby line/branch and JavaScript per-file coverage floor without counting framework boot files as application behavior.
-- [x] Update AGENTS.md, the task template/index, orchestrator, developer runbook, and pull request CI so implementers and both reviewers use the gates and record actual evidence.
+- [x] Update AGENTS.md, the task template/index, orchestrator, and developer runbook so implementers and both reviewers use the gates and record actual evidence. The pull request workflow delivered in PR #8 is removed by [T00R](00r-remove-hosted-ci.md).
 - [x] Run the full Docker CI suite, verify representative failing gates, and document practical limitations.
 
 ## Current checkpoint
 
 - Completed: the quality gates and hosted CI passed; merged T00A's Better Specs and FactoryBot changes in commit `725594e`, regenerated FactoryBot RBIs, and merged PR #8 as `8b9f07a`.
 - Remaining: none.
-- Next action: T01 is ready; apply these quality gates and the Better Specs conventions during its implementation.
+- Next action: complete [T00R](00r-remove-hosted-ci.md) before T01; apply the remaining local quality gates and Better Specs conventions during T01.
 
 ## Problems
 
@@ -49,4 +49,4 @@ T00Q-P02 (2026-09-30): Hosted CI runs as a non-root Docker app user against a bi
 
 ## Handoff
 
-PR #8 is merged at `8b9f07a`. `config/ci.rb` runs Sorbet, sigil, and RBI freshness gates; `spec/spec_helper.rb` and `vitest.config.mjs` enforce the coverage floors; `.github/workflows/ci.yml` runs the same suite on pull requests; `sorbet/` includes FactoryBot interfaces from merged T00A. T01 is ready and should apply the shared gates and Better Specs conventions to its models and tests. The current baseline has no domain implementation; reviewers must inspect future behavior tests and type signatures rather than extrapolating from its 100% coverage report.
+PR #8 is merged at `8b9f07a`. `config/ci.rb` runs Sorbet, sigil, and RBI freshness gates; `spec/spec_helper.rb` and `vitest.config.mjs` enforce the coverage floors; `sorbet/` includes FactoryBot interfaces from merged T00A. PR #8 also added a GitHub Actions workflow, but [T00R](00r-remove-hosted-ci.md) removes that hosted requirement by explicit user decision. T01 follows T00R and should apply the remaining local gates and Better Specs conventions to its models and tests. The current baseline has no domain implementation; reviewers must inspect future behavior tests and type signatures rather than extrapolating from its 100% coverage report.

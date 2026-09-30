@@ -6,14 +6,15 @@ The Rails, PostgreSQL, and Docker foundation is present. T00A established Better
 
 ## Task index
 
-Implement in index order, initially T00–T15 plus the T00A and T00Q quality preflights, one task and one PR at a time. The “After merge” column is a sequencing gate, not a requirement to read every preceding task. Relevant technical context is linked in each brief. Status lives only in this table; briefs hold checkpoints and evidence. Insert any later follow-up tasks where their dependencies require, preserving existing task IDs.
+Implement in index order, initially T00–T15 plus the T00A and T00Q quality preflights and follow-up T00R, one task and one PR at a time. The “After merge” column is a sequencing gate, not a requirement to read every preceding task. Relevant technical context is linked in each brief. Status lives only in this table; briefs hold checkpoints and evidence. Insert any later follow-up tasks where their dependencies require, preserving existing task IDs.
 
 | ID | Task | Status | After merge | PR | Current blocker |
 | --- | --- | --- | --- | --- | --- |
 | T00 | [Establish task records and workflow](00-task-workflow.md) | done | Foundation | [#6](https://github.com/dccunha/CatalogConsolidation/pull/6) | None |
 | T00A | [Enforce Better Specs conventions](00a-better-specs-conventions.md) | done | T00 | [#9](https://github.com/dccunha/CatalogConsolidation/pull/9) | None |
 | T00Q | [Enforce implementation quality gates](00q-quality-gates.md) | done | T00A | [#8](https://github.com/dccunha/CatalogConsolidation/pull/8) · merge `8b9f07a` | None |
-| T01 | [Integrate concepts and Catalog persistence](01-concepts-and-catalog-persistence.md) | ready | T00Q | Not opened | None |
+| T00R | [Remove hosted CI requirement](00r-remove-hosted-ci.md) | in review | T00Q | [#10](https://github.com/dccunha/CatalogConsolidation/pull/10) | None |
+| T01 | [Integrate concepts and Catalog persistence](01-concepts-and-catalog-persistence.md) | backlog | T00R | Not opened | — |
 | T02 | [Load the reference catalog](02-reference-catalog-loading.md) | backlog | T01 | Not opened | — |
 | T03 | [Implement Catalog public writes](03-catalog-public-writes.md) | backlog | T02 | Not opened | — |
 | T04 | [Validate and normalize seller rows](04-row-validation-and-normalization.md) | backlog | T03 | Not opened | — |
@@ -36,12 +37,12 @@ Milestones: T08 verifies importer/rerun services; T10 makes upload, results, and
 The user can invoke the [orchestrator instructions and starter prompt](orchestrator.md#starter-prompt) to run the remaining tasks with fresh implementers, two independent reviewers per task, automatic merges after passing gates, and a pause for final QA. Merely reading or editing those instructions does not start the run. Individual task requests can still use the manual workflow below.
 
 - Run state: `not_started`.
-- Current task/stage: none / idle; T01 is next and ready after T00Q merged.
+- Current task/stage: T00R / awaiting human review; T01 follows its reviewed merge.
 - Working directory, branch, candidate revision, and PR: assigned and verified at launch.
 - Active agent assignments and test-runner owner: none.
 - Unresolved orchestration findings or decisions: none.
 - Last completed orchestration milestone: none.
-- Next action: start T01 through the manual workflow or invoke the orchestrator when ready.
+- Next action: review and merge PR #10; then T01 becomes ready for the manual workflow or orchestrator.
 
 During a run, update this checkpoint at stage transitions and before interruption. Keep task statuses in the table above and detailed findings/evidence in the owning briefs. See [records and recovery](orchestrator.md#records-and-recovery) for resume rules.
 
