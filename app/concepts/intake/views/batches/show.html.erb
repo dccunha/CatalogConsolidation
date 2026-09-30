@@ -1,0 +1,47 @@
+<% content_for :title, "Batch ##{@batch.id} · Catalog Consolidation" %>
+
+<div class="page-heading">
+  <p class="eyebrow">Seller intake / Batch <%= @batch.id %></p>
+  <h1>Batch #<%= @batch.id %> results</h1>
+  <p>Source: <strong><%= @batch.source_name %></strong> · Imported <%= time_tag @batch.created_at, @batch.created_at.strftime("%Y-%m-%d %H:%M %Z") %></p>
+</div>
+
+<section aria-labelledby="totals-heading">
+  <h2 id="totals-heading">Summary</h2>
+  <dl class="summary-grid">
+    <div><dt>Input rows</dt><dd><%= @report.input_count %></dd></div>
+    <% @report.totals.each do |outcome, count| %>
+      <div><dt><%= outcome.humanize %></dt><dd><%= count %></dd></div>
+    <% end %>
+  </dl>
+</section>
+
+<section aria-labelledby="rows-heading" class="results-section">
+  <h2 id="rows-heading">Row outcomes</h2>
+  <% if @rows.empty? %>
+    <p class="panel empty-state">This valid JSON array contained no rows. There are no row outcomes to show.</p>
+  <% else %>
+    <div class="table-wrap panel">
+      <table>
+        <caption>All <%= @rows.size %> recorded row outcomes for batch #<%= @batch.id %></caption>
+        <thead>
+          <tr><th scope="col">Row</th><th scope="col">Seller key</th><th scope="col">Outcome</th><th scope="col">Product ID</th><th scope="col">Review case ID</th><th scope="col">Reason and source</th></tr>
+        </thead>
+        <tbody>
+          <% @rows.each do |row| %>
+            <tr>
+              <th scope="row"><%= row.source_position %></th>
+              <td><% if row.seller_name.present? || row.seller_product_id.present? %><strong><%= row.seller_name.presence || "Unknown seller" %></strong><br><span class="muted">ID: <%= row.seller_product_id.presence || "Missing" %></span><% else %><span class="muted">Unavailable</span><% end %></td>
+              <td><span class="outcome outcome--<%= row.outcome %>"><%= row.outcome.humanize %></span></td>
+              <td><%= row.product_id || "—" %></td>
+              <td><%= row.review_case_id || "—" %></td>
+              <td><p class="row-reason"><%= row.reason %></p><details><summary>View source row</summary><pre class="source-text"><%= row.input_json %></pre></details></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% end %>
+</section>
+
+<p class="secondary-link"><%= link_to "Upload another file", new_import_path %> · <%= link_to "All batches", batches_path %></p>

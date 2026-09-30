@@ -1,10 +1,61 @@
-/*
- * This is a manifest file that'll be compiled into application.css.
- *
- * With Propshaft, assets are served efficiently without preprocessing steps. You can still include
- * application-wide styles in this file, but keep in mind that CSS precedence will follow the standard
- * cascading order, meaning styles declared later in the document or manifest will override earlier ones,
- * depending on specificity.
- *
- * Consider organizing styles into separate files for maintainability.
- */
+:root {
+  color-scheme: light;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #23313f;
+  background: #f6f8f9;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; line-height: 1.55; }
+a { color: #075985; }
+a:hover { color: #0c4a6e; }
+a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visible { outline: 3px solid #0369a1; outline-offset: 3px; }
+
+.site-header { background: #fff; border-bottom: 1px solid #d9e2e8; }
+.site-header__inner { max-width: 76rem; margin: auto; padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.site-brand { color: #123b4b; font-weight: 750; text-decoration: none; font-size: 1.1rem; }
+.site-header nav { display: flex; gap: 1.25rem; }
+.page-shell { max-width: 76rem; margin: auto; padding: 2.5rem 1.5rem 5rem; }
+.page-heading { max-width: 48rem; margin-bottom: 2rem; }
+.page-heading h1 { margin: .1rem 0 .5rem; font-size: clamp(1.9rem, 4vw, 2.8rem); line-height: 1.15; color: #123b4b; }
+.page-heading p { margin: .4rem 0; }
+.eyebrow { color: #0f766e; text-transform: uppercase; letter-spacing: .1em; font-size: .75rem; font-weight: 750; }
+h2 { color: #123b4b; font-size: 1.3rem; margin: 0 0 1rem; }
+.panel { background: #fff; border: 1px solid #d9e2e8; border-radius: .8rem; padding: 1.5rem; box-shadow: 0 2px 8px rgba(19, 50, 64, .04); }
+.upload-form { display: flex; flex-direction: column; align-items: flex-start; gap: .8rem; }
+.upload-form label { font-weight: 700; }
+.field-help { margin: -.5rem 0 0; color: #586b78; }
+.upload-form input[type="file"] { max-width: 100%; padding: .8rem; border: 1px dashed #7c9aa8; border-radius: .5rem; background: #f8fafb; }
+.button { display: inline-block; border: 0; border-radius: .5rem; padding: .72rem 1.1rem; background: #0b6775; color: #fff; font: inherit; font-weight: 700; text-decoration: none; cursor: pointer; }
+.button:hover { background: #084d59; color: #fff; }
+.form-error { border-left: 4px solid #b42318; color: #7a271a; background: #fff3f1; padding: .7rem 1rem; }
+.notice { border-left: 4px solid #0f766e; background: #e6f5f2; padding: .7rem 1rem; }
+.secondary-link { margin: 1.5rem 0; }
+.empty-state { text-align: center; }
+.empty-state p { margin-bottom: 1.4rem; }
+.summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: .75rem; margin: 0; }
+.summary-grid div { padding: 1rem; background: #fff; border: 1px solid #d9e2e8; border-radius: .7rem; }
+.summary-grid dt { color: #526879; font-size: .84rem; }
+.summary-grid dd { margin: .25rem 0 0; font-size: 1.55rem; font-weight: 750; color: #123b4b; }
+.results-section { margin-top: 2.5rem; }
+.table-wrap { overflow-x: auto; padding: 0; }
+table { width: 100%; border-collapse: collapse; text-align: left; }
+caption { text-align: left; padding: .8rem 1rem; color: #526879; font-size: .88rem; }
+th, td { padding: .85rem 1rem; border-top: 1px solid #e3eaee; vertical-align: top; }
+thead th { background: #edf3f5; color: #355364; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+tbody tr:nth-child(even) { background: #fafcfc; }
+.muted { color: #617684; }
+.outcome { display: inline-block; padding: .2rem .55rem; border-radius: 999px; background: #e8f0f4; color: #244c60; font-weight: 650; white-space: nowrap; font-size: .86rem; }
+.outcome--linked, .outcome--created { background: #dff5eb; color: #176044; }
+.outcome--pending_review { background: #fff0cc; color: #805500; }
+.outcome--failed { background: #ffe5e1; color: #9a271a; }
+.row-reason { margin: 0 0 .4rem; min-width: 12rem; }
+details summary { color: #075985; cursor: pointer; }
+.source-text { white-space: pre-wrap; overflow-wrap: anywhere; max-width: 30rem; padding: .75rem; background: #eff3f5; border-radius: .35rem; font-size: .78rem; }
+
+@media (max-width: 600px) {
+  .site-header__inner { align-items: flex-start; flex-direction: column; }
+  .page-shell { padding: 1.5rem 1rem 3rem; }
+  .panel { padding: 1rem; }
+  .table-wrap { padding: 0; }
+}

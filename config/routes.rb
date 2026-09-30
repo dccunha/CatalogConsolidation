@@ -9,6 +9,7 @@ Rails.application.routes.draw do
   # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
-  # Defines the root path route ("/")
-  # root "posts#index"
+  root "intake/controllers/imports#new"
+  resource :import, only: %i[new create], controller: "intake/controllers/imports"
+  resources :batches, only: %i[index show], controller: "intake/controllers/batches"
 end

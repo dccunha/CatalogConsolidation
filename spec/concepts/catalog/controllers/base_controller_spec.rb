@@ -5,7 +5,7 @@ RSpec.describe Catalog::Controllers::BaseController, type: :request do
     before do
       controller = Class.new(described_class) do
         def index
-          render :index
+          render :index, layout: false
         end
       end
       stub_const("Catalog::Controllers::LookupController", controller)
