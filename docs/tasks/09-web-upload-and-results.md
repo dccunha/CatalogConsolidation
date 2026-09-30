@@ -25,15 +25,15 @@ Let a local user upload the seller JSON and inspect batch summaries and row outc
 
 ## Current checkpoint
 
-- Completed: Intake upload, batch history, and result routes/views; synchronous importer integration; request journeys; local run instructions; upload/result screenshots; generated route-helper RBIs. First-round T09-TEST-01 request assertions and submit-time copy have been corrected; focused examples and full Docker CI pass.
-- Remaining: independent reassessment of the review fix, final verified merge.
-- Next action: hand the review-fix tree to the orchestrator for both reviewers' reassessment.
+- Completed: Intake upload, batch history, and result routes/views; synchronous importer integration; request journeys; local run instructions; upload/result screenshots; generated route-helper RBIs. First-round T09-TEST-01 and submit-time copy fixes were approved by both independent reviewers at `a015ebb028a3ca23831d30d114efc975cfc1e18b`; exact-commit Docker CI passed.
+- Remaining: PR creation, final head verification, and merge.
+- Next action: the orchestrator opens and verifies the T09 PR.
 
 ## Problems
 
 - **T09-P01 — 2026-09-30:** The first full CI found missing generated route-helper RBIs and a Catalog concept-view fixture that replaced application routes while still rendering the new global navigation. Regenerated DSL RBIs and made that narrow fixture render without the application layout; subsequent full CI passed 155 examples. The fixture still verifies concept-owned view lookup.
 - **T09-P02 — 2026-09-30:** The in-app browser file-chooser operation stalled during manual upload inspection and the browser surface became unavailable after interruption. Request specs cover real multipart uploads. The upload screenshot was captured before interruption; a local development batch was created through the same importer service and its result page was captured with installed headless Chromium. No application behavior depends on that browser session.
-- **T09-P03 — 2026-09-30:** First-round test review T09-TEST-01 found that the mixed-results request spec checked only page-wide substrings, so a swapped row or incorrect count could pass. The spec now parses the rendered summary and row table to assert exact totals, positions, seller keys, outcomes, product/case IDs, and row-specific reasons. It also checks six zero totals for an empty array. Focused examples and full CI pass; reviewer reassessment is pending.
+- **T09-P03 — 2026-09-30:** First-round test review T09-TEST-01 found that the mixed-results request spec checked only page-wide substrings, so a swapped row or incorrect count could pass. The spec now parses the rendered summary and row table to assert exact totals, positions, seller keys, outcomes, product/case IDs, and row-specific reasons. It also checks six zero totals for an empty array. Both reviewers approved the fix in round 2.
 
 ## Decisions
 
@@ -51,7 +51,8 @@ Let a local user upload the seller JSON and inspect batch summaries and row outc
 
 ### Review rounds
 
-- **Round 1, candidate `4c89f0d` (2026-09-30):** correctness reviewer approved the code and visual behavior, and suggested replacing upload copy that incorrectly said the import runs while the page loads. Test reviewer raised **T09-TEST-01 (P2)**: the mixed-results request spec asserted only page-wide substrings and could miss misplaced row data or unreconciled visible totals. The review-fix working tree uses parsed summary and table assertions for exact totals, row order, keys, outcomes, IDs, and reasons, plus empty-array zero totals. The upload copy now describes submit-time processing and its screenshot was recaptured. Focused specs and full Docker CI pass; both reviewers' final verdicts are pending.
+- **Round 1, candidate `4c89f0d608ae498b57ef29046b24827a0bb3078a` (2026-09-30):** correctness reviewer approved the code and visual behavior, and suggested replacing upload copy that incorrectly said the import runs while the page loads. Test reviewer raised **T09-TEST-01 (P2)**: the mixed-results request spec asserted only page-wide substrings and could miss misplaced row data or unreconciled visible totals. Exact-commit Docker CI passed 156 RSpec examples, Ruby 99.63% lines/92.02% branches, and all other gates. The review-fix commit adds parsed summary and table assertions, corrects copy, and recaptures the screenshot.
+- **Round 2, candidate `a015ebb028a3ca23831d30d114efc975cfc1e18b` (2026-09-30):** correctness reviewer approved the full diff and refreshed 1280 px screenshot with no blocking issue. Test reviewer approved T09-TEST-01 after inspecting exact rendered totals, ordered row references, and empty-array totals, and reran `docker compose run --rm web bin/ci` on this exact clean commit: 156 RSpec examples, 0 failures, Ruby 99.63% line/92.02% branch coverage, one passing Vitest test, and all other gates passed. `git diff --check` passed. Real-browser keyboard/file-chooser interaction was not independently executed; native labelled controls, multipart request journeys, and screenshots are the current verification evidence.
 
 ## Handoff
 

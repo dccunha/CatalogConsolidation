@@ -37,13 +37,13 @@ Milestones: T08 verifies importer/rerun services; T10 makes upload, results, and
 The user can invoke the [orchestrator instructions and starter prompt](orchestrator.md#starter-prompt) to run the remaining tasks with fresh implementers, two independent reviewers per task, automatic merges after passing gates, and a pause for final QA. Merely reading or editing those instructions does not start the run. Individual task requests can still use the manual workflow below.
 
 - Run state: `running`.
-- Current task/stage: T09 / independent reassessment of review fix and screenshot.
-- Working directory, branch, candidate revision, and PR: `/home/daniel/.codex/worktrees/137d/VTEX`, `codex/t09-web-upload-and-results` from integrated main `c2b5f25`; first candidate `4c89f0d`, review fix in progress, no PR yet. T08 PR #18 merged at `dd55280` after reviewed head `a22665f`.
-- Active agent assignments and test-runner owner: T09 implementer finished; both reviewers reassessing committed test/copy/screenshot fixes, with test reviewer owning shared Docker checks.
-- Unresolved orchestration findings or decisions: `T09-TEST-01` has a proposed fix awaiting reviewer verdicts; correctness reviewer approved initial candidate. No user decision needed.
+- Current task/stage: T09 / PR preparation after both independent approvals.
+- Working directory, branch, candidate revision, and PR: `/home/daniel/.codex/worktrees/137d/VTEX`, `codex/t09-web-upload-and-results` from integrated main `c2b5f25`; code/tests/UI approved at `a015ebb`, no PR yet. T08 PR #18 merged at `dd55280` after reviewed head `a22665f`.
+- Active agent assignments and test-runner owner: T09 implementer finished; both independent reviewers approved `a015ebb`, and test reviewer completed the shared Docker gate.
+- Unresolved orchestration findings or decisions: none. `T09-TEST-01` resolved and approved in round 2.
 - Unresolved orchestration findings or decisions: none. T08 findings were resolved and approved before merge.
 - Last completed orchestration milestone: T08 verified and merged at `dd55280`: supplied-file reruns, pending/resolved fixture replay, exact-key concurrency, and failure isolation passed. Real reviewer-command journeys remain for T11–T14.
-- Next action: obtain both independent re-reviews of the committed T09 fix revision before PR.
+- Next action: open T09 PR, verify its final reviewed head and mergeability, then merge and record completion.
 
 During a run, update this checkpoint at stage transitions and before interruption. Keep task statuses in the table above and detailed findings/evidence in the owning briefs. See [records and recovery](orchestrator.md#records-and-recovery) for resume rules.
 
@@ -90,7 +90,7 @@ The owner is responsible for the criterion's core behavior. Supporting tasks add
 
 | PRD criterion | Core owner | Supporting tasks | Implemented test evidence |
 | --- | --- | --- | --- |
-| AC1: every input row recorded | T07 | T06, T09, T14 | Core T07 [importer specs](../../spec/concepts/intake/services/import_processor_spec.rb) verify one result per constructed array element; T08 [supplied-file spec](../../spec/concepts/intake/services/import_processor_spec.rb) verifies 269 ordered outcomes on each run; browser results remain for T09/T14 |
+| AC1: every input row recorded | T07 | T06, T09, T14 | Core T07 [importer specs](../../spec/concepts/intake/services/import_processor_spec.rb) verify one result per array element; T08 supplied-file spec verifies 269 ordered outcomes on each run; T09 [request specs](../../spec/concepts/intake/controllers/imports_controller_spec.rb) verify rendered totals, positions, and row references; final browser journey remains for T14 |
 | AC2: Galaxy S23 links to product 2 | T07 | T02, T03, T05, T14 | Core T07 [importer specs](../../spec/concepts/intake/services/import_processor_spec.rb) link the Galaxy row to reference product 2; T08 [supplied-file spec](../../spec/concepts/intake/services/import_processor_spec.rb) verifies source position 1 links product 2 and retains it on rerun |
 | AC3: iPad punctuation difference requires review | T05 | T04, T07, T10, T14 | Core T05 [matcher specs](../../spec/concepts/intake/services/product_matcher_spec.rb) recommend review with reference iPad evidence; T08 [supplied-file spec](../../spec/concepts/intake/services/import_processor_spec.rb) verifies source-backed pending outcome; browser evidence remains for T10/T14 |
 | AC4: category conflict requires review | T05 | T07, T10, T14 | Core T05 [matcher specs](../../spec/concepts/intake/services/product_matcher_spec.rb) retain Canon category difference; T08 [supplied-file spec](../../spec/concepts/intake/services/import_processor_spec.rb) verifies source-backed pending outcome; browser evidence remains for T10/T14 |
@@ -99,7 +99,7 @@ The owner is responsible for the criterion's core behavior. Supporting tasks add
 | AC7: materially changed identity | T08 | T06, T13, T14 | Core T08 [importer specs](../../spec/concepts/intake/services/import_processor_spec.rb) verify new pending versions, supersession, original-source comparisons, preserved associations, and historical reversion; reviewer decision journey remains for T13/T14 |
 | AC8: one seller, conflicting item IDs | T13 | T01, T03, T05, T07, T14 | Supporting T07 [importer specs](../../spec/concepts/intake/services/import_processor_spec.rb) retain same-seller conflict evidence without changing the association; T13 decision journey pending |
 | AC9: atomic create and SQL-like text | T07 | T03, T05, T14 | Core T07 [importer specs](../../spec/concepts/intake/services/import_processor_spec.rb) verify creation, rollback after Catalog/Intake failures, and SQL-like strings as data; full supplied-file journey remains for T08/T14 |
-| AC10: invalid/incomplete rows do not stop later rows | T07 | T04, T06, T09, T14 | Core T07 [importer specs](../../spec/concepts/intake/services/import_processor_spec.rb) preserve invalid middle elements and continue later rows; browser result view remains for T09/T14 |
+| AC10: invalid/incomplete rows do not stop later rows | T07 | T04, T06, T09, T14 | Core T07 [importer specs](../../spec/concepts/intake/services/import_processor_spec.rb) preserve invalid middle elements and continue later rows; T09 [request specs](../../spec/concepts/intake/controllers/imports_controller_spec.rb) display the failed row with other outcomes and exact totals; final browser journey remains for T14 |
 | AC11: review decisions survive reruns | T13 | T08, T11, T12, T14 | Supporting T08 [importer specs](../../spec/concepts/intake/services/import_processor_spec.rb) verify replay of persisted decision fixtures, including declined/displaced keys; real reviewer-command journey remains for T11–T14 |
 | AC12: material variants never auto-link | T05 | T04, T07, T14 | Core T05 [matcher specs](../../spec/concepts/intake/services/product_matcher_spec.rb) keep capacity/color variants in review; T07 journey pending |
 
