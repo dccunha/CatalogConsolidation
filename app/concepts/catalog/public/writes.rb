@@ -60,6 +60,20 @@ module Catalog
       end
 
       sig do
+        params(association_id: Integer, expected_product_id: Integer,
+          expected_seller_product_id: String).returns(Catalog::Models::SellerProduct)
+      end
+      def self.retire_listing(association_id:, expected_product_id:, expected_seller_product_id:)
+        write do
+          association = Catalog::Models::SellerProduct.lock.find(association_id)
+          check_expected_state(association, product_id: expected_product_id,
+            seller_product_id: expected_seller_product_id)
+          association.delete
+          association
+        end
+      end
+
+      sig do
         params(association_id: Integer, expected_product_id: Integer, expected_seller_product_id: String,
           name: String, brand: T.nilable(String), category: T.nilable(String))
           .returns(Catalog::Models::SellerProduct)

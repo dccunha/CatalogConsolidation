@@ -22,10 +22,16 @@ module GeneratedUrlHelpersModule
   def correct_review_case_url(*args); end
 
   sig { params(args: T.untyped).returns(String) }
+  def create_for_reassignment_review_case_url(*args); end
+
+  sig { params(args: T.untyped).returns(String) }
   def create_product_review_case_url(*args); end
 
   sig { params(args: T.untyped).returns(String) }
   def import_url(*args); end
+
+  sig { params(args: T.untyped).returns(String) }
+  def keep_existing_review_case_url(*args); end
 
   sig { params(args: T.untyped).returns(String) }
   def new_import_url(*args); end
@@ -118,7 +124,13 @@ module GeneratedUrlHelpersModule
   def rails_storage_redirect_url(*args); end
 
   sig { params(args: T.untyped).returns(String) }
+  def reassign_candidate_review_case_url(*args); end
+
+  sig { params(args: T.untyped).returns(String) }
   def reject_review_case_url(*args); end
+
+  sig { params(args: T.untyped).returns(String) }
+  def replace_existing_review_case_url(*args); end
 
   sig { params(args: T.untyped).returns(String) }
   def review_case_url(*args); end

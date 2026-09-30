@@ -463,4 +463,49 @@ RSpec.describe Catalog::Public::Writes, type: :model do
       expect(Catalog::Models::SellerProduct.pluck(:seller_product_id)).to eq([ "good" ])
     end
   end
+
+  describe ".retire_listing" do
+    it "deletes only the expected association and preserves its product" do
+      association = FactoryBot.create(:catalog_seller_product, seller_name: "Shop", seller_product_id: "incoming")
+      other = FactoryBot.create(:catalog_seller_product, seller_name: "Shop", seller_product_id: "existing")
+
+      result = described_class.retire_listing(association_id: association.id,
+        expected_product_id: association.product_id, expected_seller_product_id: "incoming")
+
+      expect(result.id).to eq(association.id)
+      expect(Catalog::Models::SellerProduct.exists?(association.id)).to be(false)
+      expect(Catalog::Models::SellerProduct.exists?(other.id)).to be(true)
+      expect(Catalog::Models::Product.exists?(association.product_id)).to be(true)
+    end
+
+    it "rejects stale product and item IDs without deleting the association" do
+      association = FactoryBot.create(:catalog_seller_product, seller_name: "Shop", seller_product_id: "incoming")
+
+      expect do
+        described_class.retire_listing(association_id: association.id,
+          expected_product_id: association.product_id + 1, expected_seller_product_id: "incoming")
+      end.to raise_error(described_class::ConflictError) { |error|
+        expect(error.kind).to eq(:stale_association)
+      }
+      expect do
+        described_class.retire_listing(association_id: association.id,
+          expected_product_id: association.product_id, expected_seller_product_id: "old-id")
+      end.to raise_error(described_class::ConflictError) { |error|
+        expect(error.kind).to eq(:stale_association)
+      }
+      expect(association.reload.seller_product_id).to eq("incoming")
+    end
+
+    it "restores the association when the enclosing Intake transaction rolls back" do
+      association = FactoryBot.create(:catalog_seller_product, seller_name: "Shop", seller_product_id: "incoming")
+
+      Catalog::Models::Product.transaction do
+        described_class.retire_listing(association_id: association.id,
+          expected_product_id: association.product_id, expected_seller_product_id: "incoming")
+        raise ActiveRecord::Rollback
+      end
+
+      expect(association.reload.product_id).to be_present
+    end
+  end
 end

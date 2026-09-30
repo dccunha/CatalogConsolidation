@@ -23,7 +23,7 @@
   <% end %>
   <%= render "conflict", conflict: @review_case.conflicting_association %>
   <% if @review_case.status == "pending" && @review_case.seller_item.product_id %>
-    <p class="conflict-note">This seller ID already has an association. Reassignment will be available in a later review step.</p>
+    <p class="conflict-note">This seller ID is currently associated with product #<%= @review_case.seller_item.product_id %>. It stays linked there until a final reassignment or conflict decision commits.</p>
   <% end %>
   <% if @review_case.review_decision %>
     <% decision = @review_case.review_decision %>
@@ -97,8 +97,27 @@
                 <%= form.hidden_field :evidence_revision, value: @review_case.evidence_revision %>
                 <%= form.submit "Approve product ##{candidate.product_id}", class: "button" %>
               <% end %>
+            <% elsif candidate.conflicting_association.present? && candidate.conflicting_association["seller_product_id"] != @review_case.seller_item.seller_product_id %>
+              <% existing_id = candidate.conflicting_association["seller_product_id"] %>
+              <p>One seller offers product #<%= candidate.product_id %> under IDs <strong><%= existing_id %></strong> and <strong><%= @review_case.seller_item.seller_product_id %></strong>. Choose the surviving ID.</p>
+              <%= form_with url: keep_existing_review_case_path(@review_case), method: :post do |form| %>
+                <%= form.hidden_field :candidate_id, value: candidate.id %>
+                <%= form.hidden_field :evidence_revision, value: @review_case.evidence_revision %>
+                <%= form.submit "Keep existing ID #{existing_id}; decline incoming ID #{@review_case.seller_item.seller_product_id}", class: "button button--secondary" %>
+              <% end %>
+              <%= form_with url: replace_existing_review_case_path(@review_case), method: :post do |form| %>
+                <%= form.hidden_field :candidate_id, value: candidate.id %>
+                <%= form.hidden_field :evidence_revision, value: @review_case.evidence_revision %>
+                <%= form.submit "Replace ID #{existing_id} with incoming ID #{@review_case.seller_item.seller_product_id}", class: "button" %>
+              <% end %>
+            <% elsif @review_case.conflicting_association.present? && @review_case.conflicting_association["seller_product_id"] == @review_case.seller_item.seller_product_id %>
+              <%= form_with url: reassign_candidate_review_case_path(@review_case), method: :post do |form| %>
+                <%= form.hidden_field :candidate_id, value: candidate.id %>
+                <%= form.hidden_field :evidence_revision, value: @review_case.evidence_revision %>
+                <%= form.submit "Reassign seller ID #{@review_case.seller_item.seller_product_id} to product ##{candidate.product_id}", class: "button" %>
+              <% end %>
             <% else %>
-              <p class="muted">This candidate needs same-seller conflict resolution, available in a later review step.</p>
+              <p class="muted">Reload and review the current association before choosing this candidate.</p>
             <% end %>
             <%= form_with url: reject_review_case_path(@review_case), method: :post, class: "reject-form" do |form| %>
               <%= form.hidden_field :candidate_id, value: candidate.id %>
@@ -131,7 +150,17 @@
       <% when :incomplete %>
         <p>Complete Brand and Category using the correction form before creating a product.</p>
       <% when :association_conflict %>
-        <p>This seller item already has an association. Explicit reassignment is required before it can move to a new product.</p>
+        <% if @reassignment_creation_state == :ready %>
+          <p>All current candidates have been rejected. The existing association will move to a new product only after this explicit decision.</p>
+          <%= form_with url: create_for_reassignment_review_case_path(@review_case), method: :post do |form| %>
+            <%= form.hidden_field :evidence_revision, value: @review_case.evidence_revision %>
+            <%= form.submit "Create new product and reassign seller ID #{@review_case.seller_item.seller_product_id}", class: "button" %>
+          <% end %>
+        <% elsif @reassignment_creation_state == :incomplete %>
+          <p>Complete Brand and Category using the correction form before creating a replacement product.</p>
+        <% else %>
+          <p>Reject every remaining credible candidate before creating a replacement product.</p>
+        <% end %>
       <% else %>
         <p>Review or reject every remaining credible candidate before creating a product.</p>
       <% end %>
