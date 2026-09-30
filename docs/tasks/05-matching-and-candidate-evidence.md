@@ -25,8 +25,8 @@ Return an explainable matching recommendation and ranked evidence without writin
 ## Current checkpoint
 
 - Completed: round-one findings resolved in code candidate `aff3e41a26dbbfb7a0d22812646c5906d31d6f7b`; both independent reviewers approved. The matcher has 21 focused examples, and full Docker CI passed on the equivalent pre-commit code/test tree.
-- Remaining: merge verification. The task index owns status.
-- Next action: parent verifies [PR #15](https://github.com/dccunha/CatalogConsolidation/pull/15) at the final reviewed head and merges after all gates pass.
+- Remaining: none. The task index owns status.
+- Next action: T06 persists Intake history using this task's evidence contract.
 
 ## Problems
 
@@ -52,6 +52,7 @@ Return an explainable matching recommendation and ranked evidence without writin
 
 - **Round 1, candidate `4393129` (2026-09-30):** correctness review withdrew approval for T05-COR-01 (one exact match plus another credible candidate could auto-link). Test review requested T05-TEST-01 (mixed exact/conflict regression), T05-TEST-02 (prove Catalog reads leave records/attributes unchanged), and T05-TEST-03 (reference-backed iPad/router evidence). The test reviewer ran passing full Docker CI on this original commit with 103 examples. The review-fix implementation and three added examples addressed all findings.
 - **Round 2, candidate `aff3e41a26dbbfb7a0d22812646c5906d31d6f7b` (2026-09-30):** correctness reviewer approved, confirming T05-COR-01 resolved, no matching-policy regression, and read-only `git diff --check` passed. Test reviewer approved T05-TEST-01/02/03 after inspecting the mixed-candidate, full Catalog snapshot, and real reference evidence assertions. It did not rerun Docker on the commit; the implementer's final `bin/ci` evidence above is from the equivalent pre-commit code/test tree (106 examples, 99.56% lines, 95.19% branches). No open finding remains.
+- **Final head and merge (2026-09-30):** both reviewers approved documentation-only deltas through final PR head `2c60b0351a09c72572babbeca6c2bcb2590fba4d`. GitHub reported [PR #15](https://github.com/dccunha/CatalogConsolidation/pull/15) `MERGEABLE`/`CLEAN` at that head and base `5dcdab9`, with no reported status checks or remote reviews. GitHub confirmed it merged at `443f5e28a0b562deb337e99996e8f734a81835e6` on 2026-09-30T05:40:11Z; main pointed to that merge commit.
 
 ## Handoff
 
