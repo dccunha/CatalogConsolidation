@@ -1,0 +1,21 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  docker-ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Make Docker workspace writable
+        run: |
+          sudo chmod a+rwx .
+          sudo chmod -R a+rwX log tmp storage
+      - name: Run application checks
+        run: docker compose run --rm web bin/ci

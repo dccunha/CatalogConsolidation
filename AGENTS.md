@@ -10,6 +10,8 @@ For new domain code, follow `docs/adrs/0001-organize-by-concepts.md`: place Cata
 
 Use [the task index](docs/tasks/README.md) as the authoritative status record. Work on one numbered task at a time in sequence and one reviewed PR. Read its brief, linked requirements, and relevant dependency handoffs; do not load every task or earlier conversation by default. Verify the previous task's merge before starting the next. Mark `done` only after verifying a merge.
 
+Apply [the implementation quality gates](docs/tasks/quality-gates.md) to every task. Require focused behavior tests, passing Docker CI, coverage floors, and Sorbet checking for new concept Ruby code before review and merge. Record actual evidence in the task brief; a planned check is not a passing check.
+
 When the user explicitly invokes the [orchestrator workflow](docs/tasks/orchestrator.md), use fresh implementation sub-agents and two independent reviewers per task. The parent owns Git/PR operations and records, enforces one application writer and one shared test runner at a time, and automatically merges only after reviews and required checks pass. Report milestones and continue; pause for material decisions, blockers requiring user involvement, or final QA. Preparing these instructions does not start the loop. An assigned worker performs only its role and task. For individual task requests, retain the fresh-chat and human-review workflow unless the user authorizes otherwise.
 
 Keep the selected brief's checkpoint, problems, decisions, validation evidence, and handoff current, especially before pausing or requesting review. Record actual checks and remaining limitations. Add a linked follow-up task when new work exceeds the current task's boundaries. Keep durable architecture decisions in ADRs and approved behavior changes in the PRD/RFC.
@@ -24,6 +26,7 @@ Run commands in Docker; host Ruby and Node installations are unnecessary.
 - `docker compose run --rm web bin/rails db:migrate` applies migrations.
 - `docker compose run --rm web bundle exec rspec` runs Ruby specs.
 - `docker compose run --rm web npm run test:js` runs Vitest with coverage.
+- `docker compose run --rm web bundle exec srb tc` runs Sorbet static checking.
 - `docker compose run --rm web bin/ci` runs setup, linters, security audits, tests, database checks, and seed checks.
 
 ## Coding Style & Naming Conventions
@@ -32,7 +35,7 @@ Use two-space indentation in Ruby, ERB, and JavaScript, and let the configured t
 
 ## Testing Guidelines
 
-Write RSpec examples in `spec/**/*_spec.rb` and Vitest files in `spec/javascript/**/*.test.js`. Add focused coverage for behavior you change; use explicit RSpec types for concept paths where Rails cannot infer them. SimpleCov and Vitest report coverage, but neither enforces a percentage threshold. Run `bin/ci` before submitting a pull request.
+Write RSpec examples in `spec/**/*_spec.rb` and Vitest files in `spec/javascript/**/*.test.js`. Add focused coverage for behavior you change; use explicit RSpec types for concept paths where Rails cannot infer them. SimpleCov and Vitest enforce the floors in the quality gates. New `app/concepts/` Ruby files must be checked at `typed: true` or stronger. Run `bin/ci` before submitting a pull request.
 
 Follow [Better Specs](https://www.betterspecs.org/) for Ruby examples: describe methods with `#` or `.`, use `when`/`with`/`without` contexts, write clear behavioral descriptions, and use `expect` syntax. Put isolated examples that need one expectation each in `*_unit_spec.rb` files within the mirrored `spec/concepts/` paths. Database-backed and request examples may make multiple related assertions when repeating setup would obscure or slow the test. Use FactoryBot for database records when factories make setup clearer; use plain objects for isolated specs and file fixtures for input files. Keep factories minimal. RuboCop enforces the mechanical rules; review edge cases, mock use, data setup, and description clarity. There is no hard description-length limit.
 

@@ -48,7 +48,9 @@ Run the full local check suite with:
 docker compose run --rm web bin/ci
 ```
 
-It runs RuboCop, ERB Lint, ESLint, the existing security audits, RSpec, Vitest, DatabaseConsistency, and the seed check. Bullet reports query issues in development and raises in RSpec examples. Coverage is reported without percentage thresholds. Open `coverage/ruby/index.html` and `coverage/js/index.html` in your browser after a test run; these generated files are ignored by Git.
+It runs RuboCop, ERB Lint, ESLint, Sorbet and RBI freshness checks, the security audits, RSpec, Vitest, DatabaseConsistency, and the seed check. Bullet reports query issues in development and raises in RSpec examples. Ruby coverage must reach 90% lines and 80% branches; each JavaScript application behavior file must reach 80% lines/statements/functions and 70% branches. Open `coverage/ruby/index.html` and `coverage/js/index.html` after a test run; these generated files are ignored by Git. The [implementation quality gates](docs/tasks/quality-gates.md) also require meaningful scenario tests and typing review on every task.
+
+New Ruby code under `app/concepts/` uses `# typed: true` or stronger and useful Sorbet signatures. Run `docker compose run --rm web bundle exec srb tc` for a focused type check. When gems or Rails DSL interfaces change, regenerate RBI files with `docker compose run --rm web bin/tapioca gems` and `docker compose run --rm web bin/tapioca dsl`, inspect the changes, and commit them with the implementation.
 
 Mutation testing is a separate, targeted check. Once business logic and matching specs exist, run `docker compose run --rm web bin/mutate 'CatalogMatcher#match'`, replacing the subject with the class or method to analyze. The command uses Mutant's open-source mode and one worker. It is intentionally separate from `bin/ci` until there is code to mutate.
 

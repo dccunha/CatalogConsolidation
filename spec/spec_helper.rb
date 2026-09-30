@@ -6,6 +6,7 @@ SimpleCov.start "rails" do
   enable_coverage :branch
   coverage_dir "coverage/ruby"
   cover "{app,lib}/**/*.rb"
+  minimum_coverage line: 90, branch: 80
 end
 
 RSpec.configure do |config|

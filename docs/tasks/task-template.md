@@ -17,7 +17,7 @@ Describe one bounded, observable outcome and its exclusions. Identify affected P
 - [ ] Describe each observable completion condition, including failure behavior.
 - [ ] Identify interfaces affected and the contracts the handoff must record.
 - [ ] Add focused behavior tests; update the index's acceptance evidence where applicable.
-- [ ] Run required checks and record actual outcomes. Include screenshots for visible UI changes.
+- [ ] Apply [the implementation quality gates](quality-gates.md): focused tests, Sorbet on new concept code, coverage floors, and full Docker CI. Record actual outcomes and include screenshots for visible UI changes.
 
 ## Current checkpoint
 
@@ -35,7 +35,7 @@ None recorded. For each decision, use `TNN-D01`, date, choice, rationale, and af
 
 ## Validation evidence
 
-Not run. Record command or manual scenario, date, outcome, and relevant spec/log/screenshot links. Separate passed, failed, and not-run checks.
+Not run. Record command or manual scenario, date, revision, outcome, coverage summary, Sorbet/RBI changes, and relevant spec/log/screenshot links. Separate passed, failed, and not-run checks.
 
 ### Review rounds
 

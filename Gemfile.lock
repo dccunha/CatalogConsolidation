@@ -79,6 +79,7 @@ GEM
       public_suffix (>= 2.0.2, < 8.0)
     ast (2.4.3)
     base64 (0.3.0)
+    benchmark (0.5.0)
     better_html (2.2.0)
       actionview (>= 7.0)
       activesupport (>= 7.0)
@@ -203,6 +204,7 @@ GEM
       timeout
     net-smtp (0.5.1)
       net-protocol
+    netrc (0.11.0)
     nio4r (2.7.5)
     nokogiri (1.19.4-aarch64-linux-gnu)
       racc (~> 1.4)
@@ -283,6 +285,9 @@ GEM
       zeitwerk (~> 2.6)
     rainbow (3.1.1)
     rake (13.4.2)
+    rbi (0.4.3)
+      prism (~> 1.0)
+      rbs (>= 4.0.1)
     rbs (4.2.0)
       logger
       prism (>= 1.6.0)
@@ -295,6 +300,7 @@ GEM
     regexp_parser (2.13.1)
     reline (0.7.0)
       io-console (~> 0.5)
+    require-hooks (0.5.1)
     rexml (3.4.4)
     rspec-core (3.13.6)
       rspec-support (~> 3.13.0)
@@ -353,6 +359,11 @@ GEM
     ruby-vips (2.3.0)
       ffi (~> 1.12)
       logger
+    rubydex (0.4.1)
+    rubydex (0.4.1-aarch64-linux)
+    rubydex (0.4.1-arm64-darwin)
+    rubydex (0.4.1-x86_64-darwin)
+    rubydex (0.4.1-x86_64-linux)
     rubyzip (3.7.0)
     securerandom (0.4.1)
     selenium-webdriver (4.49.0)
@@ -363,9 +374,37 @@ GEM
       websocket (~> 1.0)
     simplecov (1.3.1)
     smart_properties (1.17.0)
+    sorbet (0.6.13509)
+      sorbet-static (= 0.6.13509)
     sorbet-runtime (0.6.13509)
+    sorbet-static (0.6.13509-aarch64-linux)
+    sorbet-static (0.6.13509-universal-darwin)
+    sorbet-static (0.6.13509-x86_64-linux)
+    sorbet-static-and-runtime (0.6.13509)
+      sorbet (= 0.6.13509)
+      sorbet-runtime (= 0.6.13509)
+    spoom (1.8.10)
+      erubi (>= 1.10.0)
+      prism (>= 0.28.0)
+      rbi (>= 0.4.2)
+      rbs (>= 4.0.0.dev.5)
+      rexml (>= 3.2.6)
+      sorbet-static-and-runtime (>= 0.5.10187)
+      thor (>= 0.19.2)
     stimulus-rails (1.3.4)
       railties (>= 6.0.0)
+    tapioca (0.20.0)
+      benchmark
+      bundler (>= 2.2.25)
+      netrc (>= 0.11.0)
+      parallel (>= 1.21.0)
+      rbi (>= 0.4.1)
+      require-hooks (>= 0.2.2)
+      rubydex (>= 0.1.0.beta10)
+      sorbet-static-and-runtime (>= 0.6.12698)
+      spoom (>= 1.7.16)
+      thor (>= 1.2.0)
+      tsort
     thor (1.5.0)
     timeout (0.6.1)
     tsort (0.2.0)
@@ -432,7 +471,10 @@ DEPENDENCIES
   rubocop-rspec_rails
   selenium-webdriver
   simplecov
+  sorbet
+  sorbet-runtime
   stimulus-rails
+  tapioca
   turbo-rails
   tzinfo-data
   web-console

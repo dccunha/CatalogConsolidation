@@ -9,6 +9,7 @@ Make the accepted concept layout work in Rails and persist Catalog products and 
 ## Required context
 
 - [ADR 0001](../adrs/0001-organize-by-concepts.md), especially namespaces, public ownership, and Rails integration.
+- [Implementation quality gates](quality-gates.md), including Sorbet and coverage requirements.
 - [PRD data definitions](../prds/catalog-consolidation-importer.md#4-data-and-business-definitions) and [persistence requirements](../prds/catalog-consolidation-importer.md#7-postgresql-persistence-requirements).
 - [RFC persistence contract](../rfcs/0001-import-review-lifecycle.md#persistence-and-ownership-contract).
 - Existing [application configuration](../../config/application.rb), [schema](../../db/schema.rb), and [RSpec setup](../../spec/rails_helper.rb).
@@ -28,7 +29,7 @@ Make the accepted concept layout work in Rails and persist Catalog products and 
 
 - Completed: task brief only.
 - Remaining: implementation and verification.
-- Next action: inspect Rails loading and persistence conventions; T00A's merge gate is satisfied.
+- Next action: inspect Rails loading and persistence conventions after T00Q merges; T00A's merge gate is satisfied.
 
 ## Problems
 

@@ -16,6 +16,7 @@ gem "turbo-rails"
 gem "stimulus-rails"
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
 gem "jbuilder"
+gem "sorbet-runtime"
 # Use Redis adapter to run Action Cable in production
 # gem "redis", ">= 4.0.1"
 
@@ -53,6 +54,8 @@ group :development, :test do
   gem "rspec-rails", "~> 8.0", require: false
   gem "rubocop-rspec", require: false
   gem "rubocop-rspec_rails", require: false
+  gem "sorbet", require: false
+  gem "tapioca", require: false
 end
 
 group :development do

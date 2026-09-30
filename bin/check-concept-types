@@ -1,0 +1,14 @@
+#!/usr/bin/env ruby
+
+paths = Dir.glob("app/concepts/**/*.rb")
+missing = paths.reject do |path|
+  File.foreach(path).first(5).any? { |line| line.match?(/^# typed: (true|strict|strong)$/) }
+end
+
+if missing.any?
+  warn "Concept Ruby files must begin with a Sorbet typed: true (or stronger) sigil:"
+  missing.each { |path| warn "  #{path}" }
+  exit 1
+end
+
+puts "Checked #{paths.length} concept Ruby files for Sorbet sigils"

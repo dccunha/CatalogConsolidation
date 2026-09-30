@@ -2,17 +2,18 @@
 
 This is the authoritative status index for the catalog consolidation implementation. The [PRD](../prds/catalog-consolidation-importer.md) defines the product, [RFC 0001](../rfcs/0001-import-review-lifecycle.md) defines its lifecycle, and [ADR 0001](../adrs/0001-organize-by-concepts.md) defines code ownership. Task briefs turn those requirements into bounded changes; they do not replace them.
 
-The Rails, PostgreSQL, Docker, and quality-tooling foundation is already present. Domain implementation has not started. A planned task or unchecked acceptance criterion is not evidence of working software.
+The Rails, PostgreSQL, and Docker foundation is present. T00A established Better Specs conventions; T00Q adds enforceable typing and coverage gates before domain implementation. Domain implementation has not started. A planned task or unchecked acceptance criterion is not evidence of working software.
 
 ## Task index
 
-Implement in index order, initially T00–T15, one task and one PR at a time. The “After merge” column is a sequencing gate, not a requirement to read every preceding task. Relevant technical context is linked in each brief. Status lives only in this table; briefs hold checkpoints and evidence. Insert any later follow-up tasks where their dependencies require, preserving existing task IDs.
+Implement in index order, initially T00–T15 plus the T00A and T00Q quality preflights, one task and one PR at a time. The “After merge” column is a sequencing gate, not a requirement to read every preceding task. Relevant technical context is linked in each brief. Status lives only in this table; briefs hold checkpoints and evidence. Insert any later follow-up tasks where their dependencies require, preserving existing task IDs.
 
 | ID | Task | Status | After merge | PR | Current blocker |
 | --- | --- | --- | --- | --- | --- |
 | T00 | [Establish task records and workflow](00-task-workflow.md) | done | Foundation | [#6](https://github.com/dccunha/CatalogConsolidation/pull/6) | None |
 | T00A | [Enforce Better Specs conventions](00a-better-specs-conventions.md) | done | T00 | [#9](https://github.com/dccunha/CatalogConsolidation/pull/9) | None |
-| T01 | [Integrate concepts and Catalog persistence](01-concepts-and-catalog-persistence.md) | ready | T00A | Not opened | None |
+| T00Q | [Enforce implementation quality gates](00q-quality-gates.md) | in review | T00A | [#8](https://github.com/dccunha/CatalogConsolidation/pull/8) | None |
+| T01 | [Integrate concepts and Catalog persistence](01-concepts-and-catalog-persistence.md) | backlog | T00Q | Not opened | — |
 | T02 | [Load the reference catalog](02-reference-catalog-loading.md) | backlog | T01 | Not opened | — |
 | T03 | [Implement Catalog public writes](03-catalog-public-writes.md) | backlog | T02 | Not opened | — |
 | T04 | [Validate and normalize seller rows](04-row-validation-and-normalization.md) | backlog | T03 | Not opened | — |
@@ -35,12 +36,12 @@ Milestones: T08 verifies importer/rerun services; T10 makes upload, results, and
 The user can invoke the [orchestrator instructions and starter prompt](orchestrator.md#starter-prompt) to run the remaining tasks with fresh implementers, two independent reviewers per task, automatic merges after passing gates, and a pause for final QA. Merely reading or editing those instructions does not start the run. Individual task requests can still use the manual workflow below.
 
 - Run state: `not_started`.
-- Current task/stage: none / idle; T01 is next and ready after T00A merged.
-- Working directory, branch, candidate revision, and PR: assigned and verified at launch.
+- Current task/stage: T00Q / awaiting human PR review. The orchestrator is idle.
+- Working directory, branch, candidate revision, and PR: `/home/daniel/.codex/worktrees/010d/VTEX`, `codex/quality-gates`, merge commit `725594e` with hosted CI passing, [#8](https://github.com/dccunha/CatalogConsolidation/pull/8).
 - Active agent assignments and test-runner owner: none.
 - Unresolved orchestration findings or decisions: none.
 - Last completed orchestration milestone: none.
-- Next action: invoke the starter prompt when ready to execute.
+- Next action: complete human review and merge T00Q; then T01 becomes ready.
 
 During a run, update this checkpoint at stage transitions and before interruption. Keep task statuses in the table above and detailed findings/evidence in the owning briefs. See [records and recovery](orchestrator.md#records-and-recovery) for resume rules.
 
@@ -49,7 +50,7 @@ During a run, update this checkpoint at stage transitions and before interruptio
 1. Read the root `AGENTS.md`, this index, the selected brief, and its required-context links. Read dependency handoffs before following their implementation links. Expand into other files only as needed.
 2. Verify the predecessor's PR merged and its handoff matches the integrated code. Record the actual PR/merge evidence; then mark the selected task `ready` and, when work begins, `in progress`. Use a `codex/` branch based on the integrated work and a fresh chat for a manual task, or a fresh implementer sub-agent in an explicitly invoked orchestration run.
 3. Keep the task's current checkpoint accurate. Update it when pausing, encountering a blocker, or preparing a PR. If a task outgrows its bounded outcome, add a linked follow-up brief using [the template](task-template.md) and update sequencing before expanding the work.
-4. Run focused tests while implementing and `docker compose run --rm web bin/ci` before submitting a PR. Record commands and actual outcomes, including failures or checks not run. Include screenshots for visible UI changes.
+4. Apply [the implementation quality gates](quality-gates.md). Run focused tests while implementing and `docker compose run --rm web bin/ci` before submitting a PR. Record commands, coverage/typing evidence, and actual outcomes, including failures or checks not run. Include screenshots for visible UI changes.
 5. Prepare the handoff and mark `in review` when the change is ready for review. Manual tasks await human review. Orchestrated tasks require independent correctness and test reviews, with fixes and re-review before automatic merging. Add the PR link when it exists. This state can include local work awaiting PR creation; it never means merged.
 6. After verifying the PR merged, record `done` and the merge reference in a small follow-up tracking commit. Unblock the next task. Review or merge failure leaves the task unfinished. During an orchestration run, continue automatically and update the run checkpoint; preserve the merge requirements in [the orchestrator workflow](orchestrator.md#validate-and-merge).
 
