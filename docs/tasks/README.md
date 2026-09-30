@@ -19,7 +19,7 @@ Implement in index order, initially T00–T15 plus the T00A and T00Q quality pre
 | T03 | [Implement Catalog public writes](03-catalog-public-writes.md) | done | T02 | [#13](https://github.com/dccunha/CatalogConsolidation/pull/13) · merge `8d1fe10` | None |
 | T04 | [Validate and normalize seller rows](04-row-validation-and-normalization.md) | done | T03 | [#14](https://github.com/dccunha/CatalogConsolidation/pull/14) · merge `ad00870` | None |
 | T05 | [Implement matching and evidence](05-matching-and-candidate-evidence.md) | done | T04 | [#15](https://github.com/dccunha/CatalogConsolidation/pull/15) · merge `443f5e2` | None |
-| T06 | [Persist Intake history and state](06-intake-persistence.md) | ready | T05 | Not opened | None |
+| T06 | [Persist Intake history and state](06-intake-persistence.md) | in review | T05 | [#16](https://github.com/dccunha/CatalogConsolidation/pull/16) | None |
 | T07 | [Process imports with failure isolation](07-import-processing.md) | backlog | T06 | Not opened | — |
 | T08 | [Preserve decisions across reruns](08-reruns-and-source-identity.md) | backlog | T07 | Not opened | — |
 | T09 | [Add web upload and batch results](09-web-upload-and-results.md) | backlog | T08 | Not opened | — |
@@ -37,12 +37,12 @@ Milestones: T08 verifies importer/rerun services; T10 makes upload, results, and
 The user can invoke the [orchestrator instructions and starter prompt](orchestrator.md#starter-prompt) to run the remaining tasks with fresh implementers, two independent reviewers per task, automatic merges after passing gates, and a pause for final QA. Merely reading or editing those instructions does not start the run. Individual task requests can still use the manual workflow below.
 
 - Run state: `running`.
-- Current task/stage: T05 merged; preparing T06.
-- Working directory, branch, candidate revision, and PR: `/home/daniel/.codex/worktrees/137d/VTEX`, post-merge record branch `codex/t05-merge-record` based on verified T05 merge `443f5e2`; T06 branch/candidate/PR not assigned yet.
-- Active agent assignments and test-runner owner: T05 agents finished; no active writer or test runner.
-- Unresolved orchestration findings or decisions: none. T05 `T05-COR-01/T05-TEST-01/02/03` resolved; both reviewers approved final PR head `2c60b03`.
+- Current task/stage: T06 / PR #16 final verification.
+- Working directory, branch, candidate revision, and PR: `/home/daniel/.codex/worktrees/137d/VTEX`, `codex/t06-intake-persistence`, base `de07dd7`, code approved at `623c2f4` with documentation-only follow-up commits, [PR #16](https://github.com/dccunha/CatalogConsolidation/pull/16) open. T05 PR #15 merged at `443f5e2`; post-merge record `de07dd7` was pushed to main.
+- Active agent assignments and test-runner owner: T06 implementer finished; both independent reviewers approved `623c2f4`, and test reviewer completed the shared Docker gate.
+- Unresolved orchestration findings or decisions: none. `T06-COR-01`, `T06-TEST-01`, and `T06-TEST-02` resolved and approved in round 2.
 - Last completed orchestration milestone: none.
-- Next action: publish this post-merge record, verify T06's dependency handoff, and start T06 on a branch from integrated main.
+- Next action: verify PR #16 final reviewed head and mergeability, then merge and record completion.
 
 During a run, update this checkpoint at stage transitions and before interruption. Keep task statuses in the table above and detailed findings/evidence in the owning briefs. See [records and recovery](orchestrator.md#records-and-recovery) for resume rules.
 
@@ -89,16 +89,16 @@ The owner is responsible for the criterion's core behavior. Supporting tasks add
 
 | PRD criterion | Core owner | Supporting tasks | Implemented test evidence |
 | --- | --- | --- | --- |
-| AC1: every input row recorded | T07 | T06, T09, T14 | Pending implementation |
+| AC1: every input row recorded | T07 | T06, T09, T14 | Supporting T06 [persistence specs](../../spec/concepts/intake/models/persistence_spec.rb) verify position-addressable results and invalid-key auditability; T07 importer journey pending |
 | AC2: Galaxy S23 links to product 2 | T07 | T02, T03, T05, T14 | Supporting T05 [matcher specs](../../spec/concepts/intake/services/product_matcher_spec.rb) recommend product 2 from reference; T07 import link pending |
 | AC3: iPad punctuation difference requires review | T05 | T04, T07, T10, T14 | Core T05 [matcher specs](../../spec/concepts/intake/services/product_matcher_spec.rb) recommend review with reference iPad evidence; T07/T10 journeys pending |
 | AC4: category conflict requires review | T05 | T07, T10, T14 | Core T05 [matcher specs](../../spec/concepts/intake/services/product_matcher_spec.rb) retain Canon category difference for review; T07/T10 journeys pending |
 | AC5: missing brand requires review | T07 | T04, T05, T10, T11, T14 | Supporting T04 [validator specs](../../spec/concepts/intake/services/row_validator_unit_spec.rb) flag absent brand; T07 journey pending |
 | AC6: equivalent duplicates and reruns | T08 | T04, T14 | Supporting T04 [normalizer specs](../../spec/concepts/intake/services/comparison_normalizer_unit_spec.rb) verify equivalent comparison identity; T08 rerun journey pending |
-| AC7: materially changed identity | T08 | T06, T13, T14 | Pending implementation |
+| AC7: materially changed identity | T08 | T06, T13, T14 | Supporting T06 [persistence specs](../../spec/concepts/intake/models/persistence_spec.rb) verify source/correction separation and case supersession constraints; T08 rerun journey pending |
 | AC8: one seller, conflicting item IDs | T13 | T01, T03, T05, T07, T14 | Supporting T03 [write specs](../../spec/concepts/catalog/public/writes_spec.rb) verify conflicts and explicit displacement; T13 journey pending |
 | AC9: atomic create and SQL-like text | T07 | T03, T05, T14 | Supporting T03 [write specs](../../spec/concepts/catalog/public/writes_spec.rb) verify atomic Catalog writes and exact SQL-like strings; T07 journey pending |
-| AC10: invalid/incomplete rows do not stop later rows | T07 | T04, T06, T09, T14 | Supporting T04 [validator specs](../../spec/concepts/intake/services/row_validator_unit_spec.rb) return invalid results per element; T07 file journey pending |
+| AC10: invalid/incomplete rows do not stop later rows | T07 | T04, T06, T09, T14 | Supporting T04 [validator specs](../../spec/concepts/intake/services/row_validator_unit_spec.rb) return invalid results per element; T06 [persistence specs](../../spec/concepts/intake/models/persistence_spec.rb) retain invalid-key/null outcomes; T07 file journey pending |
 | AC11: review decisions survive reruns | T13 | T08, T11, T12, T14 | Pending implementation |
 | AC12: material variants never auto-link | T05 | T04, T07, T14 | Core T05 [matcher specs](../../spec/concepts/intake/services/product_matcher_spec.rb) keep capacity/color variants in review; T07 journey pending |
 
