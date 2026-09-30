@@ -24,9 +24,9 @@ Return an explainable matching recommendation and ranked evidence without writin
 
 ## Current checkpoint
 
-- Completed: round-one review fixes for candidate ambiguity, Catalog read-only proof, and reference-backed iPad/router evidence; 21 matcher examples and full Docker CI passed on the review-fix working tree.
-- Remaining: independent reassessment and parent-owned PR/merge workflow. The task index owns status.
-- Next action: hand the revised candidate to the correctness and test reviewers.
+- Completed: round-one findings resolved in code candidate `aff3e41a26dbbfb7a0d22812646c5906d31d6f7b`; both independent reviewers approved. The matcher has 21 focused examples, and full Docker CI passed on the equivalent pre-commit code/test tree.
+- Remaining: parent-owned PR and merge workflow. The task index owns status.
+- Next action: parent opens the reviewed PR and verifies its final head and merge gates.
 
 ## Problems
 
@@ -50,7 +50,8 @@ Return an explainable matching recommendation and ranked evidence without writin
 
 ### Review rounds
 
-- **Round 1, candidate `4393129` (2026-09-30):** correctness review withdrew approval for T05-COR-01 (one exact match plus another credible candidate could auto-link). Test review requested T05-TEST-01 (mixed exact/conflict regression), T05-TEST-02 (prove Catalog reads leave records/attributes unchanged), and T05-TEST-03 (reference-backed iPad/router evidence). The review-fix implementation and three added examples address these findings; independent reassessment remains.
+- **Round 1, candidate `4393129` (2026-09-30):** correctness review withdrew approval for T05-COR-01 (one exact match plus another credible candidate could auto-link). Test review requested T05-TEST-01 (mixed exact/conflict regression), T05-TEST-02 (prove Catalog reads leave records/attributes unchanged), and T05-TEST-03 (reference-backed iPad/router evidence). The test reviewer ran passing full Docker CI on this original commit with 103 examples. The review-fix implementation and three added examples addressed all findings.
+- **Round 2, candidate `aff3e41a26dbbfb7a0d22812646c5906d31d6f7b` (2026-09-30):** correctness reviewer approved, confirming T05-COR-01 resolved, no matching-policy regression, and read-only `git diff --check` passed. Test reviewer approved T05-TEST-01/02/03 after inspecting the mixed-candidate, full Catalog snapshot, and real reference evidence assertions. It did not rerun Docker on the commit; the implementer's final `bin/ci` evidence above is from the equivalent pre-commit code/test tree (106 examples, 99.56% lines, 95.19% branches). No open finding remains.
 
 ## Handoff
 

@@ -37,12 +37,12 @@ Milestones: T08 verifies importer/rerun services; T10 makes upload, results, and
 The user can invoke the [orchestrator instructions and starter prompt](orchestrator.md#starter-prompt) to run the remaining tasks with fresh implementers, two independent reviewers per task, automatic merges after passing gates, and a pause for final QA. Merely reading or editing those instructions does not start the run. Individual task requests can still use the manual workflow below.
 
 - Run state: `running`.
-- Current task/stage: T05 / reviewer reassessment.
-- Working directory, branch, candidate revision, and PR: `/home/daniel/.codex/worktrees/137d/VTEX`, `codex/t05-matching-evidence`, base `5dcdab9`, initial candidate `4393129`, no PR yet. T04 PR #14 merged at `ad00870`; post-merge record `5dcdab9` was pushed to main.
-- Active agent assignments and test-runner owner: T05 implementer finished review fixes; both reviewers reassess the revised candidate, with test reviewer owning shared checks.
-- Unresolved orchestration findings or decisions: `T05-COR-01/T05-TEST-01/02/03` fixed in code/specs, pending both reviewers' reassessment; no user decision.
+- Current task/stage: T05 / PR preparation after both reviewer approvals.
+- Working directory, branch, candidate revision, and PR: `/home/daniel/.codex/worktrees/137d/VTEX`, `codex/t05-matching-evidence`, base `5dcdab9`, reviewed code candidate `aff3e41a26dbbfb7a0d22812646c5906d31d6f7b`, no PR yet. T04 PR #14 merged at `ad00870`; post-merge record `5dcdab9` was pushed to main.
+- Active agent assignments and test-runner owner: T05 implementer and both reviewers finished; no active writer or test runner.
+- Unresolved orchestration findings or decisions: `T05-COR-01/T05-TEST-01/02/03` resolved; both reviewers approved `aff3e41`; no user decision.
 - Last completed orchestration milestone: none.
-- Next action: obtain both reviewer verdicts on the revised candidate, then prepare the task PR and verify merge gates.
+- Next action: open T05 PR, verify final head and GitHub mergeability, then merge if all gates remain satisfied.
 
 During a run, update this checkpoint at stage transitions and before interruption. Keep task statuses in the table above and detailed findings/evidence in the owning briefs. See [records and recovery](orchestrator.md#records-and-recovery) for resume rules.
 
@@ -90,9 +90,9 @@ The owner is responsible for the criterion's core behavior. Supporting tasks add
 | PRD criterion | Core owner | Supporting tasks | Implemented test evidence |
 | --- | --- | --- | --- |
 | AC1: every input row recorded | T07 | T06, T09, T14 | Pending implementation |
-| AC2: Galaxy S23 links to product 2 | T07 | T02, T03, T05, T14 | Pending implementation |
-| AC3: iPad punctuation difference requires review | T05 | T04, T07, T10, T14 | Pending implementation |
-| AC4: category conflict requires review | T05 | T07, T10, T14 | Pending implementation |
+| AC2: Galaxy S23 links to product 2 | T07 | T02, T03, T05, T14 | Supporting T05 [matcher specs](../../spec/concepts/intake/services/product_matcher_spec.rb) recommend product 2 from reference; T07 import link pending |
+| AC3: iPad punctuation difference requires review | T05 | T04, T07, T10, T14 | Core T05 [matcher specs](../../spec/concepts/intake/services/product_matcher_spec.rb) recommend review with reference iPad evidence; T07/T10 journeys pending |
+| AC4: category conflict requires review | T05 | T07, T10, T14 | Core T05 [matcher specs](../../spec/concepts/intake/services/product_matcher_spec.rb) retain Canon category difference for review; T07/T10 journeys pending |
 | AC5: missing brand requires review | T07 | T04, T05, T10, T11, T14 | Supporting T04 [validator specs](../../spec/concepts/intake/services/row_validator_unit_spec.rb) flag absent brand; T07 journey pending |
 | AC6: equivalent duplicates and reruns | T08 | T04, T14 | Supporting T04 [normalizer specs](../../spec/concepts/intake/services/comparison_normalizer_unit_spec.rb) verify equivalent comparison identity; T08 rerun journey pending |
 | AC7: materially changed identity | T08 | T06, T13, T14 | Pending implementation |
@@ -100,6 +100,6 @@ The owner is responsible for the criterion's core behavior. Supporting tasks add
 | AC9: atomic create and SQL-like text | T07 | T03, T05, T14 | Supporting T03 [write specs](../../spec/concepts/catalog/public/writes_spec.rb) verify atomic Catalog writes and exact SQL-like strings; T07 journey pending |
 | AC10: invalid/incomplete rows do not stop later rows | T07 | T04, T06, T09, T14 | Supporting T04 [validator specs](../../spec/concepts/intake/services/row_validator_unit_spec.rb) return invalid results per element; T07 file journey pending |
 | AC11: review decisions survive reruns | T13 | T08, T11, T12, T14 | Pending implementation |
-| AC12: material variants never auto-link | T05 | T04, T07, T14 | Supporting T04 [normalizer specs](../../spec/concepts/intake/services/comparison_normalizer_unit_spec.rb) preserve variant differences; T05 match rule pending |
+| AC12: material variants never auto-link | T05 | T04, T07, T14 | Core T05 [matcher specs](../../spec/concepts/intake/services/product_matcher_spec.rb) keep capacity/color variants in review; T07 journey pending |
 
 T14 also checks the RFC sequences: pending-case reuse, corrected-input reruns, supersession, newly appearing candidates after rejection, and displaced/declined IDs. T15 links final evidence and documents limitations; it does not replace missing tests with a demo.
