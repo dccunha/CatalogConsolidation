@@ -26,16 +26,25 @@ module Intake
       end
 
       def reject
+        unless params[:reason].is_a?(String)
+          return invalid_action("Enter a text reason for rejecting this candidate.")
+        end
+
         review_result = Services::ReviewActions.reject(review_case_id: params[:id].to_i,
           candidate_id: params[:candidate_id].to_i, evidence_revision: params[:evidence_revision].to_i,
-          reason: params[:reason].to_s)
+          reason: params[:reason])
         finish_action(review_result)
       end
 
       def correct
+        name, brand, category = params.values_at(:name, :brand, :category)
+        unless name.is_a?(String) && (brand.nil? || brand.is_a?(String)) &&
+            (category.nil? || category.is_a?(String))
+          return invalid_action("Enter a name and text values for Brand and Category.")
+        end
+
         review_result = Services::ReviewActions.correct(review_case_id: params[:id].to_i,
-          evidence_revision: params[:evidence_revision].to_i, name: params[:name].to_s,
-          brand: params[:brand], category: params[:category])
+          evidence_revision: params[:evidence_revision].to_i, name: name, brand: brand, category: category)
         finish_action(review_result)
       end
 
@@ -53,6 +62,10 @@ module Intake
       def finish_action(review_result)
         flash[review_result.success? ? :notice : :alert] = review_result.message
         redirect_to review_case_path(params[:id]), status: :see_other
+      end
+
+      def invalid_action(message)
+        finish_action(Services::ReviewActions::Result.new(status: :invalid, message: message))
       end
 
       def load_history

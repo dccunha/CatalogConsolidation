@@ -26,6 +26,18 @@ RSpec.describe Intake::Services::ReviewActions, type: :model do
   end
 
   describe ".approve" do
+    it "approves a stable non-exact candidate without endlessly refreshing its rounded score" do
+      import(source.merge("Name" => "Canon Cameras"))
+      selected = candidate
+      expect(selected.score).to be_between(0.8, 1.0).exclusive
+
+      result = approve(selected)
+
+      expect(result.status).to eq(:approved)
+      expect(review_case.reload.evidence_revision).to eq(1)
+      expect(review_case.review_decision.product_id).to eq(product.id)
+    end
+
     it "links only the selected product, saves the reviewer decision, and replays an unchanged rerun" do
       import
       original_attributes = product.attributes
@@ -113,6 +125,19 @@ RSpec.describe Intake::Services::ReviewActions, type: :model do
   end
 
   describe ".reject" do
+    it "rejects a stable non-exact candidate without refreshing its rounded score" do
+      import(source.merge("Name" => "Canon Cameras"))
+      selected = candidate
+      expect(selected.score).to be_between(0.8, 1.0).exclusive
+
+      result = described_class.reject(review_case_id: review_case.id, candidate_id: selected.id,
+        evidence_revision: 1, reason: "Wrong model")
+
+      expect(result.status).to eq(:rejected)
+      expect(review_case.reload.evidence_revision).to eq(1)
+      expect(selected.review_rejection.reload.reason).to eq("Wrong model")
+    end
+
     it "records individual reasons, retains rejections after rematching, and never creates a product" do
       other = FactoryBot.create(:catalog_product, name: "Canon Camera", brand: "Canon", category: "Video")
       import

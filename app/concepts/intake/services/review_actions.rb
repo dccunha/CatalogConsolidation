@@ -176,7 +176,8 @@ module Intake
 
       sig { params(candidate: ProductMatcher::Candidate, rank: Integer).returns(T::Hash[String, Object]) }
       def self.match_snapshot(candidate, rank)
-        { "rank" => rank, "product_id" => candidate.product_id, "score" => candidate.score,
+        { "rank" => rank, "product_id" => candidate.product_id,
+          "score" => stored_score(candidate.score),
           "original" => { "name" => candidate.original.name, "brand" => candidate.original.brand,
             "category" => candidate.original.category },
           "comparison" => { "name" => candidate.comparison.name, "brand" => candidate.comparison.brand,
@@ -185,6 +186,12 @@ module Intake
           "conflicting_association" => association_hash(candidate.seller_product_conflict) }
       end
       private_class_method :match_snapshot
+
+      sig { params(score: Float).returns(BigDecimal) }
+      def self.stored_score(score)
+        BigDecimal(score.to_s).round(7)
+      end
+      private_class_method :stored_score
 
       sig { params(review_case: Models::ReviewCase, match: ProductMatcher::Result, reason: String).void }
       def self.append_evidence(review_case, match, reason:)

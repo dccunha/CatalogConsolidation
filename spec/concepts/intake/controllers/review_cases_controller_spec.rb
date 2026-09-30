@@ -179,6 +179,58 @@ RSpec.describe Intake::Controllers::ReviewCasesController, type: :request do
   end
 
   describe "review actions" do
+    it "exposes the next candidate after rejecting the first" do
+      second_product = FactoryBot.create(:catalog_product, name: row.fetch("Name"), brand: "Canon",
+        category: "Electronics")
+      batch = import(row)
+      review_case = batch.row_results.sole.review_case
+      first, second = review_case.review_candidates.order(:rank).to_a
+      expect([ first.product_id, second.product_id ]).to eq([ product.id, second_product.id ])
+
+      post reject_review_case_path(review_case), params: { candidate_id: first.id,
+        evidence_revision: 1, reason: "Wrong catalog category" }
+      follow_redirect!
+
+      first_card, second_card = page.css(".candidate-card")
+      expect(first_card.text).to include("Wrong catalog category")
+      expect(first_card.css("form[action$='/approve'], form[action$='/reject']")).to be_empty
+      expect(second_card.css("form[action$='/approve'] input[name='candidate_id']").map { |field| field["value"] }).to eq([ second.id.to_s ])
+      expect(second_card.css("form[action$='/reject'] input[name='candidate_id']").map { |field| field["value"] }).to eq([ second.id.to_s ])
+      expect(review_case.reload.status).to eq("pending")
+    end
+
+    it "rejects array and object correction fields without saving them as literal values" do
+      batch = import(row)
+      review_case = batch.row_results.sole.review_case
+      valid = { evidence_revision: 1, name: row.fetch("Name"), brand: "Canon", category: "Photo" }
+      malformed = [ { name: [ "Array name" ] }, { name: { value: "Object name" } },
+        { brand: [ "Array brand" ] },
+        { brand: { value: "Object brand" } }, { category: [ "Array category" ] } ]
+
+      malformed.each do |field|
+        post correct_review_case_path(review_case), params: valid.merge(field)
+        expect(response).to redirect_to(review_case_path(review_case))
+        follow_redirect!
+        expect(page.at_css("[role='alert']").text).to include("text values")
+      end
+      expect(Intake::Models::ReviewCorrection.count).to eq(0)
+      expect(review_case.reload.evidence_revision).to eq(1)
+      expect(review_case.source_input).to eq(row)
+    end
+
+    it "rejects a nonscalar rejection reason without saving a rejection" do
+      batch = import(row)
+      review_case = batch.row_results.sole.review_case
+      candidate = review_case.review_candidates.sole
+
+      post reject_review_case_path(review_case), params: { candidate_id: candidate.id,
+        evidence_revision: 1, reason: [ "Wrong model" ] }
+      follow_redirect!
+
+      expect(page.at_css("[role='alert']").text).to include("text reason")
+      expect(Intake::Models::ReviewRejection.count).to eq(0)
+    end
+
     it "offers ordinary candidate controls and shows the saved approval after a POST" do
       batch = import(row)
       review_case = batch.row_results.sole.review_case
