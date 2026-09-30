@@ -17,6 +17,7 @@ module Intake
         @review_case = Models::ReviewCase.includes(:seller_item, :batch, :review_decision).find(params[:id])
         load_case_evidence
         load_history
+        @creation_state = Services::ReviewActions.creation_state(review_case: @review_case)
       end
 
       def approve
@@ -45,6 +46,12 @@ module Intake
 
         review_result = Services::ReviewActions.correct(review_case_id: params[:id].to_i,
           evidence_revision: params[:evidence_revision].to_i, name: name, brand: brand, category: category)
+        finish_action(review_result)
+      end
+
+      def create_product
+        review_result = Services::ReviewActions.create(review_case_id: params[:id].to_i,
+          evidence_revision: params[:evidence_revision].to_i)
         finish_action(review_result)
       end
 

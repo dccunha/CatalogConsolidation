@@ -2,8 +2,7 @@
 
 module Intake
   module Services
-    # Reviewer commands for the ordinary candidate path. Conflict resolution and creation
-    # remain separate commands in T12/T13.
+    # Reviewer commands for candidate decisions and explicit creation.
     class ReviewActions
       extend T::Sig
 
@@ -15,7 +14,7 @@ module Intake
 
         sig { returns(T::Boolean) }
         def success?
-          status == :approved || status == :rejected || status == :corrected
+          status == :approved || status == :rejected || status == :corrected || status == :created
         end
       end
 
@@ -103,6 +102,89 @@ module Intake
           result(:corrected, "Comparison updated. Review the new evidence before deciding.")
         end
       end
+
+      sig { params(review_case: Models::ReviewCase).returns(Symbol) }
+      def self.creation_state(review_case:)
+        return :not_actionable unless review_case.actionable?
+
+        seller_item = Models::SellerItem.find(review_case.seller_item_id)
+        return :not_actionable unless active_pending_case?(review_case, seller_item)
+        return :association_conflict if seller_item.product_id || existing_item_conflict?(review_case, seller_item)
+        return :incomplete if current_validation(review_case).review_required?
+
+        remaining_candidates?(review_case) ? :candidates : :ready
+      end
+
+      sig { params(review_case_id: Integer, evidence_revision: Integer).returns(Result) }
+      def self.create(review_case_id:, evidence_revision:)
+        with_locked_case(review_case_id) do |review_case, seller_item|
+          next stale_revision unless review_case.evidence_revision == evidence_revision
+
+          valid = current_validation(review_case)
+          match = ProductMatcher.call(valid: valid)
+          refresh = refresh_if_changed(review_case, match)
+          next refresh if refresh
+
+          next creation_blocked(review_case) unless creation_state(review_case: review_case) == :ready
+
+          persist_creation(review_case, seller_item, valid)
+        end
+      rescue Catalog::Public::Writes::ConflictError => error
+        result(:conflict, "Catalog association changed: #{error.message}. Review the case again.")
+      end
+
+      sig { params(review_case: Models::ReviewCase).returns(Result) }
+      def self.creation_blocked(review_case)
+        case creation_state(review_case: review_case)
+        when :incomplete
+          result(:invalid, "Complete Brand and Category before creating a product.")
+        when :association_conflict
+          result(:conflict, "This seller item has an association requiring explicit reassignment.")
+        when :candidates
+          result(:invalid, "Review or reject every remaining credible candidate before creating a product.")
+        else
+          result(:not_actionable, "This case is no longer ready for creation.")
+        end
+      end
+      private_class_method :creation_blocked
+
+      sig { params(review_case: Models::ReviewCase, seller_item: Models::SellerItem).returns(T::Boolean) }
+      def self.active_pending_case?(review_case, seller_item)
+        seller_item.resolution == "pending" && seller_item.active_case&.id == review_case.id
+      end
+      private_class_method :active_pending_case?
+
+      sig { params(review_case: Models::ReviewCase).returns(T::Boolean) }
+      def self.remaining_candidates?(review_case)
+        rejected_ids = review_case.review_candidates.joins(:review_rejection).select(:product_id)
+        review_case.review_candidates.where(evidence_revision: review_case.evidence_revision)
+          .where.not(product_id: rejected_ids).exists?
+      end
+      private_class_method :remaining_candidates?
+
+      sig do
+        params(review_case: Models::ReviewCase, seller_item: Models::SellerItem,
+          valid: RowValidator::Valid).returns(Result)
+      end
+      def self.persist_creation(review_case, seller_item, valid)
+        association = Catalog::Public::Writes.create_with_association(name: valid.source.name,
+          brand: valid.source.brand, category: valid.source.category,
+          seller_name: seller_item.seller_name, seller_product_id: seller_item.seller_product_id)
+        Models::ReviewDecision.create!(review_case: review_case, reviewer: Reviewer.name,
+          decided_at: Time.current, result: "created", product_id: association.product_id,
+          reason: "Explicit creation after review of catalog candidates")
+        seller_item.update!(resolution: "created", product_id: association.product_id)
+        review_case.update!(status: "resolved")
+        result(:created, "Product ##{association.product_id} created and linked after review.")
+      end
+      private_class_method :persist_creation
+
+      sig { params(review_case: Models::ReviewCase, seller_item: Models::SellerItem).returns(T::Boolean) }
+      def self.existing_item_conflict?(review_case, seller_item)
+        conflict = review_case.conflicting_association
+        conflict.is_a?(Hash) && conflict["seller_product_id"] == seller_item.seller_product_id
+      end
+      private_class_method :existing_item_conflict?
 
       sig do
         params(review_case_id: Integer, block: T.proc.params(review_case: Models::ReviewCase,

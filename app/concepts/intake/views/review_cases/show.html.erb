@@ -15,7 +15,11 @@
   <% elsif @review_case.status == "resolved" %>
     <p>This case has a final decision. The import results below remain as recorded when each batch ran.</p>
   <% else %>
-    <p>This case is pending review. No final decision has been recorded.</p>
+    <% if @creation_state == :ready %>
+      <p>This case is still pending and ready for explicit creation. No product or final decision has been recorded yet.</p>
+    <% else %>
+      <p>This case is pending review. No final decision has been recorded.</p>
+    <% end %>
   <% end %>
   <%= render "conflict", conflict: @review_case.conflicting_association %>
   <% if @review_case.status == "pending" && @review_case.seller_item.product_id %>
@@ -55,7 +59,11 @@
     <div class="panel empty-state">
       <h3>No candidates in this evidence revision</h3>
       <% if @review_case.status == "pending" %>
-        <p>This case remains pending review. Explicit creation will be available in a later review step.</p>
+        <% if @creation_state == :ready %>
+          <p>No credible candidates remain. This case is ready for a separate explicit creation decision below.</p>
+        <% else %>
+          <p>This case remains pending review. Creation needs complete metadata and no remaining credible candidates.</p>
+        <% end %>
       <% elsif @review_case.status == "superseded" %>
         <p>This historical evidence is retained for audit. The case was superseded.</p>
       <% else %>
@@ -104,10 +112,32 @@
       </article>
     <% end %>
     <% if @review_case.status == "pending" && @candidates.all? { |candidate| @rejected_product_ids.include?(candidate.product_id) } %>
-      <p class="muted">All current candidates have been rejected. The case remains pending until a separate explicit creation action, available in a later review step.</p>
+      <p class="muted">All current candidates have been rejected. This case stays pending until a separate explicit creation decision.</p>
     <% end %>
   <% end %>
 </section>
+
+<% if @review_case.status == "pending" %>
+  <section class="case-section" aria-labelledby="creation-heading">
+    <h2 id="creation-heading">Create a new product</h2>
+    <div class="panel">
+      <% case @creation_state %>
+      <% when :ready %>
+        <p>Ready for explicit creation from the current comparison values. Catalog candidates will be checked again when you submit.</p>
+        <%= form_with url: create_product_review_case_path(@review_case), method: :post do |form| %>
+          <%= form.hidden_field :evidence_revision, value: @review_case.evidence_revision %>
+          <%= form.submit "Create new product and link seller item", class: "button" %>
+        <% end %>
+      <% when :incomplete %>
+        <p>Complete Brand and Category using the correction form before creating a product.</p>
+      <% when :association_conflict %>
+        <p>This seller item already has an association. Explicit reassignment is required before it can move to a new product.</p>
+      <% else %>
+        <p>Review or reject every remaining credible candidate before creating a product.</p>
+      <% end %>
+    </div>
+  </section>
+<% end %>
 
 <% if @review_case.status == "pending" %>
   <section class="case-section" aria-labelledby="correction-heading">

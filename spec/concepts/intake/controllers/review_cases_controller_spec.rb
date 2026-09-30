@@ -260,7 +260,7 @@ RSpec.describe Intake::Controllers::ReviewCasesController, type: :request do
       expect(page.at_css("[role='status']").text).to include("rejected")
       expect(page.at_css(".candidate-card").text).to include("Wrong model")
       expect(page.css("form[action$='/approve'], form[action$='/reject']")).to be_empty
-      expect(page.at_css("[aria-labelledby='candidates-heading']").text).to include("separate explicit creation action")
+      expect(page.at_css("[aria-labelledby='creation-heading']").text).to include("Ready for explicit creation")
 
       post correct_review_case_path(review_case), params: { evidence_revision: 1, name: "Canon EOS R6 Mark II",
         brand: "Canon", category: "Photo" }
@@ -286,6 +286,74 @@ RSpec.describe Intake::Controllers::ReviewCasesController, type: :request do
       expect(page.css("form[action$='/approve']")).to be_empty
       expect(page.at_css(".candidate-actions").text).to include("needs same-seller conflict resolution")
       expect(page.css("form[action$='/reject'], form[action$='/correct']")).not_to be_empty
+    end
+  end
+
+  describe "explicit creation" do
+    it "moves from pending to ready after rejection, then resolves only after a separate POST" do
+      batch = import(row)
+      review_case = batch.row_results.sole.review_case
+      selected = review_case.review_candidates.sole
+
+      get review_case_path(review_case)
+      expect(page.at_css(".case-summary").text).to include("pending review")
+      expect(page.css("form[action$='/create_product']")).to be_empty
+
+      post reject_review_case_path(review_case), params: { candidate_id: selected.id,
+        evidence_revision: 1, reason: "Wrong category" }
+      follow_redirect!
+      expect(page.at_css(".case-summary").text).to include("ready for explicit creation")
+      expect(page.css("form[action$='/create_product'] input[name='evidence_revision']").map { |field| field["value"] }).to eq([ "1" ])
+      expect(review_case.reload.status).to eq("pending")
+      expect(Catalog::Models::Product.count).to eq(1)
+
+      post create_product_review_case_path(review_case), params: { evidence_revision: 1 }
+      follow_redirect!
+      expect(page.at_css("[role='status']").text).to include("created and linked")
+      expect(page.at_css(".page-heading").text).to include("Resolved")
+      expect(page.at_css(".case-summary").text).to include("Created", "Local reviewer")
+      expect(page.css("form[action$='/create_product']")).to be_empty
+      expect(Catalog::Models::Product.count).to eq(2)
+      expect(Catalog::Models::SellerProduct.count).to eq(1)
+    end
+
+    it "keeps incomplete comparison pending until corrected to a complete no-candidate case" do
+      batch = import(row.merge("Name" => "Unlisted accessory", "Brand" => nil))
+      review_case = batch.row_results.sole.review_case
+
+      get review_case_path(review_case)
+      expect(page.at_css("[aria-labelledby='creation-heading']").text).to include("Complete Brand and Category")
+      expect(page.css("form[action$='/create_product']")).to be_empty
+
+      post create_product_review_case_path(review_case), params: { evidence_revision: 1 }
+      follow_redirect!
+      expect(page.at_css("[role='alert']").text).to include("Complete Brand and Category")
+      post correct_review_case_path(review_case), params: { evidence_revision: 1,
+        name: "Unlisted accessory", brand: "Acme", category: "Photo" }
+      follow_redirect!
+      expect(page.at_css(".case-summary").text).to include("ready for explicit creation")
+      expect(page.css("form[action$='/create_product']")).not_to be_empty
+      expect(review_case.reload.status).to eq("pending")
+    end
+
+    it "refreshes newly credible candidates and removes the create form" do
+      batch = import(row)
+      review_case = batch.row_results.sole.review_case
+      selected = review_case.review_candidates.sole
+      post reject_review_case_path(review_case), params: { candidate_id: selected.id,
+        evidence_revision: 1, reason: "Wrong category" }
+      new_product = FactoryBot.create(:catalog_product, name: row.fetch("Name"), brand: "Canon",
+        category: "Electronics")
+
+      post create_product_review_case_path(review_case), params: { evidence_revision: 1 }
+      follow_redirect!
+
+      expect(page.at_css("[role='alert']").text).to include("Catalog evidence changed")
+      expect(page.css(".candidate-card h3").map(&:text).join).to include("Product ##{new_product.id}")
+      expect(page.css("form[action$='/create_product']")).to be_empty
+      expect(page.at_css("[aria-labelledby='creation-heading']").text).to include("remaining credible candidate")
+      expect(review_case.reload.status).to eq("pending")
+      expect(Catalog::Models::SellerProduct.count).to eq(0)
     end
   end
 end
