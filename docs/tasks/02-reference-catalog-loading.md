@@ -26,8 +26,8 @@ Provide a reproducible Docker command that loads the unchanged SQLite reference 
 ## Current checkpoint
 
 - Completed: read-only source inspection, Catalog loader and Rake command, Docker dependency, behavior specs, setup documentation, passing full Docker CI, and both independent reviews of revised code candidate `7ccb0fbb3c8055036a395422ba5d9d914d3df86d`.
-- Remaining: parent-owned PR/merge and post-merge status update.
-- Next action: parent opens the reviewed PR and verifies its final head and merge gates.
+- Remaining: merge verification and post-merge status update.
+- Next action: parent verifies [PR #12](https://github.com/dccunha/CatalogConsolidation/pull/12) at the final reviewed head and merges after all gates pass.
 
 ## Problems
 
