@@ -42,7 +42,7 @@ The user can invoke the [orchestrator instructions and starter prompt](orchestra
 - Active agent assignments and test-runner owner: T13 implementer and both reviewers completed; test reviewer reran exact-candidate Docker CI and milestone checks. No active test runner.
 - Unresolved orchestration findings or decisions: none. Both T13 reviewers approved without findings.
 - Last completed orchestration milestone: T13 real reviewer command/request/import journeys and reruns verified on `e9fa9fa`; T14 will cover integrated browser click and keyboard action journeys.
-- Next action: commit PR-link bookkeeping, obtain documentation delta reviews, verify merge gates, and merge.
+- Next action: verify PR #23 head and merge gates, then merge after both documentation delta approvals.
 
 During a run, update this checkpoint at stage transitions and before interruption. Keep task statuses in the table above and detailed findings/evidence in the owning briefs. See [records and recovery](orchestrator.md#records-and-recovery) for resume rules.
 
