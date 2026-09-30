@@ -22,13 +22,14 @@ Make the root README a roughly 250–350-word quick start while preserving its o
 
 ## Current checkpoint
 
-- Completed: confirmed T17 merge commit `b0034e8` is an ancestor of this checkout; created branch `codex/t18-short-readme`; preserved the guide byte-for-byte; drafted the quick start; checked links, headings, and local Markdown rendering; and passed the full Docker CI gate in an isolated Compose project.
-- Remaining: open the PR for human review and verify its merge before marking T18 done.
-- Next action: submit the reviewed candidate and await human review.
+- Completed: confirmed T17 merge commit `b0034e8` is an ancestor of this checkout; committed the guide and quick start as `7729245` on `codex/t18-short-readme`; checked links, headings, and local Markdown rendering; and passed the full Docker CI gate in an isolated Compose project.
+- Remaining: obtain explicit authorization for the GitHub destination after the automatic approval review rejected the branch push; then open a PR for human review and verify its merge before marking T18 done.
+- Next action: wait for the user's explicit answer about pushing this branch to `dccunha/CatalogConsolidation`.
 
 ## Problems
 
 - **T18-P01 — 2026-09-30:** Two runs of `docker compose run --rm web bin/ci` in the default Compose project stopped during RSpec after 66 progress dots with exit 143 and no test failure report. A later direct RSpec attempt found `sqlite3-2.9.6` missing from the shared `catalog-consolidation:development` image and could not install it as the container user. An isolated Compose project with image `catalog-consolidation:t18-readme` built from this checkout passed the full gate. The cause of the default project's termination was not established; the isolated passing run is the validation evidence for this candidate.
+- **T18-P02 — 2026-09-30:** Automatic approval review twice rejected `git push -u origin codex/t18-short-readme`, even after confirming the configured remote matched prior PR records and the signed-in GitHub account. The reviewer said the GitHub destination's trust and ownership were not established by trusted user content and that the user had not explicitly authorized that destination. No push or PR occurred. The user must explicitly authorize this repository as the publishing destination before retrying.
 
 ## Decisions
 
@@ -37,7 +38,7 @@ Make the root README a roughly 250–350-word quick start while preserving its o
 
 ## Validation evidence
 
-- **2026-09-30, candidate working tree based on `6ca77c7`:** `README-full.md` and `git show HEAD:README.md` both have SHA-256 `027cee7de9c2a05584908ec1142d99915d656bccc5eaf2176b121cf4340a121c`; the copy is byte-identical. The new README is 296 words.
+- **2026-09-30, documentation candidate commit `7729245` based on `6ca77c7`:** `README-full.md` and `git show 6ca77c7:README.md` both have SHA-256 `027cee7de9c2a05584908ec1142d99915d656bccc5eaf2176b121cf4340a121c`; the copy is byte-identical. The new README is 296 words.
 - A local check resolved all 31 Markdown links and anchors in `README.md`, `README-full.md`, and this brief. It covered the T17 `#requirements-and-setup` and T02 `#load-the-reference-catalog` targets. Ruby's local RDoc Markdown renderer produced headings, code blocks, and links as expected; its HTML output was inspected. `git diff --check` passed.
 - `docker compose -f docker-compose.yml -f /tmp/t18-readme-compose.yml -p t18_readme run --build --rm web bin/ci` passed with exit 0. The temporary override gave the web image the unique tag `catalog-consolidation:t18-readme`; all application checks remained those in `bin/ci`. RSpec: 248 examples, 0 failures; Ruby line coverage 98.94%, branch coverage 87.32%. Vitest: 1 file and 1 test passed, with 100% statements, branches, functions, and lines. Ruby/ERB/JavaScript lint, Sorbet and RBI freshness, audits, database checks, and seeds passed. The test run preceded only this evidence/checkpoint update; application and README content did not change afterward.
 - No application behavior or concept Ruby file changed, so no new behavior spec or Sorbet annotation was added. Human PR review and merge remain outstanding.
