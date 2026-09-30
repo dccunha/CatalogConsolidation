@@ -28,8 +28,8 @@ Make the accepted concept layout work in Rails and persist Catalog products and 
 ## Current checkpoint
 
 - Completed: Catalog model and controller foundations, PostgreSQL migration and schema, model and request specs, generated model RBIs, fresh migration and schema-load verification, round-one review fixes, and Docker CI on the review-fix working tree.
-- Remaining: merge verification. The task index owns status and the merge gate.
-- Next action: parent verifies [PR #11](https://github.com/dccunha/CatalogConsolidation/pull/11) at the final reviewed head and merges after all gates pass.
+- Remaining: none. The task index owns status and the next merge gate.
+- Next action: T02 loads the reference catalog using this task's handoff.
 
 ## Problems
 
@@ -56,6 +56,7 @@ Make the accepted concept layout work in Rails and persist Catalog products and 
 
 - **Round 1, candidate `c27e62f` (2026-09-30):** correctness reviewer approved after inspecting the complete diff, migration/data constraints, Rails loading, and typing; read-only `git diff --check` passed. Test reviewer requested `T01-TEST-01` (case-distinct seller identities) and `T01-TEST-02` (duplicate product names) after inspecting assertions and running 15 focused examples and full `bin/ci` (16 examples), both passing. The implementer added the two requested specs; no application code changed.
 - **Round 2, candidate `0dcd3a8c209000acbbc3dc739a22208fa7e7848f` (2026-09-30):** correctness reviewer approved the full diff and test-only delta with no findings; verified the CI evidence fingerprint and `git diff --check`. Test reviewer approved, confirming `T01-TEST-01` and `T01-TEST-02` resolved. The implementer ran 17 focused examples and full `bin/ci` with 18 examples on the equivalent pre-commit tree. The test reviewer inspected that evidence and did not rerun Docker; no application/schema code changed after round 1. Fresh migration/schema-load evidence remains from initial implementation.
+- **Final head and merge (2026-09-30):** both reviewers approved documentation-only deltas through final PR head `bafbe972863e20d460888d328d0193c4588bae2a`. GitHub reported [PR #11](https://github.com/dccunha/CatalogConsolidation/pull/11) `MERGEABLE`/`CLEAN` at that head and base `152d879`, with no reported status checks or remote reviews. GitHub then confirmed it merged at `ff3b548dd18214d4f9eabbb2205ec60cc21d93c1` on 2026-09-30T04:11:49Z; main pointed to that merge commit.
 
 ## Handoff
 
