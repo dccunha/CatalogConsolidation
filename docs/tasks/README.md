@@ -2,11 +2,11 @@
 
 This is the authoritative status index for the catalog consolidation implementation. The [PRD](../prds/catalog-consolidation-importer.md) defines the product, [RFC 0001](../rfcs/0001-import-review-lifecycle.md) defines its lifecycle, and [ADR 0001](../adrs/0001-organize-by-concepts.md) defines code ownership. Task briefs turn those requirements into bounded changes; they do not replace them.
 
-The Rails/PostgreSQL application, Catalog and Intake domain code, browser review workflow, and integrated acceptance journeys are implemented through T14. T00A established Better Specs conventions and T00Q established typing and coverage gates. T15 delivered the verified runbook and demo. T16 addresses the SQL control syntax found during final QA. The task status and linked evidence below distinguish merged work from work still under review.
+The Rails/PostgreSQL application, Catalog and Intake domain code, browser review workflow, and integrated acceptance journeys are implemented through T14. T00A established Better Specs conventions and T00Q established typing and coverage gates. T15 delivered the verified runbook and demo, and T16 addressed SQL control syntax found during final QA. T17 is the next implementation task for the SQLite catalog download. The task status and linked evidence below distinguish merged work from work still under review.
 
 ## Task index
 
-Implement in index order, initially T00–T15 plus the T00A and T00Q quality preflights and follow-up T00R, then T16, one task and one PR at a time. The “After merge” column is a sequencing gate, not a requirement to read every preceding task. Relevant technical context is linked in each brief. Status lives only in this table; briefs hold checkpoints and evidence. Insert any later follow-up tasks where their dependencies require, preserving existing task IDs.
+Implement in index order, initially T00–T15 plus the T00A and T00Q quality preflights and follow-up T00R, then T16 and T17, one implementation task and one reviewed PR at a time. The “After merge” column is a sequencing gate, not a requirement to read every preceding task. Relevant technical context is linked in each brief. Status lives only in this table; briefs hold checkpoints and evidence. Insert any later follow-up tasks where their dependencies require, preserving existing task IDs.
 
 | ID | Task | Status | After merge | PR | Current blocker |
 | --- | --- | --- | --- | --- | --- |
@@ -30,6 +30,7 @@ Implement in index order, initially T00–T15 plus the T00A and T00Q quality pre
 | T14 | [Verify acceptance journeys](14-acceptance-journeys.md) | done | T13 | [#24](https://github.com/dccunha/CatalogConsolidation/pull/24) · merge `685d26e` | None |
 | T15 | [Prepare delivery and demo](15-delivery-and-demo.md) | done | T14 | [#25](https://github.com/dccunha/CatalogConsolidation/pull/25) · merge `ac839ef` | None |
 | T16 | [Block SQL control syntax from Catalog writes](16-block-sql-control-syntax.md) | done | T15 | [#27](https://github.com/dccunha/CatalogConsolidation/pull/27) · merge `960d0ee` | None |
+| T17 | [Export the current catalog as SQLite](17-export-current-catalog-as-sqlite.md) | ready | T16 | Implementation PR pending; [plan #26](https://github.com/dccunha/CatalogConsolidation/pull/26) | None |
 
 Milestones: T08 verifies importer/rerun services; T10 makes upload, results, and review evidence available in the browser; T13 completes the required user actions; T14 verifies integrated acceptance journeys; T15 completes delivery verification.
 
@@ -37,13 +38,13 @@ Milestones: T08 verifies importer/rerun services; T10 makes upload, results, and
 
 The user can invoke the [orchestrator instructions and starter prompt](orchestrator.md#starter-prompt) to run the remaining tasks with fresh implementers, two independent reviewers per task, automatic merges after passing gates, and a pause for final QA. Merely reading or editing those instructions does not start the run. Individual task requests can still use the manual workflow below.
 
-- Run state: `awaiting_final_qa`.
-- Current task/stage: all numbered tasks, including T16, merged; final user QA is pending.
-- Working directory, branch, candidate revision, and PR: isolated T16 worktree `/home/daniel/.codex/worktrees/t16-catalog-text-guard/VTEX` on `codex/t16-merge-record` from verified merge `960d0ee`; final reviewed PR head `fa521f2`; [PR #27](https://github.com/dccunha/CatalogConsolidation/pull/27) merged at `960d0ee`. Local `/home/daniel/Projects/VTEX` main was fast-forwarded to the merge.
-- Active agent assignments and test-runner owner: implementer and both reviewers finished; no shared Docker runner active. Isolated `t16_guard` web and PostgreSQL services run on localhost:3116 for the original clean-import evidence; local main app and the newly populated QA batch run on localhost:3000.
-- Unresolved orchestration findings or decisions: T16-TEST-01/02/03 resolved and independently approved. No implementation decision remains. The default `vtex` volume had zero batches and no product #976 before the user-authorized QA population, so the older historical QA records could not be verified there. The new batch #1 is a fresh T16 import, not the earlier QA batch; this workflow performed no database deletion.
-- Last completed orchestration milestone: T16 clean 269-row import and unchanged rerun reconciled with row 181 **Failed**, full Docker CI passed, both independent reviewers approved, and [PR #27](https://github.com/dccunha/CatalogConsolidation/pull/27) merged at `960d0ee`. The user-authorized local main QA database now contains the 975-product reference catalog and [batch #1](http://localhost:3000/batches/1) with 269 results, including row 181 **Failed** and no Catalog record for its payload.
-- Next action: user performs final QA on the newly populated local main app. Record `complete` only after explicit user acceptance. If the older historical batch #1/product #976 is needed, identify the original QA database or backup before attempting restoration.
+- Run state: `not_started` for T17; T16's final QA evidence remains in its brief.
+- Current task/stage: T16 merged and the T17 merge gate is satisfied. T17 has a task brief and planning PR but no export implementation or runner assignment.
+- Working directory, branch, candidate revision, and PR: T17 task planning uses `/home/daniel/.codex/worktrees/d4c7/VTEX` on `codex/t17-sqlite-catalog-export-task`; [planning PR #26](https://github.com/dccunha/CatalogConsolidation/pull/26) records the brief and index. The implementation must begin from updated main after the planning PR merges.
+- Active agent assignments and test-runner owner: none for T17. T16's implementer and reviewers finished; no shared Docker runner is assigned here.
+- Unresolved orchestration findings or decisions: no T17 product decision remains. The older historical QA batch #1/product #976 was absent from the available default volume before T16's fresh QA population; T17 must not reset or overwrite that volume or the reference inputs.
+- Last completed orchestration milestone: T16 clean 269-row import, Docker CI, two independent reviews, and [PR #27](https://github.com/dccunha/CatalogConsolidation/pull/27) merge at `960d0ee`. The user-authorized local QA database contains the reference catalog and a fresh [batch #1](http://localhost:3000/batches/1), including 20 pending reviews and row 181 **Failed**.
+- Next action: start T17 implementation from integrated main through the task workflow after planning PR #26 merges. Final user QA follows the export task; locating older historical QA data remains a separate recovery question if needed.
 
 During a run, update this checkpoint at stage transitions and before interruption. Keep task statuses in the table above and detailed findings/evidence in the owning briefs. See [records and recovery](orchestrator.md#records-and-recovery) for resume rules.
 
