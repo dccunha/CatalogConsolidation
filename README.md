@@ -2,6 +2,10 @@
 
 A full-stack Rails development environment for the catalog consolidation project. Rails uses PostgreSQL for its application data. This foundation has no catalog tables, importer, or review screen yet. The files in `docs/refs/`, including `catalog.db`, remain unchanged reference inputs and are not loaded into PostgreSQL.
 
+## Implementation progress
+
+See the [task index](docs/tasks/README.md) for the implementation sequence, current status, acceptance coverage, and workflow for fresh agent chats. Each task has a brief with its required context, acceptance checks, problems, decisions, and handoff. The index distinguishes planned work from verified, merged implementation.
+
 ## Requirements
 
 - Docker Engine
