@@ -18,7 +18,7 @@ Implement in index order, initially T00–T15 plus the T00A and T00Q quality pre
 | T02 | [Load the reference catalog](02-reference-catalog-loading.md) | done | T01 | [#12](https://github.com/dccunha/CatalogConsolidation/pull/12) · merge `e9acc56` | None |
 | T03 | [Implement Catalog public writes](03-catalog-public-writes.md) | done | T02 | [#13](https://github.com/dccunha/CatalogConsolidation/pull/13) · merge `8d1fe10` | None |
 | T04 | [Validate and normalize seller rows](04-row-validation-and-normalization.md) | done | T03 | [#14](https://github.com/dccunha/CatalogConsolidation/pull/14) · merge `ad00870` | None |
-| T05 | [Implement matching and evidence](05-matching-and-candidate-evidence.md) | ready | T04 | Not opened | None |
+| T05 | [Implement matching and evidence](05-matching-and-candidate-evidence.md) | in review | T04 | Not opened | None |
 | T06 | [Persist Intake history and state](06-intake-persistence.md) | backlog | T05 | Not opened | — |
 | T07 | [Process imports with failure isolation](07-import-processing.md) | backlog | T06 | Not opened | — |
 | T08 | [Preserve decisions across reruns](08-reruns-and-source-identity.md) | backlog | T07 | Not opened | — |
@@ -37,12 +37,12 @@ Milestones: T08 verifies importer/rerun services; T10 makes upload, results, and
 The user can invoke the [orchestrator instructions and starter prompt](orchestrator.md#starter-prompt) to run the remaining tasks with fresh implementers, two independent reviewers per task, automatic merges after passing gates, and a pause for final QA. Merely reading or editing those instructions does not start the run. Individual task requests can still use the manual workflow below.
 
 - Run state: `running`.
-- Current task/stage: T04 merged; preparing T05.
-- Working directory, branch, candidate revision, and PR: `/home/daniel/.codex/worktrees/137d/VTEX`, post-merge record branch `codex/t04-merge-record` based on verified T04 merge `ad00870`; T05 branch/candidate/PR not assigned yet.
-- Active agent assignments and test-runner owner: T04 agents finished; no active writer or test runner.
+- Current task/stage: T05 / independent reviews.
+- Working directory, branch, candidate revision, and PR: `/home/daniel/.codex/worktrees/137d/VTEX`, `codex/t05-matching-evidence`, base `5dcdab9`, candidate is this branch's first T05 commit, no PR yet. T04 PR #14 merged at `ad00870`; post-merge record `5dcdab9` was pushed to main.
+- Active agent assignments and test-runner owner: T05 implementer finished; correctness and test reviewers pending dispatch, with test reviewer owning shared checks.
 - Unresolved orchestration findings or decisions: none. T04 `T04-COR-01/02` and `T04-TEST-01/02` resolved; both reviewers approved final PR head `b6340b8`.
 - Last completed orchestration milestone: none.
-- Next action: publish this post-merge record, verify T05's dependency handoff, and start T05 on a branch from integrated main.
+- Next action: obtain independent correctness and test reviews of the committed T05 candidate and resolve findings before PR.
 
 During a run, update this checkpoint at stage transitions and before interruption. Keep task statuses in the table above and detailed findings/evidence in the owning briefs. See [records and recovery](orchestrator.md#records-and-recovery) for resume rules.
 
