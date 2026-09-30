@@ -26,8 +26,8 @@ Enable ordinary candidate approval, individual rejection, and correction of comp
 ## Current checkpoint
 
 - Completed: typed reviewer commands, action routes and forms, stale evidence refresh, append-only rejection/correction history, atomic approval, behavior and request specs, generated route RBIs, an inspected action-page screenshot, and first-round review fixes for decimal score precision, malformed correction fields, and next-candidate controls. Both independent reviewers approved corrected commit `5dee7df`; exact-commit Docker CI passed.
-- Remaining: PR and merge verification.
-- Next action: open the T11 PR, verify merge gates, and merge.
+- Remaining: verified merge of [PR #21](https://github.com/dccunha/CatalogConsolidation/pull/21).
+- Next action: verify PR head and merge gates, then merge.
 
 ## Problems
 
