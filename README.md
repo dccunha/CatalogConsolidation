@@ -14,7 +14,7 @@ docker compose run --rm web bin/rails catalog:load_reference
 
 Open <http://localhost:3000/>; <http://localhost:3000/up> is the health endpoint. Compose waits for PostgreSQL and the web service runs `db:prepare` on startup; the explicit migration command above also works on a prepared database. The loader reads `docs/refs/catalog.db` read-only and copies its 975 products into PostgreSQL with their original IDs. Run it before importing seller items. An unchanged rerun inserts nothing. Startup and `db:seed` do not run the loader. The PostgreSQL volume persists through `docker compose down`.
 
-For local overrides, copy `.env.example` to `.env` before startup. `WEB_PORT` changes the host port, `DB_PASSWORD` changes the local database password, and `INTAKE_REVIEWER_NAME` sets the name saved on **new** review actions (default: `Local reviewer`). Restart the web service after changing the reviewer name. The review UI has no login; it is intended for a local demonstration. The default database credentials are local development credentials.
+For local overrides, copy `.env.example` to `.env` before startup. `WEB_PORT` changes the host port, `DB_PASSWORD` changes the local database password, and `INTAKE_REVIEWER_NAME` sets the name saved on **new** review actions (default: `Local reviewer`). After changing the reviewer name, run `docker compose up -d --force-recreate web` so the new environment reaches a new web container; `docker compose restart web` keeps the old container environment. Past decisions retain their saved reviewer names. The review UI has no login; it is intended for a local demonstration. The default database credentials are local development credentials.
 
 ## Import and review in the browser
 
