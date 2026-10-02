@@ -14,7 +14,7 @@ The supplied assignment describes reading a seller-product file and saving the r
 
 1. Import the supplied JSON file into PostgreSQL and preserve a traceable outcome for every input row.
 2. Automatically link only clear, explainable matches. Send plausible but uncertain matches to review.
-3. Create a new catalog product only when the input is complete and no credible existing candidate is found.
+3. Create a new catalog product only when the input has the fields selected for matching and no credible existing candidate is found.
 4. Make repeated imports safe: the same seller item must not create a second association or reopen a resolved review decision.
 5. Keep valid rows moving when another row is invalid or fails.
 
@@ -49,7 +49,7 @@ The current Rails project uses PostgreSQL for development and test, with both Ra
 | Catalog product | One specific sellable item. A different size, color, storage capacity, or other material variant is a different `Product`. |
 | Seller item identity | The pair `(SellerName, Id)` from the input. `Id` is an opaque string; it must not be parsed as an integer or assumed to be a valid UUID. |
 | Seller association | A seller may have at most one item ID linked to a given catalog product. Different sellers may link to the same product. |
-| Input fields | Every row has `Id`, `SellerName`, `Name`, `Brand`, and `Category`. `Id`, `SellerName`, and `Name` must be nonempty strings. Missing or blank `Brand` or `Category` requires review. |
+| Input fields | Rows use `Id`, `SellerName`, and `Name`, with optional `Brand` and `Category`. The first three must be nonempty strings. Missing or blank `Brand` or `Category` requires review when that field is selected for matching. |
 | Existing catalog attributes | An import must not automatically overwrite an existing product's `Name`, `Brand`, or `Category`. |
 
 The supplied database has 975 `Product` rows and an empty `SellerProduct` table. The supplied JSON has 269 rows from 20 sellers. Its IDs are strings, three rows have a null `Brand`, and one `(SellerName, Id)` pair occurs twice with an accent difference in the name. These are input observations, not target result counts.
@@ -58,25 +58,29 @@ The supplied database has 975 `Product` rows and an empty `SellerProduct` table.
 
 ### 5.1 Row validation and idempotency
 
+The seller-file upload offers independent **Use Brand for matching** and **Use Category for matching** choices. Both are enabled by default. One selection applies to the whole batch, is retained for later review, and is visible with the batch and review evidence. Existing batches use the both-enabled policy. The choices affect product matching, not input validation or seller-item identity.
+
 1. Reject malformed JSON at the file level with a clear error. For a valid JSON array, process rows independently.
 2. Mark a row with a missing or invalid `Id`, `SellerName`, or `Name` as failed. Continue with other rows.
    Before seller-key lookup or matching, reject `;`, `--`, `/*`, `*/`, or Unicode control characters in any of `Id`, `SellerName`, `Name`, `Brand`, or `Category`. Keep the full original row in Intake with a **Failed** result that names the offending field. Do not create a seller item, review case, product, or Catalog association. A corrected value requires a new import; the failed row has no review action. Apostrophes and ordinary product punctuation remain valid.
-3. If `(SellerName, Id)` has already been imported, compare its normalized identity fields (`Name`, `Brand`, `Category`). If they are unchanged, mark the row **skipped / already imported**. If they have materially changed, hold the row for review; do not silently relink it.
+3. If `(SellerName, Id)` has already been imported, compare its normalized source identity fields (`Name`, `Brand`, `Category`) regardless of the matching choices. If they are unchanged, mark the row **skipped / already imported**, even when this upload has different matching choices. If they have materially changed, hold the row for review under the new batch's choices; do not silently relink it.
 4. Treat duplicate occurrences of the same seller item within one file by the same rule. Accent or whitespace differences alone do not create another association.
 
 ### 5.2 Matching policy
 
 **Safe normalization** for comparison: Unicode case folding, removal of diacritics, trimming, and collapsing internal whitespace. Preserve punctuation, numbers, units, model tokens, and variant words. For example, `Câmera` and `Camera` compare equally; `12.9''` and `12.9"` do not become identical automatically.
 
-For a complete row, the decision order is:
+`Name` always participates in product matching. A selected `Brand` or `Category` participates in exact matching, candidate ranking, and the completeness requirement. An ignored field participates in none of those decisions; its supplied value remains visible as evidence and is retained on a newly created product.
 
-1. **Automatic link:** exactly one existing `Product` has the same normalized `Name`, `Brand`, and `Category`, and linking it would not violate the one-item-per-seller-and-product rule.
-2. **Review:** more than one exact candidate exists; a plausible near-name candidate exists; a candidate has conflicting brand or category; or the seller already has a different item ID linked to the candidate product. No automatic link is permitted when brand or category conflicts or is missing.
-3. **Automatic create:** the row has all identity fields and no credible existing candidate. Create one `Product` and one `SellerProduct` association in the same transaction.
+For a row complete under the batch's matching choices, the decision order is:
 
-For a row missing `Brand` or `Category`, hold it for review even if no candidate is found. Do not create an incomplete product automatically.
+1. **Automatic link:** exactly one credible existing `Product` matches normalized `Name` and every selected field, no other credible candidate exists, and linking it would not violate the one-item-per-seller-and-product rule. A difference in an ignored field does not block this link.
+2. **Review:** multiple exact or other credible candidates exist; a selected field conflicts or is missing; or the seller association conflicts. A near-name candidate never authorizes an automatic link.
+3. **Automatic create:** no credible existing candidate exists and every selected field is present. Create one `Product` and one `SellerProduct` association in the same transaction. An ignored field may be absent; a supplied value is still stored on the new product.
 
-**Deterministic candidate rule for review:** include a product when its normalized name is identical to the input name, regardless of brand/category, or when its normalized brand matches and normalized-name similarity is at least 0.80 using the normalized Levenshtein calculation defined in [RFC 0001](../rfcs/0001-import-review-lifecycle.md). Candidate ranking affects what the reviewer sees; it never grants an automatic link. Show the comparison evidence in the review screen.
+For a row missing a selected `Brand` or `Category`, hold it for review even if no candidate is found. Missing ignored fields do not by themselves require review.
+
+**Deterministic candidate rule for review:** include a product when its normalized name is identical to the input name, regardless of brand/category. For a near name, require normalized-name similarity of at least 0.80 using the normalized Levenshtein calculation defined in [RFC 0001](../rfcs/0001-import-review-lifecycle.md). When Brand is selected, its normalized nonblank value must also match; when Brand is ignored, include near names regardless of Brand or Category. Rank candidates by similarity, then matches on selected fields, then product ID. Candidate ranking affects what the reviewer sees; it never grants an automatic link. Show all source and catalog values, including fields ignored for matching, and identify the batch's choices in review evidence.
 
 If two names differ in a material variant token, such as `128GB` versus `256GB`, they must not be automatically linked. A close name can still be presented for review.
 
@@ -94,8 +98,8 @@ The importer stores pending rows with the original input, normalized comparison 
 The local web screen shows the seller item, the proposed catalog product and its differences, the decision reason, and the import batch. A reviewer can:
 
 1. **Approve the suggested product:** create or update the seller association after rechecking uniqueness and foreign-key constraints. Catalog attributes stay unchanged.
-2. **Reject the suggested product:** record the rejection and show the next plausible candidate. After all candidates are rejected, a complete row becomes eligible for a separate, explicit create action. Recheck for new credible candidates before creation.
-3. **Correct missing or erroneous input metadata:** save the corrected `Brand`, `Category`, or other identity field, then rerun matching. The original input remains visible.
+2. **Reject the suggested product:** record the rejection and show the next plausible candidate. After all candidates are rejected, a row complete for the batch's selected fields becomes eligible for a separate, explicit create action. Recheck for new credible candidates before creation.
+3. **Correct missing or erroneous input metadata:** save the corrected `Brand`, `Category`, or other identity field, then rerun matching with the case's original batch choices. The original input remains visible.
 4. **Resolve a same-seller listing conflict:** choose which of the two seller item IDs remains linked to the product. Record the displaced ID so reimporting it does not silently restore the old association.
 
 A changed identity for an existing `(SellerName, Id)` also enters review. The reviewer may approve a suggested product or reject candidates and explicitly confirm creation of a new product. Any reassignment of the existing seller association is atomic and recorded.
@@ -110,7 +114,7 @@ Store the reviewer, decision, time, and resulting `ProductId` or rejection reaso
 - Keep `SellerProduct.ProductId` as a foreign key to `Product.Id`.
 - Index `SellerProduct.ProductId` and the columns used to find seller identities and review rows.
 - Reject empty required strings through validation and, where practical, database constraints.
-- Persist import batches, row outcomes, review state, source values, and decisions. The physical table layout is an implementation choice, provided these requirements and constraints are met.
+- Persist import batches and their matching choices, row outcomes, review state, source values, and decisions. The physical table layout is an implementation choice, provided these requirements and constraints are met.
 - Keep `catalog.db` as a read-only reference input; PostgreSQL is the sole Rails application database.
 
 ## 8. Import output
@@ -124,16 +128,17 @@ Each run returns a batch identifier and totals for linked, created, already impo
 | AC1 | Import the supplied JSON array. | Every one of its 269 rows has a recorded outcome; one bad row does not erase successful rows. |
 | AC2 | Import `MegaStore` / `Smartphone Galaxy S23` with `Samsung` and `Electronics`. | The seller item links to existing `Product.Id = 2`; no new catalog product is created for it. |
 | AC3 | Import `KitchenPlus` / `Tablet iPad Pro 12.9''` when the catalog has `Tablet iPad Pro 12.9"`. | The near match is shown for review; it is not automatically linked or created as a duplicate. |
-| AC4 | Import `GardenStore` / `Camera Canon EOS R6` with category `Photo` when the catalog candidate uses `Photography`. | The category conflict blocks automatic linking and is visible to the reviewer. |
-| AC5 | Import a row with null `Brand`, such as `Cable Organizer Kit`. | The row remains pending review, even if the name and category match or no candidate exists. |
+| AC4 | With default matching choices, import `GardenStore` / `Camera Canon EOS R6` with category `Photo` when the catalog candidate uses `Photography`. | The category conflict blocks automatic linking and is visible to the reviewer. |
+| AC5 | With default matching choices, import a row with null `Brand`, such as `Cable Organizer Kit`. | The row remains pending review, even if the name and category match or no candidate exists. |
 | AC6 | Import the same `(SellerName, Id)` twice with `Câmera` versus `Camera`, then rerun the file. | The equivalent normalized identity produces one seller association and no duplicate review decision. |
 | AC7 | Reuse an existing `(SellerName, Id)` with materially changed identity fields. | The old association is not silently changed; the row enters review. |
 | AC8 | A second ID from one seller would link to a product that seller already offers. | The row enters review; the reviewer chooses which ID remains, and the database never contains both associations. |
-| AC9 | A complete safe row has no credible existing candidate, or a row contains `;`, `--`, `/*`, `*/`, or a control character in any input field. | A safe row creates exactly one product and seller association atomically. A flagged row is **Failed** with its full source retained only in Intake and an offending-field reason; it creates no seller item, review case, product, or association. Catalog public writes reject unsafe new strings atomically. |
-| AC10 | An incomplete or invalid row occurs between valid rows. | Invalid required fields yield a failed row; missing brand/category yields review; later valid rows still import. |
+| AC9 | A row complete for its selected matching fields has no credible existing candidate, or a row contains `;`, `--`, `/*`, `*/`, or a control character in any input field. | A safe row creates exactly one product and seller association atomically. A flagged row is **Failed** with its full source retained only in Intake and an offending-field reason; it creates no seller item, review case, product, or association. Catalog public writes reject unsafe new strings atomically. |
+| AC10 | An incomplete or invalid row occurs between valid rows under the default choices. | Invalid required fields yield a failed row; missing brand/category yields review; later valid rows still import. |
 | AC11 | The reviewer approves, rejects, corrects, or resolves a conflict, then reruns the same input. | The decision is recorded, reflected in catalog associations, and preserved across reruns. |
 | AC12 | Two listings differ only by a material variant attribute such as color or capacity. | They are not automatically linked to the same `Product`. |
 | AC13 | Open the export page and download after resolving all active pending reviews, including when historical failed rows remain. | The page shows catalog and pending counts, links to pending reviews when blocked, and explains that failed rows are absent unless later imported successfully. The direct download URL returns HTTP 409 while any case is pending. Once clear, it returns `catalog-updated.db` as a fresh SQLite file containing every committed `Product` and `SellerProduct` row with original IDs, exact text, nullable values, seller/product uniqueness, and product foreign keys; no Intake tables or persistent server copy is included. |
+| AC14 | Import with either, both, or neither matching choice enabled; revisit a case and rerun the seller row under different choices. | The batch and case show the retained choices; only selected fields govern product matching, missing selected fields require review, and a unique safe match may link despite differences in ignored fields. With Brand ignored, near-name candidates at or above 0.80 appear regardless of metadata. An unchanged seller source reuses its prior outcome despite a switch change; review actions use the case's original choices. |
 
 ## 10. Delivery expectations and known trade-offs
 
